@@ -1,0 +1,47 @@
+/*
+ * Structural design tokens shared by every theme (radius, spacing, shadows, motion, type).
+ * Color tokens live in ./themes/<name>.css and are switched with <html data-theme="...">.
+ */
+:root {
+  /* Radius */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+  --radius-pill: 999px;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* Shadows: tinted by each theme through --shadow-color(-weak) */
+  --shadow-sm: 0 1px 2px var(--shadow-color-weak);
+  --shadow-md: 0 6px 20px -6px var(--shadow-color);
+  --shadow-lg: 0 18px 40px -12px var(--shadow-color);
+  --shadow-glow: 0 0 0 4px var(--accent-soft);
+
+  /* Motion */
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+  --dur-slow: 360ms;
+  --ease-soft: cubic-bezier(0.33, 0.9, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.3, 0.5, 1);
+
+  /* Type scale (rem so the app font size setting can scale it; base 14px at 16px root) */
+  --text-size-xs: 0.75rem;
+  --text-size-sm: 0.8125rem;
+  --text-size-base: 0.875rem;
+  --text-size-md: 1rem;
+  --text-size-lg: 1.125rem;
+  --text-size-xl: 1.375rem;
+  --text-size-2xl: 1.75rem;
+  --text-size-3xl: 2.25rem;
+  --leading-body: 1.5;
+  --leading-title: 1.2;
+}

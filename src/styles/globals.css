@@ -1,4 +1,9 @@
 @import "tailwindcss";
+@import "../shared/theme/tokens.css";
+@import "../shared/theme/themes/pink.css";
+@import "../shared/theme/themes/white.css";
+@import "../shared/theme/themes/dark.css";
+@import "./fonts.css";
 
 /*
  * Tailwind theme mapping to the Estheros design tokens (design system spec).
@@ -58,7 +63,25 @@
   --spacing-7: var(--space-7);
   --spacing-8: var(--space-8);
 
-  /* Font families from the design system; @font-face files are added with the fonts */
+  /* Type scale: xs 12, sm 13, base 14, md 16, lg 18, xl 22, 2xl 28, 3xl 36 (px at 16px root) */
+  --text-xs: var(--text-size-xs);
+  --text-xs--line-height: var(--leading-body);
+  --text-sm: var(--text-size-sm);
+  --text-sm--line-height: var(--leading-body);
+  --text-base: var(--text-size-base);
+  --text-base--line-height: var(--leading-body);
+  --text-md: var(--text-size-md);
+  --text-md--line-height: var(--leading-body);
+  --text-lg: var(--text-size-lg);
+  --text-lg--line-height: var(--leading-body);
+  --text-xl: var(--text-size-xl);
+  --text-xl--line-height: var(--leading-title);
+  --text-2xl: var(--text-size-2xl);
+  --text-2xl--line-height: var(--leading-title);
+  --text-3xl: var(--text-size-3xl);
+  --text-3xl--line-height: var(--leading-title);
+
+  /* Font families (@font-face in ./fonts.css) */
   --font-display: "Fraunces", Georgia, serif;
   --font-sans: "Nunito", "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", Consolas, monospace;
@@ -75,5 +98,34 @@
     background-color: var(--bg);
     color: var(--text);
     font-family: var(--font-sans);
+    font-size: var(--text-size-base);
+    line-height: var(--leading-body);
+    -webkit-font-smoothing: antialiased;
+    /* Theme switches fade instead of flashing */
+    transition:
+      background-color var(--dur-base) var(--ease-soft),
+      color var(--dur-base) var(--ease-soft);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    line-height: var(--leading-title);
+    font-weight: 600;
+  }
+
+  ::selection {
+    background-color: var(--accent-soft);
+    color: var(--text);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  :focus-visible {
+    outline: none;
   }
 }
