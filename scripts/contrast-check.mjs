@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console -- command line report */
 /**
  * WCAG 2.x contrast check for the Estheros themes.
  *
