@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+/*
+ * Tailwind theme mapping to the Estheros design tokens (design system spec).
+ * Only the mapping lives here. Token values are defined in src/shared/theme/tokens.css
+ * and src/shared/theme/themes/<name>.css.
+ *
+ * `inline` makes utilities reference the token variables directly (bg-bg -> var(--bg)).
+ *
+ * Structural tokens (--radius-*, --shadow-*, --ease-*) share their names with Tailwind
+ * namespaces, so they are NOT redeclared here (a self reference would be a CSS cycle).
+ * - Radius: rounded-sm/md/lg/xl read var(--radius-*), so unlayered values in tokens.css win.
+ * - Shadows, easing and durations: use the variable syntax, e.g. shadow-(--shadow-md),
+ *   ease-(--ease-soft), duration-(--dur-base), rounded-(--radius-pill).
+ */
+@theme inline {
+  /* Semantic colors */
+  --color-bg: var(--bg);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--on-accent);
+  --color-shadow: var(--shadow-color);
+  --color-shadow-weak: var(--shadow-color-weak);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+
+  /* Assignable palette */
+  --color-palette-rose: var(--palette-rose);
+  --color-palette-lavender: var(--palette-lavender);
+  --color-palette-sage: var(--palette-sage);
+  --color-palette-butter: var(--palette-butter);
+  --color-palette-sky: var(--palette-sky);
+  --color-palette-peach: var(--palette-peach);
+
+  /* Journal mood scale */
+  --color-mood-great: var(--mood-great);
+  --color-mood-good: var(--mood-good);
+  --color-mood-okay: var(--mood-okay);
+  --color-mood-low: var(--mood-low);
+  --color-mood-bad: var(--mood-bad);
+
+  /* Spacing scale (--space-1..8 = 4, 8, 12, 16, 24, 32, 48, 64 px) */
+  --spacing-1: var(--space-1);
+  --spacing-2: var(--space-2);
+  --spacing-3: var(--space-3);
+  --spacing-4: var(--space-4);
+  --spacing-5: var(--space-5);
+  --spacing-6: var(--space-6);
+  --spacing-7: var(--space-7);
+  --spacing-8: var(--space-8);
+
+  /* Font families from the design system; @font-face files are added with the fonts */
+  --font-display: "Fraunces", Georgia, serif;
+  --font-sans: "Nunito", "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, monospace;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+  }
+}
