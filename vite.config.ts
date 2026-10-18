@@ -38,6 +38,8 @@ export default defineConfig(() => ({
 
   test: {
     environment: "jsdom",
+    // forks workers time out under load on Windows; threads start in ~2 s
+    pool: "threads",
     setupFiles: ["./tests/setup.ts"],
     include: ["tests/unit/**/*.test.{ts,tsx}", "src/**/*.test.{ts,tsx}"],
     css: false,
