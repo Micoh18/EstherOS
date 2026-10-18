@@ -6,7 +6,8 @@ import { openJournalDate, useJournalDayMoods, useWeekStartsOn } from "../hooks";
 import { setVisibleMonth, useJournalStore } from "../store";
 import { MoodDot } from "./MoodDot";
 
-// TODO(A7): reemplazar por MiniCalendar de calendar si A5 lo exporta (hoy usa MonthGrid de shared/ui).
+// Uses MonthGrid directly instead of the calendar's MiniCalendar (a thin wrapper of the same
+// grid): the calendar already imports this feature, and importing it back would create a cycle.
 /** Month grid with a dot on each day that has entries, colored by the day's mood. */
 export function JournalMiniCalendar() {
   const visibleMonth = useJournalStore((state) => state.visibleMonth);
