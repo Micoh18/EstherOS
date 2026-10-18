@@ -18,9 +18,9 @@ import {
 import { resetTodoStore, useTodoStore } from "../store";
 import { TodoPage } from "./TodoPage";
 
-function renderPage() {
+function renderPage(path = "/todo") {
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[path]}>
       <HotkeysProvider>
         <TodoPage />
       </HotkeysProvider>
@@ -188,5 +188,20 @@ describe("TodoPage", () => {
     );
     fireEvent.keyDown(row, { key: ")", code: "Digit0", shiftKey: true });
     await waitFor(async () => expect((await getTask(task.id))?.dueDate).toBeNull());
+  });
+
+  it("links from other screens open a task or a view", async () => {
+    const list = await createList({ name: "Casa" });
+    const task = await createTask({ title: "Pintar la valla", listId: list.id });
+    const view = renderPage(`/todo?task=${task.id}`);
+    expect(await screen.findByRole("textbox", { name: "Título" })).toHaveValue("Pintar la valla");
+    expect(useTodoStore.getState().selection).toEqual({ kind: "list", listId: list.id });
+    view.unmount();
+
+    resetTodoStore();
+    renderPage(`/todo?date=${addDaysISO(today, 3)}`);
+    await waitFor(() =>
+      expect(useTodoStore.getState().selection).toEqual({ kind: "view", view: "upcoming" }),
+    );
   });
 });

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { onDbChanged, type DbTable, type Tag, listTagsForMany } from "@/shared/db";
 import { log } from "@/shared/lib/log";
-import { todayISO, toDateISO, type DateISO } from "@/shared/lib/dates";
+import { addDaysISO, todayISO, toDateISO, type DateISO } from "@/shared/lib/dates";
 import type { Task, TodoList } from "./model";
 import {
   countOpenTasks,
@@ -205,6 +205,27 @@ export function useTasksForDate(date: DateISO | Date): Task[] {
 export function useOverdueTasks(): Task[] {
   const today = useToday();
   return useDbQuery(`overdue:${today}`, () => listOverdue(today), TASK_TABLES, NO_TASKS).data;
+}
+
+/**
+ * Top-level and subtasks due between `from` and `to` (inclusive), open and done, skipping archived
+ * lists. Public: the calendar draws them in its week and day views.
+ */
+export function useTasksInRange(from: DateISO, to: DateISO): Task[] {
+  return useDbQuery(
+    `range:${from}:${to}`,
+    () => listTasks({ dueAfter: addDaysISO(from, -1), dueBefore: addDaysISO(to, 1) }),
+    TASK_TABLES,
+    NO_TASKS,
+  ).data;
+}
+
+/**
+ * Snapshots (already marked done) of the tasks playing the completion animation, by id. Lists
+ * that only load open tasks keep these rows on screen until the animation ends. Public: Hoy.
+ */
+export function useCompletingTasks(): Record<string, Task> {
+  return useTodoStore((state) => state.completing);
 }
 
 // Settings ------------------------------------------------------------------------------------
