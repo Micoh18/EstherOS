@@ -4,6 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Estheros</title>
+    <script>
+      // Apply the stored theme before the first paint (kept in sync with src/app/theme.ts).
+      (function () {
+        var theme = "pink";
+        try {
+          theme = localStorage.getItem("estheros.theme") || theme;
+        } catch (e) {}
+        if (theme === "system") {
+          theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "white";
+        }
+        if (theme !== "pink" && theme !== "white" && theme !== "dark") theme = "pink";
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
   </head>
 
   <body>
