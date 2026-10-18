@@ -112,14 +112,19 @@ export function Checkbox({
                 <motion.span
                   key={angle}
                   className="absolute top-1/2 left-1/2 -mt-[5px] -ml-[5px]"
-                  initial={{ x: 0, y: 0, scale: 0.4, opacity: 1 }}
+                  initial={{ x: 0, y: 0, scale: 0.4, opacity: 0 }}
                   animate={{
                     x: Math.cos(radians) * distance,
                     y: Math.sin(radians) * distance,
-                    scale: 1,
-                    opacity: 0,
+                    scale: [0.4, 1, 0.8],
+                    opacity: [0, 1, 1, 0],
                   }}
-                  transition={{ duration: 0.5, ease: "easeOut", delay: 0.06 + index * 0.02 }}
+                  transition={{
+                    duration: 0.5,
+                    ease: "easeOut",
+                    delay: 0.06 + index * 0.02,
+                    opacity: { duration: 0.5, times: [0, 0.15, 0.6, 1] },
+                  }}
                   onAnimationComplete={
                     index === PARTICLE_COUNT - 1 ? () => setBurst(null) : undefined
                   }

@@ -53,28 +53,29 @@ export const iconButtonVariants = cva(
   },
 );
 
-export const cardVariants = cva(
-  "rounded-lg border border-border bg-surface text-text shadow-(--shadow-sm)",
-  {
-    variants: {
-      variant: {
-        default: "",
-        interactive: [
-          "cursor-pointer transition-[box-shadow,transform,background-color] duration-(--dur-fast) ease-(--ease-soft)",
-          "hover:-translate-y-px hover:shadow-(--shadow-md) motion-reduce:hover:translate-y-0",
-          "outline-none focus-visible:shadow-(--shadow-glow)",
-        ],
-      },
-      padding: {
-        none: "",
-        sm: "p-3",
-        md: "p-5",
-        lg: "p-6",
-      },
+export const cardVariants = cva("rounded-lg border border-border text-text shadow-(--shadow-sm)", {
+  variants: {
+    tone: {
+      surface: "bg-surface",
+      elevated: "bg-bg-elevated",
     },
-    defaultVariants: { variant: "default", padding: "md" },
+    variant: {
+      default: "",
+      interactive: [
+        "cursor-pointer transition-[box-shadow,transform,background-color] duration-(--dur-fast) ease-(--ease-soft)",
+        "hover:-translate-y-px hover:shadow-(--shadow-md) motion-reduce:hover:translate-y-0",
+        "outline-none focus-visible:shadow-(--shadow-glow)",
+      ],
+    },
+    padding: {
+      none: "",
+      sm: "p-3",
+      md: "p-5",
+      lg: "p-6",
+    },
   },
-);
+  defaultVariants: { tone: "surface", variant: "default", padding: "md" },
+});
 
 /** Shared look of text fields (Input, Textarea, Select and the picker triggers). */
 export const fieldVariants = cva(

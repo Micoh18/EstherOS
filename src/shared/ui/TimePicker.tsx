@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { addMinutes, format, isValid, parse, startOfDay } from "date-fns";
+import { es } from "date-fns/locale";
 import { Clock } from "lucide-react";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { cn, focusRing } from "./cn";
@@ -45,7 +46,7 @@ export function TimePicker({
 }: TimePickerProps) {
   const [open, setOpen] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
-  const displayFormat = hourCycle === 12 ? "h:mm a" : VALUE_FORMAT;
+  const displayFormat = hourCycle === 12 ? "h:mm aaaa" : VALUE_FORMAT;
 
   const options = useMemo(() => {
     const base = startOfDay(new Date());
@@ -56,7 +57,7 @@ export function TimePicker({
     if (value && !times.includes(value)) times.push(value);
     return times.sort().map((time) => ({
       value: time,
-      label: format(toDate(time, base) ?? base, displayFormat),
+      label: format(toDate(time, base) ?? base, displayFormat, { locale: es }),
     }));
   }, [step, value, displayFormat]);
 
@@ -99,7 +100,7 @@ export function TimePicker({
       >
         <Clock aria-hidden className="text-text-muted" />
         <span className="truncate">
-          {selectedDate ? format(selectedDate, displayFormat) : placeholder}
+          {selectedDate ? format(selectedDate, displayFormat, { locale: es }) : placeholder}
         </span>
       </PopoverPrimitive.Trigger>
       <PopoverContent
