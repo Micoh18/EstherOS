@@ -5,7 +5,7 @@ export function IconButton({ className = "", ...props }: ButtonHTMLAttributes<HT
   return (
     <button
       type="button"
-      className={`inline-flex size-8 items-center justify-center rounded-full text-text-muted transition-colors duration-(--dur-fast) hover:bg-surface-hover hover:text-text focus-visible:shadow-(--shadow-glow) focus-visible:outline-none ${className}`}
+      className={`inline-flex size-6 items-center justify-center rounded-full text-text-muted transition-colors duration-(--dur-fast) hover:bg-surface-hover hover:text-text focus-visible:shadow-(--shadow-glow) focus-visible:outline-none ${className}`}
       {...props}
     />
   );

@@ -11,7 +11,7 @@ const galleryModules = import.meta.glob<GalleryModule>([
 
 function Missing() {
   return (
-    <section className="p-8">
+    <section className="p-6">
       <h1 className="font-display text-3xl text-text">{t("shell.page.devUi")}</h1>
       <p className="text-text-muted">{t("shell.page.devUiMissing")}</p>
     </section>

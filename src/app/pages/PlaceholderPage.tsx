@@ -5,7 +5,7 @@ import { t, type I18nKey } from "@/shared/i18n";
 export function PlaceholderPage({ titleKey, scope }: { titleKey: I18nKey; scope?: Scope }) {
   useScope(scope ?? "global", scope !== undefined);
   return (
-    <section className="flex h-full flex-col gap-2 p-8">
+    <section className="flex h-full flex-col gap-2 p-6">
       <h1 className="font-display text-3xl text-text">{t(titleKey)}</h1>
       <p className="text-text-muted">{t("shell.page.placeholder")}</p>
     </section>
