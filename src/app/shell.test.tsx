@@ -1,10 +1,21 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { resetAll } from "@/shared/hotkeys";
 import { AppProviders } from "./providers";
 import { routes } from "./router";
 import { THEME_STORAGE_KEY } from "./theme";
+
+const windowMock = vi.hoisted(() => ({
+  close: vi.fn(),
+  minimize: vi.fn(),
+  toggleMaximize: vi.fn(),
+  isMaximized: vi.fn(async () => false),
+  onResized: vi.fn(async () => () => {}),
+}));
+
+vi.mock("@tauri-apps/api/core", () => ({ isTauri: () => true }));
+vi.mock("@tauri-apps/api/window", () => ({ getCurrentWindow: () => windowMock }));
 
 function renderShell(path = "/") {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
@@ -77,5 +88,16 @@ describe("shell", () => {
     expect(await screen.findByRole("dialog", { name: "Atajos de teclado" })).toBeInTheDocument();
     press("Escape", "Escape");
     await waitFor(() => expect(document.querySelector("[data-escape-close]")).toBeNull());
+  });
+
+  it("never closes the window with Escape", async () => {
+    renderShell("/today");
+    await screen.findByRole("heading", { name: "Hoy" });
+    press("Escape", "Escape");
+    press("Escape", "Escape");
+    expect(windowMock.close).not.toHaveBeenCalled();
+    expect(screen.getByRole("heading", { name: "Hoy" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Cerrar" }));
+    expect(windowMock.close).toHaveBeenCalledOnce();
   });
 });
