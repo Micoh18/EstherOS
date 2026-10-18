@@ -116,6 +116,11 @@ describe("eventToBinding", () => {
     expect(eventToBinding(key({ key: "=", code: "Digit0", shiftKey: true }))).toBe("Shift+0");
   });
 
+  it("falls back to the character when the event has no physical code", () => {
+    expect(eventToBinding(key({ key: "2", code: "", ctrlKey: true }))).toBe("Ctrl+2");
+    expect(eventToBinding(key({ key: "b", code: "", ctrlKey: true }))).toBe("Ctrl+B");
+  });
+
   it("reads slash from the character on layouts where it needs Shift", () => {
     expect(eventToBinding(key({ key: "/", code: "Digit7", shiftKey: true }))).toBe("Slash");
     expect(eventToBinding(key({ key: "/", code: "Digit7", ctrlKey: true, shiftKey: true }))).toBe(

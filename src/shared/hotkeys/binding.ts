@@ -290,7 +290,8 @@ export function eventToBinding(event: KeyEventLike): string | null {
     stroke.key = digit[1];
   } else if (EVENT_CODE_KEYS.has(code)) {
     stroke.key = code;
-  } else if (/^[a-z]$/i.test(event.key)) {
+  } else if (/^[a-z0-9]$/i.test(event.key)) {
+    // Synthetic input (remote desktop, automation) may arrive without a physical `code`.
     stroke.key = event.key.toUpperCase();
   } else {
     return null;
