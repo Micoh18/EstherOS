@@ -4,6 +4,7 @@ import { es } from "date-fns/locale";
 import { toDateISO, type DateISO } from "@/shared/lib/dates";
 import { t } from "@/shared/i18n";
 import { cn } from "@/shared/ui";
+import type { Task } from "@/features/todo";
 import { capitalize, formatClock, type TimeFormat } from "../format";
 import { layoutColumns, MINUTES_PER_DAY, timedSegmentsFor, type DaySegment } from "../layout";
 import type { EventOccurrence } from "../model";
@@ -11,6 +12,7 @@ import type { EventDraft } from "../store";
 import { DROP_DAY_ATTR } from "./dnd";
 import { isEmptyAreaEvent } from "./dom";
 import { CalendarEvent, EventBlock } from "./CalendarEvent";
+import { CalendarTask, TASK_BLOCK_MINUTES } from "./CalendarTask";
 
 export const HOUR_PX = 48;
 const GRID_HEIGHT = 24 * HOUR_PX;
@@ -19,11 +21,14 @@ const SNAP_MINUTES = 15;
 /** A press shorter than this is a click: it creates a one-hour event on the half hour. */
 const MIN_DRAG_MINUTES = 30;
 const NO_EVENTS: EventOccurrence[] = [];
+const NO_TASKS: Task[] = [];
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour);
 
 interface TimeGridProps {
   days: Date[];
   eventsByDay: Map<DateISO, EventOccurrence[]>;
+  /** Tasks due per day: timed ones go in the hour grid, date-only ones in the all-day row. */
+  tasksByDay: Map<DateISO, Task[]>;
   selectedDate: DateISO | null;
   today: DateISO;
   now: Date;
@@ -36,6 +41,7 @@ interface TimeGridProps {
 export function TimeGrid({
   days,
   eventsByDay,
+  tasksByDay,
   selectedDate,
   today,
   now,
@@ -112,6 +118,7 @@ export function TimeGrid({
               key={day}
               day={day}
               events={eventsByDay.get(day) ?? NO_EVENTS}
+              tasks={tasksByDay.get(day) ?? NO_TASKS}
               timeFormat={timeFormat}
               onCreate={onCreate}
             />
@@ -140,6 +147,7 @@ export function TimeGrid({
                 key={day}
                 day={day}
                 events={eventsByDay.get(day) ?? NO_EVENTS}
+                tasks={tasksByDay.get(day) ?? NO_TASKS}
                 nowMinutes={day === today ? getHours(now) * 60 + getMinutes(now) : null}
                 timeFormat={timeFormat}
                 onSelect={onSelect}
@@ -156,11 +164,13 @@ export function TimeGrid({
 const AllDayCell = memo(function AllDayCell({
   day,
   events,
+  tasks,
   timeFormat,
   onCreate,
 }: {
   day: DateISO;
   events: EventOccurrence[];
+  tasks: Task[];
   timeFormat: TimeFormat;
   onCreate: (draft: EventDraft) => void;
 }) {
@@ -185,6 +195,11 @@ const AllDayCell = memo(function AllDayCell({
           timeFormat={timeFormat}
         />
       ))}
+      {tasks
+        .filter((task) => !task.dueTime)
+        .map((task) => (
+          <CalendarTask key={task.id} task={task} variant="pill" timeFormat={timeFormat} />
+        ))}
     </div>
   );
 });
@@ -212,6 +227,7 @@ function draftFrom(day: DateISO, selection: Selection): EventDraft {
 const DayColumn = memo(function DayColumn({
   day,
   events,
+  tasks,
   nowMinutes,
   timeFormat,
   onSelect,
@@ -219,6 +235,7 @@ const DayColumn = memo(function DayColumn({
 }: {
   day: DateISO;
   events: EventOccurrence[];
+  tasks: Task[];
   nowMinutes: number | null;
   timeFormat: TimeFormat;
   onSelect: (day: DateISO) => void;
@@ -291,6 +308,17 @@ const DayColumn = memo(function DayColumn({
           {t("calendar.moreShort", { count: group.items.length })}
         </button>
       ))}
+      {tasks.map((task) =>
+        task.dueTime ? (
+          <CalendarTask
+            key={task.id}
+            task={task}
+            variant="block"
+            timeFormat={timeFormat}
+            style={taskBlockStyle(task.dueTime, layout.placed)}
+          />
+        ) : null,
+      )}
       {preview ? <SelectionPreview draft={preview} /> : null}
       {nowMinutes !== null ? (
         <div
@@ -313,6 +341,23 @@ function blockStyle(item: Pick<DaySegment, "start" | "end">, column: number, col
     height: height - 2,
     left: `calc(${(column / columns) * 100}% + 2px)`,
     width: `calc(${100 / columns}% - 4px)`,
+  };
+}
+
+/**
+ * Light 30 min block at the task's time. Full width on a free slot; on the right half when it
+ * overlaps an event, so the event stays readable.
+ */
+function taskBlockStyle(dueTime: string, events: readonly { item: DaySegment }[]) {
+  const [hours, minutes] = dueTime.split(":").map(Number);
+  const start = Math.min(hours * 60 + minutes, MINUTES_PER_DAY - TASK_BLOCK_MINUTES);
+  const end = start + TASK_BLOCK_MINUTES;
+  const overlaps = events.some(({ item }) => item.start < end && item.end > start);
+  return {
+    top: (start / 60) * HOUR_PX + 1,
+    height: (TASK_BLOCK_MINUTES / 60) * HOUR_PX - 2,
+    right: 2,
+    width: overlaps ? "calc(50% - 4px)" : "calc(100% - 4px)",
   };
 }
 

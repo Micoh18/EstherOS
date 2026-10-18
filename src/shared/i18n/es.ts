@@ -83,6 +83,8 @@ export const es = {
   "calendar.pastLog": "Registro de algo que ya pasó",
 
   // Calendar: side panel
+  "calendar.task.label": "Tarea: {title}",
+  "calendar.task.done": "Tarea hecha: {title}",
   "calendar.panel.label": "Detalle del día",
   "calendar.panel.noSelection": "Elige un día para ver su detalle",
   "calendar.panel.events": "Eventos",
