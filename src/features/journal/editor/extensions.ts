@@ -13,6 +13,34 @@ export interface JournalEditorHooks {
   onLinkRequest?: () => void;
 }
 
+export interface EditorCallbacks {
+  placeholder: string;
+  onEscape?: () => void;
+  onLinkRequest?: () => void;
+  onChange?: (contentJson: string, contentText: string) => void;
+}
+
+/**
+ * Extensions are created once per editor; the bridge lets them call the latest callbacks
+ * given by the component (`update` from an effect).
+ */
+export function createEditorBridge(initial: EditorCallbacks) {
+  let current = initial;
+  return {
+    update(next: Partial<EditorCallbacks>) {
+      current = { ...current, ...next };
+    },
+    emitChange(contentJson: string, contentText: string) {
+      current.onChange?.(contentJson, contentText);
+    },
+    extensions: createJournalExtensions({
+      placeholder: () => current.placeholder,
+      onEscape: () => current.onEscape?.(),
+      onLinkRequest: () => current.onLinkRequest?.(),
+    }),
+  };
+}
+
 /** `# ` becomes a level 2 heading: the journal has no h1 (the date is the page title). */
 const HashHeading = Extension.create({
   name: "journalHashHeading",

@@ -1,0 +1,23 @@
+// TODO(A1): move these Lucide icons to @/shared/icons and import them from there.
+export {
+  Bold,
+  Copy,
+  Ellipsis,
+  FaceExpressionless,
+  FaceGrinning,
+  FaceNeutral,
+  FaceSlightlyFrowning,
+  FaceSlightlySmiling,
+  Heading2,
+  Heading3,
+  Italic,
+  Link,
+  List,
+  ListOrdered,
+  ListTodo,
+  Quote,
+  Strikethrough,
+  Trash,
+  Underline,
+  Unlink,
+} from "lucide-react";

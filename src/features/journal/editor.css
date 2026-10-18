@@ -1,0 +1,198 @@
+/* Journal editor (Tiptap / ProseMirror). Theme tokens only: no literal colors. */
+
+.journal-editor {
+  position: relative;
+  color: var(--text);
+}
+
+.journal-editor .journal-editor__content {
+  min-height: 320px;
+  outline: none;
+  font-size: var(--text-size-md, 1rem);
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  caret-color: var(--accent);
+}
+
+.journal-editor .journal-editor__content > * + * {
+  margin-top: 0.75em;
+}
+
+.journal-editor .journal-editor__content p {
+  margin: 0;
+}
+
+.journal-editor .journal-editor__content > p + p {
+  margin-top: 0.6em;
+}
+
+.journal-editor .journal-editor__content h2,
+.journal-editor .journal-editor__content h3 {
+  font-family: var(--font-display, Georgia, serif);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--text);
+}
+
+.journal-editor .journal-editor__content h2 {
+  font-size: 1.4em;
+  margin-top: 1.2em;
+}
+
+.journal-editor .journal-editor__content h3 {
+  font-size: 1.15em;
+  margin-top: 1em;
+}
+
+.journal-editor .journal-editor__content > :first-child {
+  margin-top: 0;
+}
+
+.journal-editor .journal-editor__content strong {
+  font-weight: 700;
+}
+
+.journal-editor .journal-editor__content s {
+  color: var(--text-muted);
+}
+
+.journal-editor .journal-editor__content a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  cursor: text;
+}
+
+/* Lists */
+.journal-editor .journal-editor__content ul,
+.journal-editor .journal-editor__content ol {
+  padding-left: 1.5em;
+}
+
+.journal-editor .journal-editor__content ul {
+  list-style: disc;
+}
+
+.journal-editor .journal-editor__content ol {
+  list-style: decimal;
+}
+
+.journal-editor .journal-editor__content li::marker {
+  color: var(--accent);
+}
+
+.journal-editor .journal-editor__content li + li {
+  margin-top: 0.25em;
+}
+
+/* Decorative task list: round checkboxes, not linked to the to-do feature. */
+.journal-editor .journal-editor__content ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0.25em;
+}
+
+.journal-editor .journal-editor__content ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6em;
+}
+
+.journal-editor .journal-editor__content ul[data-type="taskList"] li > label {
+  flex: none;
+  margin-top: 0.3em;
+  user-select: none;
+}
+
+.journal-editor .journal-editor__content ul[data-type="taskList"] li > div {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.journal-editor .journal-editor__content ul[data-type="taskList"] input[type="checkbox"] {
+  appearance: none;
+  display: block;
+  width: 1.05em;
+  height: 1.05em;
+  margin: 0;
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-soft),
+    box-shadow var(--dur-fast) var(--ease-soft);
+}
+
+.journal-editor .journal-editor__content ul[data-type="taskList"] input[type="checkbox"]:checked {
+  background: var(--accent);
+  box-shadow: inset 0 0 0 2.5px var(--surface);
+}
+
+.journal-editor
+  .journal-editor__content
+  ul[data-type="taskList"]
+  input[type="checkbox"]:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-glow);
+}
+
+.journal-editor .journal-editor__content li[data-checked="true"] > div {
+  color: var(--text-muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--text-faint);
+}
+
+/* Quote and divider */
+.journal-editor .journal-editor__content blockquote {
+  margin-left: 0;
+  padding: 0.25em 0 0.25em 1em;
+  border-left: 3px solid var(--accent-soft);
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.journal-editor .journal-editor__content hr {
+  height: 0;
+  margin: 1.5em auto;
+  width: 40%;
+  border: none;
+  border-top: 2px dotted var(--border);
+}
+
+.journal-editor .journal-editor__content hr.ProseMirror-selectednode {
+  border-top-color: var(--accent);
+}
+
+/* Placeholder (Tiptap marks the first empty node) */
+.journal-editor .journal-editor__content p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: var(--text-faint);
+  pointer-events: none;
+}
+
+.journal-editor .journal-editor__content ::selection {
+  background: var(--accent-soft);
+}
+
+/* "Guardado ✓" appears and fades out on its own (opacity only, fine with reduced motion). */
+.journal-saved {
+  display: inline-block;
+  animation: journal-saved-fade 2.4s var(--ease-soft) forwards;
+}
+
+@keyframes journal-saved-fade {
+  0% {
+    opacity: 0;
+  }
+  12%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
