@@ -1,4 +1,6 @@
+import { z } from "zod";
 import {
+  dateISOSchema,
   emitDbChanged,
   escapeLike,
   execute,
@@ -187,4 +189,57 @@ export function listEntryTags(entryId: string): Promise<Tag[]> {
 
 export function setEntryTags(entryId: string, tagIds: string[]): Promise<void> {
   return setTagsFor("journal_entry", entryId, tagIds);
+}
+
+const EntryDateRowSchema = z.object({ date: dateISOSchema });
+
+/** Distinct days with entries, newest first (writing streak). */
+export async function listEntryDates(): Promise<DateISO[]> {
+  const rows = await select(
+    "SELECT DISTINCT date FROM journal_entry ORDER BY date DESC",
+    [],
+    EntryDateRowSchema,
+  );
+  return rows.map((row) => row.date);
+}
+
+/** Sorts after every real `created_at`: a draft is always the newest entry of its day. */
+export const DRAFT_CREATED_AT = "9999-12-31T23:59:59Z";
+
+/**
+ * Entry just before (`prev`) or after (`next`) a position in the chronological order
+ * (date, then creation time). Use `DRAFT_CREATED_AT` for an unsaved entry.
+ */
+export function findAdjacentEntry(
+  date: DateISO,
+  createdAt: string,
+  direction: "prev" | "next",
+): Promise<JournalEntry | null> {
+  const [cmp, order] = direction === "prev" ? ["<", "DESC"] : [">", "ASC"];
+  return selectOne(
+    `SELECT ${COLUMNS} FROM journal_entry e
+     WHERE e.date ${cmp} ? OR (e.date = ? AND e.created_at ${cmp} ?)
+     ORDER BY e.date ${order}, e.created_at ${order} LIMIT 1`,
+    [date, date, createdAt],
+    JournalEntryRowSchema,
+  );
+}
+
+/** Copy of an entry (same day, content, mood and tags), not marked as favorite. */
+export async function duplicateEntry(id: string): Promise<JournalEntry> {
+  const source = await requireEntry(id);
+  const copy = await createEntry({
+    date: source.date,
+    title: source.title,
+    contentJson: source.contentJson,
+    contentText: source.contentText,
+    mood: source.mood,
+  });
+  const tags = await listEntryTags(id);
+  if (tags.length > 0)
+    await setEntryTags(
+      copy.id,
+      tags.map((tag) => tag.id),
+    );
+  return copy;
 }
