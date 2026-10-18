@@ -8,7 +8,7 @@ import { createEntry } from "@/features/journal";
 import { createTask } from "@/features/todo";
 import { setDbExecutor, type SqlValue } from "@/shared/db";
 import { CalendarPage } from "./components/CalendarPage";
-import { createEvent, listEventsInRange } from "./repository";
+import { createEvent, listEventsInRange, listEventTags } from "./repository";
 import { useCalendarStore } from "./store";
 
 const TODAY = new Date(2026, 9, 18, 10, 0); // Sunday 18 Oct 2026
@@ -153,6 +153,25 @@ describe("CalendarPage", () => {
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
     const [saved] = await listEventsInRange("2026-10-05", "2026-10-05");
     expect(saved).toMatchObject({ title: "Paseo", isPastLog: true });
+  });
+
+  it("edits an existing event and keeps its tags", async () => {
+    const event = await createEvent({ title: "Yoga", allDay: true, date: "2026-10-20" });
+    renderCalendar();
+    act(() => useCalendarStore.getState().openEdit(event.id));
+
+    const dialog = await screen.findByRole("dialog");
+    const title = await within(dialog).findByDisplayValue("Yoga");
+    fireEvent.change(title, { target: { value: "Yoga al aire libre" } });
+    const tags = within(dialog).getByLabelText("Etiquetas");
+    fireEvent.change(tags, { target: { value: "salud" } });
+    fireEvent.keyDown(tags, { key: "Enter" });
+    fireEvent.click(within(dialog).getByRole("button", { name: "Guardar" }));
+
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    const [saved] = await listEventsInRange("2026-10-20", "2026-10-20");
+    expect(saved).toMatchObject({ id: event.id, title: "Yoga al aire libre" });
+    expect((await listEventTags(event.id)).map((tag) => tag.name)).toEqual(["salud"]);
   });
 
   it("asks before deleting a recurring series", async () => {
