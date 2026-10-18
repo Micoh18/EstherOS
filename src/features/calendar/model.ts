@@ -9,6 +9,9 @@ import {
   differenceInCalendarMonths,
   differenceInCalendarYears,
   differenceInMinutes,
+  getDaysInMonth,
+  setDate,
+  startOfMonth,
 } from "date-fns";
 import { z } from "zod";
 import {
@@ -197,15 +200,29 @@ export type EventOccurrence = CalendarEvent & {
   isRecurring: boolean;
 };
 
-const STEP: Record<Exclude<Recurrence, "none">, (date: Date, n: number) => Date> = {
+type RepeatRule = Exclude<Recurrence, "none">;
+
+/** First day of the n-th period of the series (the day itself for daily/weekly). */
+const PERIOD_START: Record<RepeatRule, (base: Date, n: number) => Date> = {
   daily: addDays,
   weekly: addWeeks,
-  // date-fns clamps to the last day of shorter months (Jan 31 → Feb 28 → Mar 31).
-  monthly: addMonths,
-  yearly: addYears,
+  monthly: (base, n) => addMonths(startOfMonth(base), n),
+  yearly: (base, n) => addYears(startOfMonth(base), n),
 };
 
-const INDEX_OF: Record<Exclude<Recurrence, "none">, (to: Date, base: Date) => number> = {
+/**
+ * Day of the n-th repetition, or `null` when that period has no such day. Like RFC 5545 and most
+ * calendars, a series on the 31st skips months without a 31st and one on Feb 29 only appears in
+ * leap years; the day is never moved to the end of the month.
+ */
+export function nthRepetition(base: Date, rule: RepeatRule, n: number): Date | null {
+  const periodStart = PERIOD_START[rule](base, n);
+  if (rule === "daily" || rule === "weekly") return periodStart;
+  const day = base.getDate();
+  return day <= getDaysInMonth(periodStart) ? setDate(periodStart, day) : null;
+}
+
+const INDEX_OF: Record<RepeatRule, (to: Date, base: Date) => number> = {
   daily: differenceInCalendarDays,
   weekly: (to, base) => Math.floor(differenceInCalendarDays(to, base) / 7),
   monthly: differenceInCalendarMonths,
@@ -263,14 +280,15 @@ export function expandOccurrences(
     event.recurrenceUntil ??
     toDateISO(addYears(base > todayDate ? base : todayDate, RECURRENCE_HORIZON_YEARS));
   const last = horizon < to ? horizon : to;
-  const step = STEP[event.recurrence];
+  const rule = event.recurrence;
   const fromDate = addDays(parseDateISO(from), -spanDays);
-  let n = Math.max(0, INDEX_OF[event.recurrence](fromDate, base) - 1);
+  let n = Math.max(0, INDEX_OF[rule](fromDate, base) - 1);
 
   const result: EventOccurrence[] = [];
   for (let guard = 0; guard < MAX_OCCURRENCES; guard++, n++) {
-    const day = step(base, n);
-    if (toDateISO(day) > last) break;
+    if (toDateISO(PERIOD_START[rule](base, n)) > last) break;
+    const day = nthRepetition(base, rule, n);
+    if (!day || toDateISO(day) > last) continue;
     const occ = occurrence(day);
     if (occ) result.push(occ);
   }

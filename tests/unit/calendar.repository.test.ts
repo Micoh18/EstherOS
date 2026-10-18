@@ -73,16 +73,40 @@ describe("events", () => {
     expect(occs).toHaveLength(9);
   });
 
-  it("monthly on the 31st clamps to the last day of shorter months", async () => {
+  it("monthly on the 31st only occurs in months that have a 31st", async () => {
     await createEvent({ title: "Pagar renta", date: "2026-01-31", recurrence: "monthly" }, TODAY);
-    const occs = await listEventsInRange("2026-01-01", "2026-05-31", opts);
+    const occs = await listEventsInRange("2026-01-01", "2026-12-31", opts);
     expect(dates(occs)).toEqual([
       "2026-01-31",
-      "2026-02-28",
       "2026-03-31",
-      "2026-04-30",
       "2026-05-31",
+      "2026-07-31",
+      "2026-08-31",
+      "2026-10-31",
+      "2026-12-31",
     ]);
+    // A range that only covers a short month has no occurrence at all.
+    expect(await listEventsInRange("2026-02-01", "2026-02-28", opts)).toHaveLength(0);
+  });
+
+  it("monthly on the 30th skips February and keeps the 30th afterwards", async () => {
+    await createEvent({ title: "Revisar", date: "2026-01-30", recurrence: "monthly" }, TODAY);
+    const occs = await listEventsInRange("2026-01-01", "2026-04-30", opts);
+    expect(dates(occs)).toEqual(["2026-01-30", "2026-03-30", "2026-04-30"]);
+  });
+
+  it("yearly on Feb 29 only occurs in leap years", async () => {
+    await createEvent(
+      {
+        title: "Bisiesto",
+        date: "2024-02-29",
+        recurrence: "yearly",
+        recurrenceUntil: "2032-12-31",
+      },
+      TODAY,
+    );
+    const occs = await listEventsInRange("2024-01-01", "2032-12-31", opts);
+    expect(dates(occs)).toEqual(["2024-02-29", "2028-02-29", "2032-02-29"]);
   });
 
   it("series without until stop two years after today", async () => {
