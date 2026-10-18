@@ -1,0 +1,138 @@
+/*
+ * Enter/exit animations for the design system components. Radix sets data-state on the
+ * animated parts and waits for animationend before unmounting, so CSS keyframes are enough.
+ * With prefers-reduced-motion only the fades remain.
+ */
+@keyframes ui-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes ui-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes ui-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes ui-pop-out {
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes ui-slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes ui-slide-out-right {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes ui-slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes ui-slide-out-left {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes ui-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+
+@keyframes ui-shimmer {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.ui-overlay[data-state="open"] {
+  animation: ui-fade-in var(--dur-base) var(--ease-soft);
+}
+.ui-overlay[data-state="closed"] {
+  animation: ui-fade-out var(--dur-fast) var(--ease-soft) forwards;
+}
+
+.ui-pop[data-state="open"],
+.ui-pop[data-state="delayed-open"],
+.ui-pop[data-state="instant-open"] {
+  animation: ui-pop-in 200ms var(--ease-soft);
+}
+.ui-pop[data-state="closed"] {
+  animation: ui-pop-out var(--dur-fast) var(--ease-soft) forwards;
+}
+
+.ui-sheet-right[data-state="open"] {
+  animation: ui-slide-in-right var(--dur-slow) var(--ease-soft);
+}
+.ui-sheet-right[data-state="closed"] {
+  animation: ui-slide-out-right var(--dur-base) var(--ease-soft) forwards;
+}
+.ui-sheet-left[data-state="open"] {
+  animation: ui-slide-in-left var(--dur-slow) var(--ease-soft);
+}
+.ui-sheet-left[data-state="closed"] {
+  animation: ui-slide-out-left var(--dur-base) var(--ease-soft) forwards;
+}
+
+.ui-toast[data-state="open"] {
+  animation: ui-toast-in var(--dur-base) var(--ease-soft);
+}
+.ui-toast[data-state="closed"] {
+  animation: ui-fade-out var(--dur-fast) var(--ease-soft) forwards;
+}
+.ui-toast[data-swipe="move"] {
+  transform: translateX(var(--radix-toast-swipe-move-x));
+}
+.ui-toast[data-swipe="cancel"] {
+  transform: translateX(0);
+  transition: transform var(--dur-base) var(--ease-soft);
+}
+.ui-toast[data-swipe="end"] {
+  animation: ui-slide-out-right var(--dur-base) var(--ease-soft) forwards;
+}
+
+.ui-skeleton {
+  animation: ui-shimmer 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-pop[data-state="open"],
+  .ui-pop[data-state="delayed-open"],
+  .ui-pop[data-state="instant-open"],
+  .ui-sheet-right[data-state="open"],
+  .ui-sheet-left[data-state="open"],
+  .ui-toast[data-state="open"] {
+    animation: ui-fade-in var(--dur-base) linear;
+  }
+  .ui-pop[data-state="closed"],
+  .ui-sheet-right[data-state="closed"],
+  .ui-sheet-left[data-state="closed"],
+  .ui-toast[data-state="closed"],
+  .ui-toast[data-swipe="end"] {
+    animation: ui-fade-out var(--dur-fast) linear forwards;
+  }
+  .ui-skeleton {
+    animation: none;
+  }
+}

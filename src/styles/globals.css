@@ -4,6 +4,7 @@
 @import "../shared/theme/themes/white.css";
 @import "../shared/theme/themes/dark.css";
 @import "./fonts.css";
+@import "../shared/ui/ui.css";
 
 /*
  * Tailwind theme mapping to the Estheros design tokens (design system spec).
