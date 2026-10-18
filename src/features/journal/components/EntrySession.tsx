@@ -11,7 +11,14 @@ import { log } from "@/shared/lib/log";
 import { IconButton, Tooltip, useToast } from "@/shared/ui";
 import type { SaveStatus } from "../autosave";
 import { useAllTags } from "../hooks";
-import { EMPTY_DOC_JSON, MOODS, countWords, type JournalEntry, type Mood } from "../model";
+import {
+  EMPTY_DOC_JSON,
+  MOODS,
+  countWords,
+  editorDocument,
+  type JournalEntry,
+  type Mood,
+} from "../model";
 import { createEntryController } from "../session";
 import { markPersisted, sessionIndex, showDraft, showEntry } from "../store";
 import { DeleteButton } from "./DeleteButton";
@@ -273,7 +280,7 @@ export function EntrySession({ seq, date, initial, initialTags, onDeleted }: Ent
           className="mb-4 w-full bg-transparent font-display text-2xl font-semibold text-text outline-none placeholder:text-text-faint"
         />
         <JournalEditor
-          initialContent={initial?.contentJson ?? EMPTY_DOC_JSON}
+          initialContent={initial ? editorDocument(initial) : EMPTY_DOC_JSON}
           placeholder={t(PLACEHOLDERS[sessionIndex(seq, PLACEHOLDERS.length)])}
           autoFocus
           onChange={onContentChange}

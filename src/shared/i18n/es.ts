@@ -144,7 +144,7 @@ export const es = {
   "journal.search.placeholder": "Buscar en tu diario…",
   "journal.search.clear": "Limpiar búsqueda",
   "journal.filter.tag": "Filtrar por etiqueta",
-  "journal.filter.allTags": "Todas las etiquetas",
+  "journal.filter.allTags": "Etiquetas",
   "journal.filter.favorites": "Solo favoritas",
   "journal.calendar.label": "Días con entrada",
   "journal.list.month": "Entradas del mes",

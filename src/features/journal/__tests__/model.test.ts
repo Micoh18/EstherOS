@@ -5,6 +5,8 @@ import {
   computeStreak,
   contentToText,
   countWords,
+  editorDocument,
+  EMPTY_DOC_JSON,
   entryLabel,
   isEntryEmpty,
   type DocNode,
@@ -103,5 +105,21 @@ describe("helpers", () => {
     expect(computeStreak(["2026-10-16"], today).days).toBe(0);
     // Across a month boundary.
     expect(computeStreak(["2026-10-01", "2026-09-30"], "2026-10-01").days).toBe(2);
+  });
+});
+
+describe("editorDocument", () => {
+  it("keeps the stored document when it has content", () => {
+    const json = JSON.stringify(doc(p("hola")));
+    expect(editorDocument({ contentJson: json, contentText: "hola" })).toBe(json);
+  });
+
+  it("rebuilds paragraphs from the text when the document is empty", () => {
+    const rebuilt = editorDocument({ contentJson: EMPTY_DOC_JSON, contentText: "uno\n\ndos" });
+    expect(contentToText(rebuilt)).toBe("uno\n\ndos");
+  });
+
+  it("keeps an empty document for an empty entry", () => {
+    expect(editorDocument({ contentJson: EMPTY_DOC_JSON, contentText: "" })).toBe(EMPTY_DOC_JSON);
   });
 });

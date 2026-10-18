@@ -173,3 +173,18 @@ export function computeStreak(dates: readonly string[], today: string): Streak {
   }
   return { days: count, writtenToday };
 }
+
+/**
+ * Document to load in the editor. Falls back to the plain text, one paragraph per line, when the
+ * stored document is empty but `contentText` is not (entries imported or created without JSON).
+ */
+export function editorDocument(entry: Pick<JournalEntry, "contentJson" | "contentText">): string {
+  if (contentToText(entry.contentJson).trim() || !entry.contentText.trim())
+    return entry.contentJson;
+  const paragraphs = entry.contentText
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((text) => ({ type: "paragraph", content: [{ type: "text", text }] }));
+  return JSON.stringify({ type: "doc", content: paragraphs });
+}
