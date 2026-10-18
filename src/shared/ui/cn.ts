@@ -1,8 +1,9 @@
 import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
-/** Joins class names. No Tailwind conflict resolution: pass non-conflicting overrides. */
+/** Joins class names and resolves Tailwind conflicts: the last utility of a group wins. */
 export function cn(...inputs: ClassValue[]) {
-  return clsx(inputs);
+  return twMerge(clsx(inputs));
 }
 
 /** Focus ring shared by every interactive component. */
