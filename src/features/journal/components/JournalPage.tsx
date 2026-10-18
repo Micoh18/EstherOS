@@ -3,7 +3,13 @@ import { useHotkey, useScope } from "@/shared/hotkeys";
 import { todayISO } from "@/shared/lib/dates";
 import { ToastProvider } from "@/shared/ui";
 import { openAdjacentEntry, openJournalDate } from "../hooks";
-import { clearRequestedDate, peekRequestedDate, showDraft, useJournalStore } from "../store";
+import {
+  clearActive,
+  clearRequestedDate,
+  peekRequestedDate,
+  showDraft,
+  useJournalStore,
+} from "../store";
 import { EntryPane } from "./EntryPane";
 import { JournalSidebar } from "./JournalSidebar";
 
@@ -16,6 +22,7 @@ export function JournalPage() {
   useEffect(() => {
     void openJournalDate(initialDate);
     clearRequestedDate();
+    return clearActive;
   }, [initialDate]);
 
   const searchRef = useRef<HTMLInputElement>(null);

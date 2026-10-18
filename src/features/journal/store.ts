@@ -58,6 +58,11 @@ export function markPersisted(seq: number, entryId: string): void {
   );
 }
 
+/** The journal screen closed: the next visit starts a fresh session. */
+export function clearActive(): void {
+  useJournalStore.setState({ active: null });
+}
+
 export function setVisibleMonth(month: YearMonth): void {
   useJournalStore.setState({ visibleMonth: month });
 }
