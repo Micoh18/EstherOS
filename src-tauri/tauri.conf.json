@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "estheros",
+  "productName": "Estheros",
   "version": "0.1.0",
   "identifier": "com.estheros.app",
   "build": {
@@ -12,9 +12,14 @@
   "app": {
     "windows": [
       {
-        "title": "estheros",
-        "width": 800,
-        "height": 600
+        "label": "main",
+        "title": "Estheros",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 960,
+        "minHeight": 640,
+        "center": true,
+        "decorations": false
       }
     ],
     "security": {
