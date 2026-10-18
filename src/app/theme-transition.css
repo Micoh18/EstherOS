@@ -1,0 +1,9 @@
+/* Color fade while the theme changes (ThemeProvider adds the class for one transition). */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition-property: background-color, color, border-color, fill, stroke, box-shadow !important;
+  transition-duration: var(--dur-base, 220ms) !important;
+  transition-timing-function: var(--ease-soft, ease) !important;
+}
