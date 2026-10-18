@@ -14,7 +14,8 @@ export interface EventChipProps extends Omit<ComponentProps<"button">, "children
 
 /**
  * Compact event: palette color fill, dashed edge when it is a past log (registered after it
- * happened). Renders as a button so it can open the event popover.
+ * happened). Renders as a button so it can open the event popover. Text on the fill always uses
+ * `--text`: `--text-muted` drops below 4.5:1 on the pastel fills of the Pink theme.
  */
 export function EventChip({
   occurrence,
@@ -49,7 +50,7 @@ export function EventChip({
         )}
         {...props}
       >
-        <span className="w-[86px] shrink-0 font-mono text-xs leading-5 text-text-muted">
+        <span className="w-[86px] shrink-0 font-mono text-xs leading-5 text-text">
           {occurrence.allDay || !occurrence.startAt
             ? t("calendar.allDay")
             : formatTime(occurrence.startAt, timeFormat)}
@@ -57,11 +58,11 @@ export function EventChip({
         <span className="min-w-0 flex-1">
           <span className="block truncate font-semibold">{occurrence.title}</span>
           {occurrence.location ? (
-            <span className="block truncate text-xs text-text-muted">{occurrence.location}</span>
+            <span className="block truncate text-xs text-text">{occurrence.location}</span>
           ) : null}
         </span>
         {occurrence.isRecurring ? (
-          <Repeat aria-hidden className="mt-0.5 size-[14px] shrink-0 text-text-muted" />
+          <Repeat aria-hidden className="mt-0.5 size-[14px] shrink-0 text-text" />
         ) : null}
       </button>
     );
@@ -83,7 +84,7 @@ export function EventChip({
       {...props}
     >
       {!occurrence.allDay && occurrence.startAt ? (
-        <span className="shrink-0 font-mono text-[11px] font-normal text-text-muted">
+        <span className="shrink-0 font-mono text-[11px] font-normal text-text">
           {formatTime(occurrence.startAt, timeFormat)}
         </span>
       ) : null}

@@ -25,8 +25,15 @@ export function formatEventTime(occurrence: EventOccurrence, timeFormat: TimeFor
   return `${formatTime(occurrence.startAt, timeFormat)} – ${formatTime(occurrence.endAt, timeFormat)}`;
 }
 
-/** Header title for the visible period. */
-export function formatPeriodTitle(view: CalendarView, days: { from: DateISO; to: DateISO }) {
+/**
+ * Header title for the visible period. The month comes from `focused`, not from the first grid
+ * day, which usually belongs to the previous month.
+ */
+export function formatPeriodTitle(
+  view: CalendarView,
+  days: { from: DateISO; to: DateISO },
+  focused: Date,
+) {
   const from = parseDateISO(days.from);
   const to = parseDateISO(days.to);
   if (view === "day") return capitalize(format(from, "EEEE d 'de' MMMM", { locale: es }));
@@ -36,7 +43,7 @@ export function formatPeriodTitle(view: CalendarView, days: { from: DateISO; to:
     const start = format(from, sameMonth ? "d" : sameYear ? "d MMM" : "d MMM yyyy", { locale: es });
     return `${start} – ${format(to, "d MMM yyyy", { locale: es })}`;
   }
-  return capitalize(format(from, "LLLL yyyy", { locale: es }));
+  return capitalize(format(focused, "LLLL yyyy", { locale: es }));
 }
 
 /** "Domingo 18 de octubre de 2026". */
