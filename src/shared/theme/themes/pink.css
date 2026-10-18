@@ -1,0 +1,37 @@
+/* Pink (default): powdered rose with cream. The signature theme. */
+:root,
+:root[data-theme="pink"] {
+  color-scheme: light;
+
+  --bg: #fff5f7;
+  --bg-elevated: #ffe9ef;
+  --surface: #ffffff;
+  --surface-hover: #fff0f4;
+  --border: #f6d3dd;
+  --text: #4a2c35;
+  --text-muted: #85606c;
+  --text-faint: #bfa3ac;
+  --accent: #e8779a;
+  --accent-hover: #ec88a7;
+  --accent-soft: #fbdce5;
+  --on-accent: #3a1824;
+  --shadow-color: rgba(232, 119, 154, 0.28);
+  --shadow-color-weak: rgba(232, 119, 154, 0.12);
+
+  --success: #367a52;
+  --warning: #a0650f;
+  --danger: #c4415e;
+
+  --palette-rose: #f4a7bd;
+  --palette-lavender: #c9b6e8;
+  --palette-sage: #b8d8c2;
+  --palette-butter: #f9e4a6;
+  --palette-sky: #b9d9f2;
+  --palette-peach: #fbcbb0;
+
+  --mood-great: #ec7fa3;
+  --mood-good: #f3a77f;
+  --mood-okay: #e3bf55;
+  --mood-low: #86b3dc;
+  --mood-bad: #9a8cb8;
+}

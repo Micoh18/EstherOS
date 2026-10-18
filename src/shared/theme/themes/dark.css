@@ -1,0 +1,36 @@
+/* Dark: deep plum, never pure black. Luminous pink-lavender accent. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #1b1620;
+  --bg-elevated: #221c28;
+  --surface: #2a2331;
+  --surface-hover: #332a3b;
+  --border: #3d3346;
+  --text: #f3eaf1;
+  --text-muted: #b9a9ba;
+  --text-faint: #7e707f;
+  --accent: #f08bb0;
+  --accent-hover: #f59ebe;
+  --accent-soft: rgba(240, 139, 176, 0.18);
+  --on-accent: #2a1a22;
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --shadow-color-weak: rgba(0, 0, 0, 0.3);
+
+  --success: #8fd4a8;
+  --warning: #f0c77a;
+  --danger: #f28b9b;
+
+  --palette-rose: #e58aa6;
+  --palette-lavender: #b49be6;
+  --palette-sage: #8fc4a3;
+  --palette-butter: #e8cf7e;
+  --palette-sky: #8fbce6;
+  --palette-peach: #ebac8c;
+
+  --mood-great: #f08bb0;
+  --mood-good: #f0a889;
+  --mood-okay: #e8cf7e;
+  --mood-low: #8fbce6;
+  --mood-bad: #a493c9;
+}
