@@ -42,13 +42,13 @@ beforeEach(() => {
 describe("shell", () => {
   it("redirects / to /today", async () => {
     const router = renderShell();
-    expect(await screen.findByRole("heading", { name: "Hoy" })).toBeInTheDocument();
+    expect(await screen.findByRole("region", { name: "Hoy" })).toBeInTheDocument();
     expect(router.state.location.pathname).toBe("/today");
   });
 
   it("navigates with Ctrl+1..5 and the sidebar", async () => {
     const router = renderShell("/today");
-    await screen.findByRole("heading", { name: "Hoy" });
+    await screen.findByRole("region", { name: "Hoy" });
     press("2", "Digit2", { ctrlKey: true });
     expect(router.state.location.pathname).toBe("/calendar");
     press("5", "Digit5", { ctrlKey: true });
@@ -59,7 +59,7 @@ describe("shell", () => {
 
   it("cycles the theme with Ctrl+Shift+T and the title bar button", async () => {
     renderShell("/today");
-    await screen.findByRole("heading", { name: "Hoy" });
+    await screen.findByRole("region", { name: "Hoy" });
     press("T", "KeyT", { ctrlKey: true, shiftKey: true });
     expect(document.documentElement.dataset.theme).toBe("white");
     expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("white");
@@ -69,7 +69,7 @@ describe("shell", () => {
 
   it("collapses the sidebar with Ctrl+B", async () => {
     renderShell("/today");
-    await screen.findByRole("heading", { name: "Hoy" });
+    await screen.findByRole("region", { name: "Hoy" });
     expect(screen.getByRole("button", { name: /Contraer/ })).toHaveAttribute(
       "aria-expanded",
       "true",
@@ -83,7 +83,7 @@ describe("shell", () => {
 
   it("opens the shortcuts placeholder with Ctrl+/ and closes it with Escape", async () => {
     renderShell("/today");
-    await screen.findByRole("heading", { name: "Hoy" });
+    await screen.findByRole("region", { name: "Hoy" });
     press("/", "Slash", { ctrlKey: true });
     expect(await screen.findByRole("dialog", { name: "Atajos de teclado" })).toBeInTheDocument();
     press("Escape", "Escape");
@@ -92,11 +92,11 @@ describe("shell", () => {
 
   it("never closes the window with Escape", async () => {
     renderShell("/today");
-    await screen.findByRole("heading", { name: "Hoy" });
+    await screen.findByRole("region", { name: "Hoy" });
     press("Escape", "Escape");
     press("Escape", "Escape");
     expect(windowMock.close).not.toHaveBeenCalled();
-    expect(screen.getByRole("heading", { name: "Hoy" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Hoy" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Cerrar" }));
     expect(windowMock.close).toHaveBeenCalledOnce();
   });
