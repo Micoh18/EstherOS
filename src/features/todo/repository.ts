@@ -399,6 +399,45 @@ export async function subtaskProgress(
   return result;
 }
 
+export interface OpenTaskCounts {
+  today: number;
+  upcoming: number;
+  overdue: number;
+  all: number;
+  /** Open top-level tasks per list id, archived lists included. */
+  byList: Map<string, number>;
+}
+
+/** Counters of the sidebar: open top-level tasks per smart view (non-archived) and per list. */
+export async function countOpenTasks(today: string): Promise<OpenTaskCounts> {
+  const views = await selectOne(
+    `SELECT SUM(t.due_date = ?) AS today, SUM(t.due_date > ?) AS upcoming,
+       SUM(t.due_date < ?) AS overdue, COUNT(*) AS total
+     FROM task t JOIN todo_list l ON l.id = t.list_id
+     WHERE t.status = 'open' AND t.parent_id IS NULL AND l.is_archived = 0`,
+    [today, today, today],
+    z.object({
+      today: z.number().nullable(),
+      upcoming: z.number().nullable(),
+      overdue: z.number().nullable(),
+      total: z.number(),
+    }),
+  );
+  const perList = await select(
+    `SELECT list_id, COUNT(*) AS count FROM task
+     WHERE status = 'open' AND parent_id IS NULL GROUP BY list_id`,
+    [],
+    z.object({ list_id: z.string(), count: z.number() }),
+  );
+  return {
+    today: views?.today ?? 0,
+    upcoming: views?.upcoming ?? 0,
+    overdue: views?.overdue ?? 0,
+    all: views?.total ?? 0,
+    byList: new Map(perList.map((row) => [row.list_id, row.count])),
+  };
+}
+
 // Tags -----------------------------------------------------------------------
 
 export function listTaskTags(taskId: string): Promise<Tag[]> {
