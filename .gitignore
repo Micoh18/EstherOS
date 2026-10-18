@@ -1,0 +1,44 @@
+# Documentación interna (privada, no se publica)
+docs/
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+
+# Tauri / Rust
+src-tauri/target/
+src-tauri/gen/schemas/
+
+# Tests
+coverage/
+test-results/
+playwright-report/
+
+# Entorno y editor
+.env
+.env.*
+!.env.example
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# Logs (plantilla create-tauri-app)
+logs
+*.log
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Herramientas locales
+.claude/
