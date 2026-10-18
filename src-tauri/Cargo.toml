@@ -26,6 +26,7 @@ tauri-plugin-sql = { version = "2.6.0", features = ["sqlite"] }
 tauri-plugin-window-state = "2.5.0"
 tauri-plugin-dialog = "2.8.3"
 tauri-plugin-fs = "2.7.1"
+sqlx = { version = "0.8", default-features = false, features = ["sqlite", "runtime-tokio", "migrate"] }
 
 
 # Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration

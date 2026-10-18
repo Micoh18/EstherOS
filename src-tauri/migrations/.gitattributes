@@ -1,0 +1,2 @@
+# Migration checksums are computed over the raw bytes: keep LF on every checkout.
+*.sql text eol=lf
