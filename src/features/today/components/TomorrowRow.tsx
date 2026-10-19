@@ -17,7 +17,7 @@ export function TomorrowRow({ today, timeFormat }: TomorrowRowProps) {
   const navigate = useNavigate();
   const tomorrow = addDaysISO(today, 1);
   const events = useEventsForDate(tomorrow).data ?? [];
-  const tasks = useTasksForDate(tomorrow).filter((task) => task.parentId === null);
+  const tasks = useTasksForDate(tomorrow).data.filter((task) => task.parentId === null);
   const empty = events.length === 0 && tasks.length === 0;
 
   return (

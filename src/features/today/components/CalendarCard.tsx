@@ -2,14 +2,14 @@ import { useNavigate } from "react-router";
 import { CalendarDays, Cloud, Plus } from "@/shared/icons";
 import { t } from "@/shared/i18n";
 import type { DateISO } from "@/shared/lib/dates";
-import { Button, EmptyState, IconButton, Skeleton } from "@/shared/ui";
+import { Button, EmptyState, IconButton } from "@/shared/ui";
 import {
   calendarPath,
   EventChip,
   useEventsForDate,
   type EventOccurrence,
 } from "@/features/calendar";
-import { TodayCard } from "./TodayCard";
+import { CardError, CardLoading, TodayCard } from "./TodayCard";
 
 /** All-day first, then by start time. */
 function byStart(a: EventOccurrence, b: EventOccurrence): number {
@@ -24,7 +24,7 @@ interface CalendarCardProps {
 /** "Hoy en tu calendario": today's events in order, or "Día libre". */
 export function CalendarCard({ today, timeFormat }: CalendarCardProps) {
   const navigate = useNavigate();
-  const { data, loading } = useEventsForDate(today);
+  const { data, loading, error } = useEventsForDate(today);
   const events = [...(data ?? [])].sort(byStart);
   const openDay = () => navigate(calendarPath(today));
   const create = () => navigate(calendarPath(today, { newEvent: true }));
@@ -44,11 +44,10 @@ export function CalendarCard({ today, timeFormat }: CalendarCardProps) {
         </Button>
       }
     >
-      {loading ? (
-        <div className="flex flex-col gap-2">
-          <Skeleton className="h-[40px]! rounded-md!" />
-          <Skeleton className="h-[40px]! rounded-md!" />
-        </div>
+      {error && !data ? (
+        <CardError message={t("today.calendar.error")} />
+      ) : loading ? (
+        <CardLoading />
       ) : events.length === 0 ? (
         <EmptyState
           size="sm"

@@ -14,7 +14,7 @@ import {
   useTasksForDate,
   type Task,
 } from "@/features/todo";
-import { TodayCard } from "./TodayCard";
+import { CardError, CardLoading, TodayCard } from "./TodayCard";
 
 interface TasksCardProps {
   today: DateISO;
@@ -40,15 +40,19 @@ function withCompleting(overdue: Task[], completing: Record<string, Task>, today
 export function TasksCard({ today, quickAddFocus, className }: TasksCardProps) {
   const navigate = useNavigate();
   const completing = useCompletingTasks();
+  const overdueQuery = useOverdueTasks(today);
+  const dueTodayQuery = useTasksForDate(today);
   const overdue = withCompleting(
-    useOverdueTasks().filter((task) => task.parentId === null),
+    overdueQuery.data.filter((task) => task.parentId === null),
     completing,
     today,
   );
   // Same scope as the Hoy view of Tareas: top-level tasks (subtasks live inside their parent).
-  const dueToday = useTasksForDate(today).filter((task) => task.parentId === null);
+  const dueToday = dueTodayQuery.data.filter((task) => task.parentId === null);
   const open = (task: Task) => navigate(todoTaskPath(task.id));
-  const empty = overdue.length === 0 && dueToday.length === 0;
+  const failed = Boolean(overdueQuery.error || dueTodayQuery.error);
+  const loading = overdueQuery.loading || dueTodayQuery.loading;
+  const empty = !failed && !loading && overdue.length === 0 && dueToday.length === 0;
 
   return (
     <TodayCard
@@ -61,7 +65,10 @@ export function TasksCard({ today, quickAddFocus, className }: TasksCardProps) {
         </Button>
       }
     >
-      {overdue.length > 0 ? (
+      {failed ? <CardError message={t("today.tasks.error")} /> : null}
+      {loading && !failed ? <CardLoading rows={3} /> : null}
+
+      {!loading && overdue.length > 0 ? (
         <section
           aria-label={t("today.tasks.overdue")}
           className="flex flex-col gap-0.5 rounded-md bg-danger/10 p-1.5"
@@ -75,7 +82,7 @@ export function TasksCard({ today, quickAddFocus, className }: TasksCardProps) {
         </section>
       ) : null}
 
-      {dueToday.length > 0 ? (
+      {!loading && dueToday.length > 0 ? (
         <div className="flex flex-col gap-0.5">
           {dueToday.map((task) => (
             <TaskRow key={task.id} task={task} compact onOpen={open} />

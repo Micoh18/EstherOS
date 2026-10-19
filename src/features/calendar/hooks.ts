@@ -1,14 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { addMonths, startOfMonth } from "date-fns";
 import { onDbChanged, type DbTable } from "@/shared/db";
-import {
-  addDaysISO,
-  parseDateISO,
-  todayISO,
-  toDateISO,
-  toYearMonth,
-  type DateISO,
-} from "@/shared/lib/dates";
+import { addDaysISO, parseDateISO, toDateISO, toYearMonth, type DateISO } from "@/shared/lib/dates";
+import { useCurrentDay } from "@/shared/lib";
 import { log } from "@/shared/lib/log";
 import { t } from "@/shared/i18n";
 import { useToast } from "@/shared/ui";
@@ -176,12 +170,17 @@ export interface DaySummary {
 
 /** Tasks due and journal entries of one day, for the side panel. */
 export function useDaySummary(date: DateISO | null): QueryState<DaySummary> {
-  const day = date ?? todayISO();
+  const today = useCurrentDay();
+  const day = date ?? today;
   const tasks = useTasksForDate(day);
   const journal = useJournalEntriesForDate(day);
   return useMemo(
-    () => ({ data: { tasks, journal: journal.data }, loading: journal.loading, error: null }),
-    [tasks, journal.data, journal.loading],
+    () => ({
+      data: { tasks: tasks.data, journal: journal.data },
+      loading: tasks.loading || journal.loading,
+      error: tasks.error ?? journal.error ?? null,
+    }),
+    [tasks, journal],
   );
 }
 

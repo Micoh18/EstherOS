@@ -72,7 +72,9 @@ function DayDetail({
   // Entries come oldest first: the latest mood of the day wins.
   const mood = [...journal].reverse().find((entry) => entry.mood !== null)?.mood ?? null;
   const loading = eventsLoading || summary.loading;
-  const isFree = !loading && events.length === 0 && tasks.length === 0 && journal.length === 0;
+  const failed = Boolean(summary.error);
+  const isFree =
+    !loading && !failed && events.length === 0 && tasks.length === 0 && journal.length === 0;
 
   return (
     <>
@@ -87,6 +89,12 @@ function DayDetail({
           <Plus aria-hidden />
         </Button>
       </header>
+
+      {failed ? (
+        <p role="alert" className="rounded-md bg-danger/10 px-3 py-2 text-sm text-danger">
+          {t("calendar.panel.error")}
+        </p>
+      ) : null}
 
       {loading ? (
         <div className="flex flex-col gap-2">

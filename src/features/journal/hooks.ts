@@ -24,6 +24,8 @@ import { showDraft, showEntry, useJournalStore } from "./store";
 export interface DbQuery<T> {
   data: T;
   loading: boolean;
+  /** Why the last load for the current `key` failed, or null. */
+  error: unknown;
 }
 
 const ENTRY_TABLES: readonly DbTable[] = ["journal_entry"];
@@ -38,7 +40,11 @@ export function useDbQuery<T>(
   initial: T,
   tables: readonly DbTable[] = ENTRY_TABLES,
 ): DbQuery<T> {
-  const [state, setState] = useState<{ key: string | null; data: T }>({ key: null, data: initial });
+  const [state, setState] = useState<{ key: string | null; data: T; error: unknown }>({
+    key: null,
+    data: initial,
+    error: null,
+  });
   const [version, setVersion] = useState(0);
   const fetcherRef = useRef(fetcher);
   useEffect(() => {
@@ -57,11 +63,11 @@ export function useDbQuery<T>(
     let cancelled = false;
     fetcherRef.current().then(
       (data) => {
-        if (!cancelled) setState({ key, data });
+        if (!cancelled) setState({ key, data, error: null });
       },
       (error: unknown) => {
         log.error("journal query failed", key, error);
-        if (!cancelled) setState((current) => ({ ...current, key }));
+        if (!cancelled) setState((current) => ({ ...current, key, error }));
       },
     );
     return () => {
@@ -69,7 +75,8 @@ export function useDbQuery<T>(
     };
   }, [key, version]);
 
-  return { data: state.data, loading: state.key !== key };
+  const current = state.key === key;
+  return { data: state.data, loading: !current, error: current ? state.error : null };
 }
 
 const NO_ENTRIES: JournalEntry[] = [];

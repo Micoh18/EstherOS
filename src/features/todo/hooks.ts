@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { onDbChanged, type DbTable, type Tag, listTagsForMany } from "@/shared/db";
 import { log } from "@/shared/lib/log";
-import { addDaysISO, todayISO, toDateISO, type DateISO } from "@/shared/lib/dates";
+import { addDaysISO, toDateISO, type DateISO } from "@/shared/lib/dates";
+import { useCurrentDay } from "@/shared/lib";
 import type { Task, TodoList } from "./model";
 import {
   countOpenTasks,
@@ -26,6 +27,8 @@ export interface DbQuery<T> {
   data: T;
   /** True until the data for the current `key` has arrived (stale data is kept meanwhile). */
   loading: boolean;
+  /** Why the last load for the current `key` failed, or null. */
+  error: unknown;
 }
 
 /**
@@ -38,7 +41,11 @@ export function useDbQuery<T>(
   tables: readonly DbTable[],
   initial: T,
 ): DbQuery<T> {
-  const [state, setState] = useState<{ key: string | null; data: T }>({ key: null, data: initial });
+  const [state, setState] = useState<{ key: string | null; data: T; error: unknown }>({
+    key: null,
+    data: initial,
+    error: null,
+  });
   const [version, setVersion] = useState(0);
   const loadRef = useRef(load);
   useEffect(() => {
@@ -57,30 +64,27 @@ export function useDbQuery<T>(
     let cancelled = false;
     loadRef.current().then(
       (data) => {
-        if (!cancelled) setState({ key, data });
+        if (!cancelled) setState({ key, data, error: null });
       },
-      (error: unknown) => log.error("todo: load failed", key, error),
+      (error: unknown) => {
+        log.error("todo: load failed", key, error);
+        if (!cancelled) setState((current) => ({ ...current, key, error }));
+      },
     );
     return () => {
       cancelled = true;
     };
   }, [key, version]);
 
-  return { data: state.data, loading: state.key !== key };
+  const current = state.key === key;
+  return { data: state.data, loading: !current, error: current ? state.error : null };
 }
 
 const TASK_TABLES: readonly DbTable[] = ["task", "todo_list"];
 const NO_TASKS: Task[] = [];
 
-/** Local `YYYY-MM-DD` of today; updates after midnight. */
-export function useToday(): DateISO {
-  const [today, setToday] = useState(() => todayISO());
-  useEffect(() => {
-    const id = setInterval(() => setToday(todayISO()), 60_000);
-    return () => clearInterval(id);
-  }, []);
-  return today;
-}
+/** Local `YYYY-MM-DD` of today: the app-wide day source, updated at midnight and on focus. */
+export const useToday = useCurrentDay;
 
 // Lists ---------------------------------------------------------------------------------------
 
@@ -196,15 +200,19 @@ export function useTaskTags(taskId: string): Tag[] {
  * Tasks due on `date` (open and done, open first; subtasks included), skipping archived lists.
  * Public: used by Hoy and the calendar day panel.
  */
-export function useTasksForDate(date: DateISO | Date): Task[] {
+export function useTasksForDate(date: DateISO | Date): DbQuery<Task[]> {
   const day = typeof date === "string" ? date : toDateISO(date);
-  return useDbQuery(`date:${day}`, () => listTasksForDate(day), TASK_TABLES, NO_TASKS).data;
+  return useDbQuery(`date:${day}`, () => listTasksForDate(day), TASK_TABLES, NO_TASKS);
 }
 
-/** Open tasks due before today, earliest first. Public: used by Hoy. */
-export function useOverdueTasks(): Task[] {
-  const today = useToday();
-  return useDbQuery(`overdue:${today}`, () => listOverdue(today), TASK_TABLES, NO_TASKS).data;
+/**
+ * Open tasks due before `today` (by default the app-wide current day), earliest first. Public:
+ * used by Hoy, which passes its own day so both lists switch at the same moment.
+ */
+export function useOverdueTasks(today?: DateISO): DbQuery<Task[]> {
+  const currentDay = useCurrentDay();
+  const day = today ?? currentDay;
+  return useDbQuery(`overdue:${day}`, () => listOverdue(day), TASK_TABLES, NO_TASKS);
 }
 
 /**

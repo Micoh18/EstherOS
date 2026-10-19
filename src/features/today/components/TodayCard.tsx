@@ -1,5 +1,6 @@
 import { useId, type ReactNode } from "react";
-import { Card, cn } from "@/shared/ui";
+import { t } from "@/shared/i18n";
+import { Card, cn, Skeleton } from "@/shared/ui";
 
 interface TodayCardProps {
   title: string;
@@ -37,5 +38,25 @@ export function TodayCard({ title, icon, actions, footer, children, className }:
         </footer>
       ) : null}
     </Card>
+  );
+}
+
+/** Placeholder rows while a card loads its first data. */
+export function CardLoading({ rows = 2 }: { rows?: number }) {
+  return (
+    <div role="status" aria-label={t("today.loading")} className="flex flex-col gap-2">
+      {Array.from({ length: rows }, (_, index) => (
+        <Skeleton key={index} className="h-[40px]! rounded-md!" />
+      ))}
+    </div>
+  );
+}
+
+/** Gentle message when a card could not load its data. */
+export function CardError({ message }: { message: string }) {
+  return (
+    <p role="alert" className="rounded-md bg-danger/10 px-3 py-2 text-sm text-danger">
+      {message}
+    </p>
   );
 }

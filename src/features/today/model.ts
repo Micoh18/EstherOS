@@ -1,6 +1,7 @@
-import { addDays, format, getHours, startOfDay } from "date-fns";
+import { format, getHours } from "date-fns";
 import { es } from "date-fns/locale";
 import { parseDateISO, type DateISO } from "@/shared/lib/dates";
+export { msUntilNextMidnight } from "@/shared/lib";
 import { t } from "@/shared/i18n";
 
 export type DayPeriod = "morning" | "afternoon" | "evening";
@@ -20,11 +21,6 @@ export function greeting(now: Date, name: string): string {
   return trimmed
     ? t("today.greeting.withName", { greeting: text, name: trimmed })
     : t("today.greeting.noName", { greeting: text });
-}
-
-/** Milliseconds from `now` until the next local midnight. */
-export function msUntilNextMidnight(now: Date): number {
-  return addDays(startOfDay(now), 1).getTime() - now.getTime();
 }
 
 function capitalize(text: string): string {

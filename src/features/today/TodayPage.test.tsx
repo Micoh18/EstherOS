@@ -1,5 +1,3 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import {
   act,
   fireEvent,
@@ -9,40 +7,19 @@ import {
   waitFor,
   within,
 } from "@testing-library/react";
-import Database from "better-sqlite3";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CalendarPage, createEvent } from "@/features/calendar";
 import { createEntry } from "@/features/journal";
 import { setSetting } from "@/features/settings";
 import { createTask, getTask, TodoPage } from "@/features/todo";
-import { setDbExecutor, type SqlValue } from "@/shared/db";
+import { setDbExecutor } from "@/shared/db";
 import { HotkeysProvider, resetAll } from "@/shared/hotkeys";
 import { ToastProvider } from "@/shared/ui";
 import { TodayPage } from "./components/TodayPage";
 import { useCurrentDay } from "./hooks";
 import { dayPeriod, greeting, msUntilNextMidnight } from "./model";
-
-/** In-memory SQLite with the real migration, wired as the repositories' executor. */
-function useMemoryDb() {
-  const raw = new Database(":memory:");
-  raw.pragma("foreign_keys = ON");
-  raw.exec(readFileSync(join(process.cwd(), "src-tauri/migrations/0001_init.sql"), "utf8"));
-  const run = (sql: string, params: SqlValue[]) => {
-    const statement = raw.prepare(sql);
-    if (statement.reader) return { rows: statement.all(...params), changes: 0 };
-    return { rows: [], changes: statement.run(...params).changes };
-  };
-  setDbExecutor({
-    select: async (sql, params) => run(sql, params).rows as Record<string, unknown>[],
-    execute: async (sql, params) => ({ rowsAffected: run(sql, params).changes }),
-    batch: async (statements) => {
-      raw.transaction(() => {
-        for (const { sql, params } of statements) run(sql, params);
-      })();
-    },
-  });
-}
+import { useMemoryDb } from "../../../tests/unit/helpers/memoryDb";
 
 function LocationProbe() {
   const location = useLocation();
@@ -284,6 +261,53 @@ describe("integration", () => {
   });
 });
 
+describe("TodayPage loading and errors", () => {
+  beforeEach(() => {
+    vi.stubGlobal("ResizeObserver", NoopResizeObserver);
+    resetAll();
+    mockNow(at(10));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("shows placeholders, not empty states, while the cards load", async () => {
+    const never = () => new Promise<never>(() => {});
+    setDbExecutor({ select: never, execute: never, batch: never });
+    renderToday();
+
+    for (const name of ["Pendientes de hoy", "Hoy en tu calendario", "Tu diario"]) {
+      expect(within(card(name)).getByRole("status", { name: "Cargando…" })).toBeInTheDocument();
+    }
+    expect(screen.queryByText("Nada pendiente para hoy. Respira hondo ♡")).not.toBeInTheDocument();
+    expect(screen.queryByText("Día libre")).not.toBeInTheDocument();
+    expect(screen.queryByText("¿Cómo va el día?")).not.toBeInTheDocument();
+  });
+
+  it("says it could not load instead of showing an empty day", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const fail = () => Promise.reject(new Error("db is gone"));
+    setDbExecutor({ select: fail, execute: fail, batch: fail });
+    renderToday();
+
+    expect(
+      await within(card("Pendientes de hoy")).findByText("No pude cargar tus tareas."),
+    ).toBeInTheDocument();
+    expect(
+      await within(card("Hoy en tu calendario")).findByText("No pude cargar los eventos de hoy."),
+    ).toBeInTheDocument();
+    expect(
+      await within(card("Tu diario")).findByText("No pude cargar tu diario de hoy."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Nada pendiente para hoy. Respira hondo ♡")).not.toBeInTheDocument();
+    expect(screen.queryByText("Día libre")).not.toBeInTheDocument();
+    expect(screen.queryByText("¿Cómo va el día?")).not.toBeInTheDocument();
+  });
+});
+
 describe("useCurrentDay", () => {
   afterEach(() => vi.useRealTimers());
 
@@ -301,5 +325,18 @@ describe("useCurrentDay", () => {
       window.dispatchEvent(new Event("focus"));
     });
     expect(result.current).toBe("2026-10-21");
+  });
+
+  it("reschedules the midnight timer when it fires early after a clock change", () => {
+    vi.useFakeTimers({ now: at(23, 59) });
+    const { result } = renderHook(() => useCurrentDay());
+
+    // The clock goes back two hours before the timer fires: the day has not changed yet.
+    vi.setSystemTime(at(21, 59));
+    act(() => vi.advanceTimersByTime(61_000));
+    expect(result.current).toBe("2026-10-18");
+
+    act(() => vi.advanceTimersByTime(2 * 60 * 60_000));
+    expect(result.current).toBe("2026-10-19");
   });
 });

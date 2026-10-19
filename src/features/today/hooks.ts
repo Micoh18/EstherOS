@@ -3,44 +3,13 @@ import { useNavigate } from "react-router";
 import { requestJournalDate } from "@/features/journal";
 import { getAllSettings } from "@/features/settings";
 import { onDbChanged } from "@/shared/db";
-import { todayISO, type DateISO } from "@/shared/lib/dates";
+import type { DateISO } from "@/shared/lib/dates";
 import { log } from "@/shared/lib/log";
-import { msUntilNextMidnight } from "./model";
 
-/** Extra delay after midnight so the new day has surely started when the timer fires. */
-const MIDNIGHT_SLACK_MS = 1_000;
 const CLOCK_TICK_MS = 60_000;
 
-/**
- * The current local day. Recalculates with a timer at midnight (rescheduled every day) and
- * whenever the window gets the focus back or becomes visible again (after sleep, the timer may
- * have fired late or not at all).
- */
-export function useCurrentDay(): DateISO {
-  const [day, setDay] = useState(() => todayISO());
-
-  useEffect(() => {
-    const id = window.setTimeout(
-      () => setDay(todayISO()),
-      msUntilNextMidnight(new Date()) + MIDNIGHT_SLACK_MS,
-    );
-    return () => window.clearTimeout(id);
-  }, [day]);
-
-  useEffect(() => {
-    const refresh = () => {
-      if (document.visibilityState !== "hidden") setDay(todayISO());
-    };
-    window.addEventListener("focus", refresh);
-    document.addEventListener("visibilitychange", refresh);
-    return () => {
-      window.removeEventListener("focus", refresh);
-      document.removeEventListener("visibilitychange", refresh);
-    };
-  }, []);
-
-  return day;
-}
+/** The current local day; re-exported so Hoy keeps importing it from its own hooks. */
+export { useCurrentDay } from "@/shared/lib";
 
 /** Current time refreshed every minute and on focus (the greeting follows the hour). */
 export function useClock(): Date {

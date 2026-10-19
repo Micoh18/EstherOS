@@ -5,7 +5,7 @@ import type { DateISO } from "@/shared/lib/dates";
 import { Button, EmptyState } from "@/shared/ui";
 import { JournalPreview, useJournalEntriesForDate, useJournalStreak } from "@/features/journal";
 import { useOpenJournal } from "../hooks";
-import { TodayCard } from "./TodayCard";
+import { CardError, CardLoading, TodayCard } from "./TodayCard";
 
 function streakText(days: number): string {
   if (days === 0) return t("today.journal.streakNone");
@@ -16,7 +16,7 @@ function streakText(days: number): string {
 /** "Tu diario": preview of today's entry and the writing streak, or an invitation to write. */
 export function JournalCard({ today }: { today: DateISO }) {
   const openJournal = useOpenJournal(today);
-  const { data: entries, loading } = useJournalEntriesForDate(today);
+  const { data: entries, loading, error } = useJournalEntriesForDate(today);
   const streak = useJournalStreak();
   const latest = entries.at(-1);
 
@@ -38,7 +38,11 @@ export function JournalCard({ today }: { today: DateISO }) {
         </>
       }
     >
-      {loading ? null : latest ? (
+      {error ? (
+        <CardError message={t("today.journal.error")} />
+      ) : loading ? (
+        <CardLoading rows={1} />
+      ) : latest ? (
         <JournalPreview
           entry={latest}
           onOpen={openJournal}
