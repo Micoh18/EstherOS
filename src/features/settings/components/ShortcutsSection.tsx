@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Keyboard, RotateCcw, Search } from "lucide-react";
 import {
@@ -108,6 +108,18 @@ function ShortcutRow({
   const binding = getEffectiveBinding(id, overrides);
   const status = statusOf(action, overrides);
   const combo = formatBindingString(binding);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const wasRecording = useRef(recording);
+
+  // The recorder unmounts when it finishes; if that left focus on <body> (Enter, Escape…),
+  // give it back to the pill. A blur to another element keeps that element focused.
+  useEffect(() => {
+    const finished = wasRecording.current && !recording;
+    wasRecording.current = recording;
+    if (finished && (!document.activeElement || document.activeElement === document.body)) {
+      triggerRef.current?.focus();
+    }
+  }, [recording]);
 
   const pill = combo ? (
     <Kbd combo={combo} size="sm" />
@@ -146,6 +158,7 @@ function ShortcutRow({
           <KeyRecorder actionId={id} onDone={onDone} />
         ) : (
           <button
+            ref={triggerRef}
             type="button"
             onClick={onRecord}
             aria-label={t("settings.shortcuts.edit", { name })}

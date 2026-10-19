@@ -1,5 +1,5 @@
 import { Check } from "lucide-react";
-import { cn } from "@/shared/ui";
+import { cn, onRadioGroupKeyDown, radioTabIndex } from "@/shared/ui";
 import { t } from "@/shared/i18n";
 import type { ThemeName } from "@/shared/theme";
 import { THEMES, type ThemeSetting } from "../model";
@@ -64,13 +64,15 @@ const ORDER: readonly ThemeSetting[] = ["pink", "white", "dark", "system"];
 
 /** Three theme previews plus "Sistema". The active one has an accent border and a check. */
 export function ThemePicker({ value, onChange, className }: ThemePickerProps) {
+  const themes = ORDER.filter((theme) => THEMES.includes(theme));
   return (
     <div
       role="radiogroup"
       aria-label={t("settings.appearance.theme")}
+      onKeyDown={onRadioGroupKeyDown}
       className={cn("grid grid-cols-2 gap-4 sm:grid-cols-4", className)}
     >
-      {ORDER.filter((theme) => THEMES.includes(theme)).map((theme) => {
+      {themes.map((theme, index) => {
         const active = theme === value;
         return (
           <button
@@ -78,6 +80,7 @@ export function ThemePicker({ value, onChange, className }: ThemePickerProps) {
             type="button"
             role="radio"
             aria-checked={active}
+            tabIndex={radioTabIndex(active, index, themes.includes(value))}
             onClick={() => onChange(theme)}
             className={cn(
               "group flex flex-col gap-2 rounded-lg border-2 bg-surface p-2 text-left outline-none",

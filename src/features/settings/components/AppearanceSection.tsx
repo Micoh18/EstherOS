@@ -1,5 +1,5 @@
 import { useTheme } from "@/shared/theme";
-import { Switch, cn } from "@/shared/ui";
+import { Switch, cn, onRadioGroupKeyDown, radioTabIndex } from "@/shared/ui";
 import { t, type I18nKey } from "@/shared/i18n";
 import { setFontScale, setReduceMotion, useAppearanceStore } from "../appearance";
 import { FONT_SCALES, type FontScale } from "../model";
@@ -33,14 +33,20 @@ export function AppearanceSection() {
           <div
             role="radiogroup"
             aria-label={t("settings.appearance.fontSize")}
+            onKeyDown={onRadioGroupKeyDown}
             className="inline-flex gap-1 rounded-full bg-bg-elevated p-1"
           >
-            {FONT_SCALES.map((scale) => (
+            {FONT_SCALES.map((scale, index) => (
               <button
                 key={scale}
                 type="button"
                 role="radio"
                 aria-checked={fontScale === scale}
+                tabIndex={radioTabIndex(
+                  fontScale === scale,
+                  index,
+                  FONT_SCALES.includes(fontScale),
+                )}
                 onClick={() => setFontScale(scale)}
                 className={cn(
                   "h-[32px] rounded-full px-4 font-semibold outline-none focus-visible:shadow-(--shadow-glow)",
