@@ -11,12 +11,20 @@ export interface ImportResult {
 
 /** Machine-readable reason of a failed import, taken from the Rust error prefix. */
 export type ImportErrorCode =
-  "not_sqlite" | "corrupt" | "missing_tables" | "newer_version" | "import_failed" | "unknown";
+  | "not_sqlite"
+  | "corrupt"
+  | "missing_tables"
+  | "newer_version"
+  | "import_failed"
+  | "restore_failed"
+  | "unknown";
 
 export class ImportError extends Error {
   constructor(
     readonly code: ImportErrorCode,
     message: string,
+    /** Copy taken before the import; set when the previous data could not be put back. */
+    readonly backupPath?: string,
   ) {
     super(message);
     this.name = "ImportError";
@@ -29,6 +37,7 @@ const IMPORT_CODES: ImportErrorCode[] = [
   "missing_tables",
   "newer_version",
   "import_failed",
+  "restore_failed",
 ];
 
 const DB_FILTERS = [{ name: "Estheros backup", extensions: ["db", "sqlite"] }];
@@ -54,7 +63,8 @@ export async function importDb(sourcePath: string): Promise<ImportResult> {
   } catch (error) {
     const message = String(error);
     const code = IMPORT_CODES.find((c) => message.startsWith(`${c}:`)) ?? "unknown";
-    throw new ImportError(code, message);
+    const backupPath = /; backup at (.+)$/.exec(message)?.[1];
+    throw new ImportError(code, message, backupPath);
   }
 }
 

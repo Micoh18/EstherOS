@@ -3,7 +3,8 @@
 use std::fs;
 use std::io::Read;
 use std::path::{Path, PathBuf};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::thread;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
@@ -17,6 +18,8 @@ use crate::db;
 
 const SQLITE_HEADER: &[u8; 16] = b"SQLite format 3\0";
 const KEEP_PRE_IMPORT_BACKUPS: usize = 5;
+const FILE_RETRIES: u32 = 20;
+const FILE_RETRY_DELAY: Duration = Duration::from_millis(100);
 const REQUIRED_TABLES: &[&str] = &[
     "_sqlx_migrations",
     "setting",
@@ -166,20 +169,47 @@ async fn validate_backup(source: &Path) -> CmdResult<()> {
     Ok(())
 }
 
-fn remove_sidecars(db_path: &Path) {
-    for suffix in ["-wal", "-shm", "-journal"] {
-        let mut sidecar = db_path.as_os_str().to_owned();
-        sidecar.push(suffix);
-        let _ = fs::remove_file(PathBuf::from(sidecar));
+/// Windows keeps a just-closed file locked for a moment (SQLite finishing its handles, antivirus
+/// scanning a fresh copy), so file operations on the database are retried for up to ~2 s.
+fn retry_file_op<T>(mut op: impl FnMut() -> std::io::Result<T>) -> std::io::Result<T> {
+    let mut attempt = 0;
+    loop {
+        match op() {
+            Err(e) if attempt < FILE_RETRIES && e.kind() != std::io::ErrorKind::NotFound => {
+                attempt += 1;
+                thread::sleep(FILE_RETRY_DELAY);
+            }
+            result => return result,
+        }
     }
 }
 
-/// Copies `source` over the live database file through a temp file in the same folder.
+/// A stale `-wal` left next to the new file would be replayed onto it, so failing to remove one
+/// aborts the swap.
+fn remove_sidecars(db_path: &Path) -> CmdResult<()> {
+    for suffix in ["-wal", "-shm", "-journal"] {
+        let mut sidecar = db_path.as_os_str().to_owned();
+        sidecar.push(suffix);
+        match retry_file_op(|| fs::remove_file(PathBuf::from(&sidecar))) {
+            Err(e) if e.kind() != std::io::ErrorKind::NotFound => return Err(err(e)),
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+/// Copies `source` over the live database file through a temp file in the same folder. On error
+/// the live file is left as it was.
 fn replace_db_file(source: &Path, db_path: &Path) -> CmdResult<()> {
     let tmp = db_path.with_extension("db.importing");
-    fs::copy(source, &tmp).map_err(err)?;
-    remove_sidecars(db_path);
-    fs::rename(&tmp, db_path).map_err(err)
+    let swapped = fs::copy(source, &tmp)
+        .map_err(err)
+        .and_then(|_| remove_sidecars(db_path))
+        .and_then(|()| retry_file_op(|| fs::rename(&tmp, db_path)).map_err(err));
+    if swapped.is_err() {
+        let _ = fs::remove_file(&tmp);
+    }
+    swapped
 }
 
 async fn open_and_migrate(db_path: &Path) -> CmdResult<SqlitePool> {
@@ -258,20 +288,31 @@ pub async fn import_db<R: Runtime>(
     vacuum_into(&current, &backup_path).await?;
     current.close().await;
 
-    let swapped = match replace_db_file(&source, &db_path) {
-        Ok(()) => open_and_migrate(&db_path).await,
-        Err(e) => Err(e),
-    };
+    if let Err(import_error) = replace_db_file(&source, &db_path) {
+        // The live file was not replaced: reopen it as it was.
+        return match open_and_migrate(&db_path).await {
+            Ok(pool) => {
+                map.insert(db::DB_URL.to_string(), DbPool::Sqlite(pool));
+                Err(format!(
+                    "import_failed: {import_error} (previous data restored)"
+                ))
+            }
+            Err(reopen_error) => Err(format!(
+                "restore_failed: {import_error}; reopen failed: {reopen_error}; backup at {}",
+                backup_path.to_string_lossy()
+            )),
+        };
+    }
 
-    match swapped {
+    match open_and_migrate(&db_path).await {
         Ok(pool) => {
+            map.insert(db::DB_URL.to_string(), DbPool::Sqlite(pool.clone()));
+            drop(map);
             let version: i64 =
                 sqlx::query_scalar("SELECT COALESCE(MAX(version), 0) FROM _sqlx_migrations")
                     .fetch_one(&pool)
                     .await
                     .map_err(err)?;
-            map.insert(db::DB_URL.to_string(), DbPool::Sqlite(pool));
-            drop(map);
             prune_backups(&backups);
             Ok(ImportResult {
                 backup_path: backup_path.to_string_lossy().into_owned(),
@@ -290,10 +331,16 @@ pub async fn import_db<R: Runtime>(
                         "import_failed: {import_error} (previous data restored)"
                     ))
                 }
-                Err(restore_error) => Err(format!(
-                    "import_failed: {import_error}; restore failed: {restore_error}; backup at {}",
-                    backup_path.to_string_lossy()
-                )),
+                Err(restore_error) => {
+                    // Keep a pool on whatever file is there so the app is not left without one.
+                    if let Ok(pool) = SqlitePool::connect(&db::connection_url(&db_path)).await {
+                        map.insert(db::DB_URL.to_string(), DbPool::Sqlite(pool));
+                    }
+                    Err(format!(
+                        "restore_failed: {import_error}; restore failed: {restore_error}; backup at {}",
+                        backup_path.to_string_lossy()
+                    ))
+                }
             }
         }
     }
@@ -318,4 +365,93 @@ pub fn db_size_bytes<R: Runtime>(app: AppHandle<R>) -> CmdResult<u64> {
         .map(|m| m.len())
         .unwrap_or(0);
     Ok(total)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    async fn file_pool(path: &Path) -> SqlitePool {
+        SqlitePool::connect(&format!("{}?mode=rwc", db::connection_url(path)))
+            .await
+            .unwrap()
+    }
+
+    async fn write_value(path: &Path, value: &str) {
+        let pool = file_pool(path).await;
+        sqlx::query("PRAGMA journal_mode = WAL")
+            .execute(&pool)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE IF NOT EXISTS t (v TEXT)")
+            .execute(&pool)
+            .await
+            .unwrap();
+        sqlx::query("DELETE FROM t").execute(&pool).await.unwrap();
+        sqlx::query("INSERT INTO t (v) VALUES (?)")
+            .bind(value)
+            .execute(&pool)
+            .await
+            .unwrap();
+        pool.close().await;
+    }
+
+    #[test]
+    fn replaces_a_database_right_after_its_pool_closes() {
+        tauri::async_runtime::block_on(async {
+            let dir = std::env::temp_dir().join(format!("estheros-replace-{}", timestamp()));
+            fs::create_dir_all(&dir).unwrap();
+            let live = dir.join("estheros.db");
+            let source = dir.join("source.db");
+            write_value(&source, "imported").await;
+
+            // Same sequence as `import_db`: a busy pool on the live file, closed just before the swap.
+            let pool = file_pool(&live).await;
+            sqlx::query("PRAGMA journal_mode = WAL")
+                .execute(&pool)
+                .await
+                .unwrap();
+            sqlx::query("CREATE TABLE t (v TEXT)")
+                .execute(&pool)
+                .await
+                .unwrap();
+            sqlx::query("INSERT INTO t (v) VALUES ('old')")
+                .execute(&pool)
+                .await
+                .unwrap();
+            pool.close().await;
+            replace_db_file(&source, &live).unwrap();
+
+            let pool = file_pool(&live).await;
+            let value: String = sqlx::query_scalar("SELECT v FROM t")
+                .fetch_one(&pool)
+                .await
+                .unwrap();
+            pool.close().await;
+            assert_eq!(value, "imported");
+            assert!(!live.with_extension("db.importing").exists());
+            let _ = fs::remove_dir_all(&dir);
+        });
+    }
+
+    #[test]
+    fn leaves_the_live_file_alone_when_the_source_is_missing() {
+        tauri::async_runtime::block_on(async {
+            let dir = std::env::temp_dir().join(format!("estheros-missing-{}", timestamp()));
+            fs::create_dir_all(&dir).unwrap();
+            let live = dir.join("estheros.db");
+            write_value(&live, "kept").await;
+
+            assert!(replace_db_file(&dir.join("nope.db"), &live).is_err());
+
+            let pool = file_pool(&live).await;
+            let value: String = sqlx::query_scalar("SELECT v FROM t")
+                .fetch_one(&pool)
+                .await
+                .unwrap();
+            pool.close().await;
+            assert_eq!(value, "kept");
+            let _ = fs::remove_dir_all(&dir);
+        });
+    }
 }
