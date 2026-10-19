@@ -14,6 +14,13 @@ export type TodoLink =
   | { kind: "view"; view: SmartView }
   | { kind: "date"; date: DateISO };
 
+const LINK_PARAMS = ["task", "view", "date"] as const;
+
+/** Whether the query carries a link parameter, valid or not (it is cleared either way). */
+export function hasTodoLinkParams(params: URLSearchParams): boolean {
+  return LINK_PARAMS.some((name) => params.has(name));
+}
+
 /** What a `/todo?…` query asks for, or `null` when there is nothing (valid) to open. */
 export function readTodoLink(params: URLSearchParams): TodoLink | null {
   const taskId = params.get("task");

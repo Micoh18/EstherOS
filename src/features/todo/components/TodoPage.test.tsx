@@ -1,7 +1,7 @@
 import { act } from "react";
 import { beforeEach, describe, expect, it } from "vitest";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { MemoryRouter } from "react-router";
+import { MemoryRouter, useLocation } from "react-router";
 import { HotkeysProvider } from "@/shared/hotkeys";
 import { addDaysISO, todayISO } from "@/shared/lib/dates";
 import { useMemoryDb } from "../../../../tests/unit/helpers/memoryDb";
@@ -18,11 +18,17 @@ import {
 import { resetTodoStore, useTodoStore } from "../store";
 import { TodoPage } from "./TodoPage";
 
+function LocationProbe() {
+  const location = useLocation();
+  return <p data-testid="location">{location.pathname + location.search}</p>;
+}
+
 function renderPage(path = "/todo") {
   return render(
     <MemoryRouter initialEntries={[path]}>
       <HotkeysProvider>
         <TodoPage />
+        <LocationProbe />
       </HotkeysProvider>
     </MemoryRouter>,
   );
@@ -203,5 +209,11 @@ describe("TodoPage", () => {
     await waitFor(() =>
       expect(useTodoStore.getState().selection).toEqual({ kind: "view", view: "upcoming" }),
     );
+  });
+
+  it("clears an invalid link from the address and keeps the current view", async () => {
+    renderPage("/todo?date=2026-13-45&view=nope");
+    await waitFor(() => expect(screen.getByTestId("location")).toHaveTextContent(/^\/todo$/));
+    expect(useTodoStore.getState().selection).toEqual({ kind: "view", view: "today" });
   });
 });

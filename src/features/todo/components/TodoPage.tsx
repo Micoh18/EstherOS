@@ -6,7 +6,7 @@ import { log } from "@/shared/lib/log";
 import { useLists, useToday } from "../hooks";
 import { INBOX_LIST_ID, type TaskPriority } from "../model";
 import { getTask, setDue, setPriority, updateTask } from "../repository";
-import { readTodoLink, viewForDate, type TodoLink } from "../routes";
+import { hasTodoLinkParams, readTodoLink, viewForDate, type TodoLink } from "../routes";
 import { useTodoStore } from "../store";
 import { addDaysISO, type DateISO } from "@/shared/lib/dates";
 import { defaultDueFor, type SmartView } from "../views";
@@ -77,9 +77,11 @@ export function TodoPage() {
   const today = useToday();
   const [params, setParams] = useSearchParams();
   useEffect(() => {
+    if (!hasTodoLinkParams(params)) return;
+    // Cleared even when invalid, like the calendar and the journal do.
+    setParams({}, { replace: true });
     const link = readTodoLink(params);
     if (!link) return;
-    setParams({}, { replace: true });
     openTodoLink(link, today).catch((error: unknown) => log.error("todo: open link", error));
   }, [params, setParams, today]);
 
