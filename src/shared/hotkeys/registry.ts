@@ -7,6 +7,7 @@ import {
   type ActionId,
   type Scope,
 } from "./actions";
+import { log } from "@/shared/lib/log";
 import { formatBindingString, isReserved, normalizeBinding } from "./binding";
 
 /** Only the actions the user changed: `{ actionId: binding | null }` (null = no shortcut). */
@@ -24,8 +25,7 @@ interface KeybindingsState {
 }
 
 function warn(message: string, detail?: unknown) {
-  // TODO(A3): route through shared/lib/log.ts once it exists.
-  console.warn(`[hotkeys] ${message}`, detail ?? "");
+  log.warn(`[hotkeys] ${message}`, detail ?? "");
 }
 
 function readStoredOverrides(): KeybindingOverrides {
