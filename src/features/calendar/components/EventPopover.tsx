@@ -1,50 +1,16 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { CalendarDays, Copy, MapPin, Pencil, Repeat, Trash2 } from "lucide-react";
 import type { Tag } from "@/shared/db";
 import { t } from "@/shared/i18n";
-import { Button, Chip, cn, Popover, PopoverContent, PopoverTrigger } from "@/shared/ui";
+import { Button, Chip, cn } from "@/shared/ui";
 import { formatEventTime, formatLongDate, SWATCH_CLASSES, type TimeFormat } from "../format";
 import { useEventActions } from "../hooks";
 import type { EventOccurrence } from "../model";
 import { listEventTags } from "../repository";
 import { useCalendarStore } from "../store";
-import { wasJustDragged } from "./dragState";
 
-interface EventPopoverProps {
-  occurrence: EventOccurrence;
-  timeFormat: TimeFormat;
-  /** The clickable event (EventChip or a week block). Must accept a ref. */
-  children: ReactNode;
-}
-
-/** Click on an event: title, time, place, color and tags, with Edit / Duplicate / Delete. */
-export function EventPopover({ occurrence, timeFormat, children }: EventPopoverProps) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <Popover
-      open={open}
-      onOpenChange={(next) => {
-        // The click that ends a drag must not open the popover.
-        if (next && wasJustDragged()) return;
-        setOpen(next);
-      }}
-    >
-      <PopoverTrigger asChild>{children}</PopoverTrigger>
-      {open ? (
-        <PopoverContent className="w-[300px] p-4" side="right" align="start" collisionPadding={16}>
-          <EventDetails
-            occurrence={occurrence}
-            timeFormat={timeFormat}
-            onDone={() => setOpen(false)}
-          />
-        </PopoverContent>
-      ) : null}
-    </Popover>
-  );
-}
-
-function EventDetails({
+/** Content of the event popover: details and Edit / Duplicate / Delete. */
+export function EventDetails({
   occurrence,
   timeFormat,
   onDone,

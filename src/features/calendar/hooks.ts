@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useState } from "react";
 import { addMonths, startOfMonth } from "date-fns";
 import { onDbChanged, type DbTable } from "@/shared/db";
 import { addDaysISO, parseDateISO, toDateISO, toYearMonth, type DateISO } from "@/shared/lib/dates";
@@ -57,7 +57,9 @@ function useDbQuery<T>(tables: readonly DbTable[], key: string, load: () => Prom
     let cancelled = false;
     load().then(
       (data) => {
-        if (!cancelled) setState({ data, loading: false, error: null });
+        // A transition: the grid re-renders with the new period's data in slices, so a month
+        // full of events does not block the slide animation for a whole long frame.
+        if (!cancelled) startTransition(() => setState({ data, loading: false, error: null }));
       },
       (error: unknown) => {
         log.error("calendar query failed", key, error);

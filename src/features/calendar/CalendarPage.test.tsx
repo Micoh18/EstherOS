@@ -158,6 +158,30 @@ describe("CalendarPage", () => {
     expect((await listEventTags(event.id)).map((tag) => tag.name)).toEqual(["salud"]);
   });
 
+  it("opens the event popover on click and gives the focus back when it closes", async () => {
+    await createEvent({ title: "Cerámica", allDay: true, date: "2026-10-21" });
+    renderCalendar();
+    const chip = await within(await screen.findByRole("grid")).findByRole("button", {
+      name: /^Cerámica/,
+    });
+    expect(chip).toHaveAttribute("aria-expanded", "false");
+
+    fireEvent.click(chip);
+    const popover = await screen.findByRole("dialog");
+    expect(within(popover).getByRole("button", { name: "Editar" })).toBeInTheDocument();
+    expect(chip).toHaveAttribute("aria-expanded", "true");
+
+    fireEvent.keyDown(popover, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(chip).toHaveFocus();
+
+    // Clicking the event again opens it again (and a second click closes it).
+    fireEvent.click(chip);
+    expect(await screen.findByRole("dialog")).toBeInTheDocument();
+    fireEvent.click(chip);
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+  });
+
   it("asks before deleting a recurring series", async () => {
     const event = await createEvent({
       title: "Clase",

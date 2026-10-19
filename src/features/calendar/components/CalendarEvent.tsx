@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { memo, useCallback, type CSSProperties } from "react";
 import { Repeat } from "lucide-react";
 import type { DateISO } from "@/shared/lib/dates";
 import { cn } from "@/shared/ui";
@@ -6,7 +6,7 @@ import { colorClasses, formatEventTime, type TimeFormat } from "../format";
 import type { EventOccurrence } from "../model";
 import { useDraggableEvent } from "./dnd";
 import { EventChip } from "./EventChip";
-import { EventPopover } from "./EventPopover";
+import { useEventPopover } from "./useEventPopover";
 
 interface CalendarEventProps {
   occurrence: EventOccurrence;
@@ -16,27 +16,48 @@ interface CalendarEventProps {
   variant?: "pill" | "row";
 }
 
-/** Draggable event chip that opens its popover on click. */
-export function CalendarEvent({
+/** Ref for an event element that is both draggable and the anchor of its popover. */
+function useEventRef(
+  setNodeRef: (node: HTMLElement | null) => void,
+  anchorRef: { current: HTMLElement | null },
+) {
+  return useCallback(
+    (node: HTMLElement | null) => {
+      setNodeRef(node);
+      anchorRef.current = node;
+    },
+    [setNodeRef, anchorRef],
+  );
+}
+
+/**
+ * Draggable event chip that opens its popover on click. Memoized: a month cell re-renders when
+ * its task or journal indicator arrives, and its events have not changed then.
+ */
+export const CalendarEvent = memo(function CalendarEvent({
   occurrence,
   day,
   timeFormat,
   variant = "pill",
 }: CalendarEventProps) {
   const { setNodeRef, isDragging, dragProps } = useDraggableEvent(occurrence, day);
+  const { anchorRef, triggerProps, popover } = useEventPopover(occurrence, timeFormat);
+  const ref = useEventRef(setNodeRef, anchorRef);
   return (
-    <EventPopover occurrence={occurrence} timeFormat={timeFormat}>
+    <>
       <EventChip
-        ref={setNodeRef}
+        ref={ref}
         {...dragProps}
+        {...triggerProps}
         occurrence={occurrence}
         timeFormat={timeFormat}
         variant={variant}
         className={cn(isDragging && "opacity-40")}
       />
-    </EventPopover>
+      {popover}
+    </>
   );
-}
+});
 
 interface EventBlockProps {
   occurrence: EventOccurrence;
@@ -50,14 +71,17 @@ interface EventBlockProps {
 /** Timed event positioned in the week/day time grid. */
 export function EventBlock({ occurrence, day, timeFormat, style, compact }: EventBlockProps) {
   const { setNodeRef, isDragging, dragProps } = useDraggableEvent(occurrence, day);
+  const { anchorRef, triggerProps, popover } = useEventPopover(occurrence, timeFormat);
+  const ref = useEventRef(setNodeRef, anchorRef);
   const colors = colorClasses(occurrence.color);
   const time = formatEventTime(occurrence, timeFormat);
   return (
-    <EventPopover occurrence={occurrence} timeFormat={timeFormat}>
+    <>
       <button
         type="button"
-        ref={setNodeRef}
+        ref={ref}
         {...dragProps}
+        {...triggerProps}
         style={style}
         aria-label={`${occurrence.title} · ${time}`}
         data-past-log={occurrence.isPastLog || undefined}
@@ -77,6 +101,7 @@ export function EventBlock({ occurrence, day, timeFormat, style, compact }: Even
         </span>
         {!compact ? <span className="truncate font-mono text-[11px] text-text">{time}</span> : null}
       </button>
-    </EventPopover>
+      {popover}
+    </>
   );
 }

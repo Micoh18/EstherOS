@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { ChevronLeft, ChevronRight, PanelRight, Plus } from "lucide-react";
 import { useFormattedBinding } from "@/shared/hotkeys";
 import { t } from "@/shared/i18n";
@@ -41,12 +42,6 @@ export function CalendarHeader({
   const todayKey = useFormattedBinding("calendar.goToToday");
   const newKey = useFormattedBinding("calendar.newEvent");
   const panelKey = useFormattedBinding("calendar.togglePanel");
-  const viewKeys = {
-    month: useFormattedBinding(VIEW_ACTION.month),
-    week: useFormattedBinding(VIEW_ACTION.week),
-    day: useFormattedBinding(VIEW_ACTION.day),
-  };
-
   return (
     <header className="flex flex-wrap items-center gap-3 px-5 pt-4 pb-3">
       <div className="flex items-center gap-1">
@@ -74,19 +69,7 @@ export function CalendarHeader({
       </Tooltip>
 
       <div className="ml-auto flex items-center gap-2">
-        <Tabs value={view} onValueChange={(next) => onViewChange(next as CalendarView)}>
-          <TabsList aria-label={t("calendar.view.label")}>
-            {CALENDAR_VIEWS.map((option) => (
-              <Tooltip
-                key={option}
-                content={t(`hotkeys.action.${VIEW_ACTION[option]}`)}
-                shortcut={viewKeys[option] || undefined}
-              >
-                <TabsTrigger value={option}>{t(`calendar.view.${option}`)}</TabsTrigger>
-              </Tooltip>
-            ))}
-          </TabsList>
-        </Tabs>
+        <ViewTabs view={view} onViewChange={onViewChange} />
         <Tooltip content={t("calendar.newEventLabel")} shortcut={newKey || undefined}>
           <Button size="sm" onClick={onNewEvent}>
             <Plus aria-hidden />
@@ -110,3 +93,36 @@ export function CalendarHeader({
     </header>
   );
 }
+
+/**
+ * Memoized so the period title changing on every step does not re-render the tabs: their
+ * sliding indicator is a framer layout animation, which measures the layout on each render.
+ */
+const ViewTabs = memo(function ViewTabs({
+  view,
+  onViewChange,
+}: {
+  view: CalendarView;
+  onViewChange: (view: CalendarView) => void;
+}) {
+  const viewKeys = {
+    month: useFormattedBinding(VIEW_ACTION.month),
+    week: useFormattedBinding(VIEW_ACTION.week),
+    day: useFormattedBinding(VIEW_ACTION.day),
+  };
+  return (
+    <Tabs value={view} onValueChange={(next) => onViewChange(next as CalendarView)}>
+      <TabsList aria-label={t("calendar.view.label")}>
+        {CALENDAR_VIEWS.map((option) => (
+          <Tooltip
+            key={option}
+            content={t(`hotkeys.action.${VIEW_ACTION[option]}`)}
+            shortcut={viewKeys[option] || undefined}
+          >
+            <TabsTrigger value={option}>{t(`calendar.view.${option}`)}</TabsTrigger>
+          </Tooltip>
+        ))}
+      </TabsList>
+    </Tabs>
+  );
+});
