@@ -543,6 +543,8 @@ export const es = {
     "La copia viene de una versión más nueva de Estheros. Actualiza la app para importarla. Tus datos no se tocaron.",
   "settings.data.importError.import_failed":
     "No pude terminar la importación y recuperé tus datos anteriores.",
+  "settings.data.importError.restore_failed":
+    "No pude terminar la importación ni recuperar tus datos. Tu copia está a salvo en {path}. Cierra y vuelve a abrir Estheros antes de seguir.",
   "settings.data.importError.unknown": "No pude importar la copia. Tus datos no se tocaron.",
   "settings.data.wipeTitle": "Empezar de cero",
   "settings.data.wipe": "Borrar todos los datos…",

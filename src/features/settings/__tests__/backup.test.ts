@@ -73,8 +73,33 @@ describe("importBackup", () => {
     tauri.invoke.mockRejectedValue("missing_tables: no task table");
     expect(await importBackup()).toMatchObject({ status: "error", code: "missing_tables" });
 
+    tauri.invoke.mockRejectedValue(
+      "import_failed: Acceso denegado. (os error 5) (previous data restored)",
+    );
+    expect(await importBackup()).toMatchObject({
+      status: "error",
+      code: "import_failed",
+      message: expect.stringContaining("recuperé tus datos"),
+    });
+
     tauri.invoke.mockRejectedValue("something odd");
     expect(await importBackup()).toMatchObject({ status: "error", code: "unknown" });
+    expect(changes).toEqual([]);
+  });
+
+  it("points to the safety copy when the previous data could not be restored", async () => {
+    tauri.open.mockResolvedValue("C:/backup.db");
+    tauri.invoke.mockRejectedValue(
+      "restore_failed: bad file; restore failed: locked; backup at C:\\data\\backups\\pre-import-1.db",
+    );
+
+    const outcome = await importBackup();
+
+    expect(outcome).toMatchObject({ status: "error", code: "restore_failed" });
+    expect(outcome.status === "error" && outcome.message).toContain(
+      "C:\\data\\backups\\pre-import-1.db",
+    );
+    expect(outcome.status === "error" && outcome.message).not.toContain("recuperé");
     expect(changes).toEqual([]);
   });
 
