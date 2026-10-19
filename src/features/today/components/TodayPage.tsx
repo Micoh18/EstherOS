@@ -44,7 +44,9 @@ export function TodayPage() {
     >
       <TodayHeader today={today} userName={userName} />
       <RibbonDivider size={18} className="text-border" />
-      <div className="grid grid-cols-1 items-start gap-5 min-[1200px]:grid-cols-2">
+      {/* The second row takes the extra height of a long task list, so the journal card stays
+          right below the calendar instead of being pushed down. */}
+      <div className="grid grid-cols-1 items-start gap-5 min-[1200px]:grid-cols-2 min-[1200px]:grid-rows-[auto_1fr]">
         <CalendarCard today={today} timeFormat={timeFormat} />
         <TasksCard
           today={today}
