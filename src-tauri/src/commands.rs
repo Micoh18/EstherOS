@@ -355,6 +355,12 @@ pub fn open_data_folder<R: Runtime>(app: AppHandle<R>) -> CmdResult<()> {
         .map_err(err)
 }
 
+/// Absolute path of the database file, so the frontend never rebuilds it on its own.
+#[tauri::command]
+pub fn db_path<R: Runtime>(app: AppHandle<R>) -> CmdResult<String> {
+    Ok(db::db_path(&app)?.to_string_lossy().into_owned())
+}
+
 #[tauri::command]
 pub fn db_size_bytes<R: Runtime>(app: AppHandle<R>) -> CmdResult<u64> {
     let db_path = db::db_path(&app)?;

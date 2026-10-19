@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { onDbChanged, setDbExecutor, type DbExecutor } from "@/shared/db";
+import { dbPath, onDbChanged, setDbExecutor, type DbExecutor } from "@/shared/db";
 import { importBackup } from "../backup";
 
 const tauri = vi.hoisted(() => ({
@@ -123,5 +123,13 @@ describe("importBackup", () => {
       result: { backupPath: "C:/data/backups/pre-import.db", schemaVersion: 1 },
     });
     expect(changes).toEqual(["*"]);
+  });
+});
+
+describe("dbPath", () => {
+  it("asks the Rust side for the path it opened instead of rebuilding it", async () => {
+    tauri.invoke.mockResolvedValue("C:/Users/me/AppData/Roaming/com.estheros.desktop/estheros.db");
+    await expect(dbPath()).resolves.toMatch(/estheros\.db$/);
+    expect(tauri.invoke).toHaveBeenCalledWith("db_path");
   });
 });

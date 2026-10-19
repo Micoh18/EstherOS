@@ -19,6 +19,7 @@ pub fn run() {
             commands::import_db,
             commands::open_data_folder,
             commands::db_size_bytes,
+            commands::db_path,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

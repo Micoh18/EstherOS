@@ -1,16 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { appConfigDir, join } from "@tauri-apps/api/path";
 import { Download, FolderOpen, TriangleAlert, Upload } from "lucide-react";
-import { dbSizeBytes, onDbChanged, openDataFolder } from "@/shared/db";
+import { dbPath, dbSizeBytes, onDbChanged, openDataFolder } from "@/shared/db";
 import { log } from "@/shared/lib/log";
 import { Button, Input } from "@/shared/ui";
 import { t } from "@/shared/i18n";
 import { exportBackup, importBackup } from "../backup";
 import { wipeAllData } from "../repository";
 import { SettingRow, SettingsSection } from "./SettingsLayout";
-
-/** File name of the database inside the app folder (see `DB_URL`). */
-const DB_FILE = "estheros.db";
 
 type Status = { tone: "ok" | "error"; text: string } | null;
 
@@ -33,9 +29,7 @@ function useDbInfo() {
     dbSizeBytes().then(setSize, (error: unknown) => log.warn("db size", error));
   }, []);
   useEffect(() => {
-    appConfigDir()
-      .then((dir) => join(dir, DB_FILE))
-      .then(setPath, (error: unknown) => log.warn("db path", error));
+    dbPath().then(setPath, (error: unknown) => log.warn("db path", error));
     loadSize();
     return onDbChanged("*", loadSize);
   }, [loadSize]);

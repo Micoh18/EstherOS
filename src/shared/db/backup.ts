@@ -72,6 +72,11 @@ export function openDataFolder(): Promise<void> {
   return invoke("open_data_folder");
 }
 
+/** Absolute path of the database file, as the Rust side opens it. */
+export function dbPath(): Promise<string> {
+  return invoke<string>("db_path");
+}
+
 export function dbSizeBytes(): Promise<number> {
   return invoke<number>("db_size_bytes");
 }
