@@ -1,7 +1,7 @@
-import { memo } from "react";
-import { format, isSameMonth } from "date-fns";
+import { memo, useCallback, useLayoutEffect, useRef, type KeyboardEvent } from "react";
+import { addDays, format, isSameMonth, startOfMonth } from "date-fns";
 import { es } from "date-fns/locale";
-import { toDateISO, type DateISO } from "@/shared/lib/dates";
+import { parseDateISO, toDateISO, type DateISO } from "@/shared/lib/dates";
 import { t } from "@/shared/i18n";
 import { cn, Skeleton } from "@/shared/ui";
 import { capitalize, type TimeFormat } from "../format";
@@ -15,6 +15,12 @@ import { useCalendarStore } from "../store";
 /** Events listed per cell before collapsing into "+N más". */
 const MAX_VISIBLE = 3;
 const NO_EVENTS: EventOccurrence[] = [];
+
+/**
+ * Day whose cell takes DOM focus on its next render. Module-level so it reaches the cell of a
+ * freshly mounted grid after an arrow key crossed into the next/previous month.
+ */
+let pendingFocusDay: DateISO | null = null;
 
 interface MonthViewProps {
   weeks: Date[][];
@@ -42,6 +48,29 @@ export function MonthView({
   onSelect,
   onCreate,
 }: MonthViewProps) {
+  const first = toDateISO(weeks[0][0]);
+  const last = toDateISO(weeks[weeks.length - 1][6]);
+  const inGrid = useCallback((day: DateISO) => day >= first && day <= last, [first, last]);
+  // Roving tabindex: the grid always keeps exactly one tab stop.
+  const tabStop =
+    selectedDate !== null && inGrid(selectedDate)
+      ? selectedDate
+      : inGrid(today)
+        ? today
+        : toDateISO(startOfMonth(month));
+
+  const moveTo = useCallback(
+    (from: DateISO, offset: number) => {
+      const target = toDateISO(addDays(parseDateISO(from), offset));
+      if (target === from) return;
+      // Crossing the grid edge shows the adjacent month, which always contains the target.
+      if (!inGrid(target)) useCalendarStore.getState().step(target > last ? 1 : -1);
+      pendingFocusDay = target;
+      onSelect(target);
+    },
+    [inGrid, last, onSelect],
+  );
+
   return (
     <div role="grid" aria-label={t("calendar.view.month")} className="flex h-full flex-col">
       <div role="row" className="grid grid-cols-7 border-b border-border">
@@ -62,7 +91,7 @@ export function MonthView({
       >
         {weeks.map((week) => (
           <div key={week[0].toISOString()} role="row" className="grid grid-cols-7">
-            {week.map((date) => {
+            {week.map((date, column) => {
               const day = toDateISO(date);
               return (
                 <MonthCell
@@ -73,12 +102,15 @@ export function MonthView({
                   events={eventsByDay.get(day) ?? NO_EVENTS}
                   indicator={indicators?.get(day)}
                   selected={day === selectedDate}
+                  tabStop={day === tabStop}
+                  column={column}
                   isToday={day === today}
                   isPast={day < today}
                   timeFormat={timeFormat}
                   loading={loading}
                   onSelect={onSelect}
                   onCreate={onCreate}
+                  onMove={moveTo}
                 />
               );
             })}
@@ -96,12 +128,38 @@ interface MonthCellProps {
   events: EventOccurrence[];
   indicator: DayIndicator | undefined;
   selected: boolean;
+  /** The single cell of the grid reachable with Tab. */
+  tabStop: boolean;
+  /** Position inside its week row (0-6), for Home/End. */
+  column: number;
   isToday: boolean;
   isPast: boolean;
   timeFormat: TimeFormat;
   loading: boolean;
   onSelect: (day: DateISO) => void;
   onCreate: (day: DateISO) => void;
+  /** Selects and focuses the day `offset` days away from `from`. */
+  onMove: (from: DateISO, offset: number) => void;
+}
+
+/** Day offsets of the grid navigation keys; Home/End depend on the column. */
+function keyOffset(key: string, column: number): number | null {
+  switch (key) {
+    case "ArrowLeft":
+      return -1;
+    case "ArrowRight":
+      return 1;
+    case "ArrowUp":
+      return -7;
+    case "ArrowDown":
+      return 7;
+    case "Home":
+      return -column;
+    case "End":
+      return 6 - column;
+    default:
+      return null;
+  }
 }
 
 const MonthCell = memo(function MonthCell({
@@ -111,13 +169,23 @@ const MonthCell = memo(function MonthCell({
   events,
   indicator,
   selected,
+  tabStop,
+  column,
   isToday,
   isPast,
   timeFormat,
   loading,
   onSelect,
   onCreate,
+  onMove,
 }: MonthCellProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  // Runs on every render: the target cell re-renders (or mounts) once it becomes selected.
+  useLayoutEffect(() => {
+    if (pendingFocusDay !== day) return;
+    pendingFocusDay = null;
+    ref.current?.focus();
+  });
   const visible = events.length > MAX_VISIBLE ? events.slice(0, MAX_VISIBLE - 1) : events;
   const hidden = events.length - visible.length;
   const tasks = indicator?.tasks ?? 0;
@@ -128,7 +196,8 @@ const MonthCell = memo(function MonthCell({
       role="gridcell"
       aria-selected={selected}
       aria-label={capitalize(format(date, "EEEE d 'de' MMMM", { locale: es }))}
-      tabIndex={selected ? 0 : -1}
+      ref={ref}
+      tabIndex={tabStop ? 0 : -1}
       data-day={day}
       onClick={(event) => {
         if (isOwnDomEvent(event)) onSelect(day);
@@ -137,8 +206,17 @@ const MonthCell = memo(function MonthCell({
         if (!isEmptyAreaEvent(event)) return;
         onCreate(day);
       }}
-      onKeyDown={(event) => {
+      onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
         if (event.target !== event.currentTarget) return;
+        const offset =
+          event.altKey || event.ctrlKey || event.metaKey ? null : keyOffset(event.key, column);
+        if (offset !== null) {
+          // Keeps the app-level calendar.prev/next arrows from also moving the period.
+          event.preventDefault();
+          event.stopPropagation();
+          onMove(day, offset);
+          return;
+        }
         if (event.key === "Enter") onCreate(day);
         if (event.key === " ") {
           event.preventDefault();
@@ -148,7 +226,7 @@ const MonthCell = memo(function MonthCell({
       className={cn(
         "flex min-h-0 min-w-0 flex-col gap-1 overflow-hidden border-r border-b border-border p-1.5",
         "cursor-default transition-colors duration-(--dur-fast) outline-none",
-        "focus-visible:shadow-[inset_0_0_0_2px_var(--accent-soft)]",
+        "focus-visible:shadow-[inset_0_0_0_2px_var(--accent)]",
         outside ? "bg-bg" : "bg-surface",
         selected && "bg-accent-soft/60",
         !selected && "hover:bg-surface-hover",
@@ -207,7 +285,12 @@ const MonthCell = memo(function MonthCell({
                 event.stopPropagation();
                 useCalendarStore.getState().showDay(day);
               }}
-              className="self-start rounded-full px-2 text-xs font-semibold text-text-muted hover:bg-bg-elevated hover:text-text"
+              className={cn(
+                "relative self-start rounded-full px-2 text-xs font-semibold text-text-muted",
+                "outline-none hover:bg-bg-elevated hover:text-text focus-visible:shadow-(--shadow-glow)",
+                // Taller invisible hit area, mostly below so it does not cover the event above.
+                "before:absolute before:inset-x-0 before:-top-[2px] before:-bottom-[14px] before:content-['']",
+              )}
             >
               {t("calendar.more", { count: hidden })}
             </button>

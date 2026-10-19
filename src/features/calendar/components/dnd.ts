@@ -15,14 +15,16 @@ const DROP_OVER_ATTR = "data-drop-over";
 
 /** Makes an event draggable from `sourceDay`. Spread the result on the event element. */
 export function useDraggableEvent(occurrence: EventOccurrence, sourceDay: DateISO) {
-  const { setNodeRef, listeners, attributes, isDragging } = useDraggable({
+  const { setNodeRef, listeners, isDragging } = useDraggable({
     id: `${occurrence.key}@${sourceDay}`,
     data: { occurrence, sourceDay } satisfies DragData,
   });
   return {
     setNodeRef,
     isDragging,
-    dragProps: { ...listeners, ...attributes, "data-event-block": "" },
+    // Only the listeners: dnd-kit's attributes announce "press space to pick up", but dragging
+    // is pointer only (no keyboard sensor), and the elements are native buttons already.
+    dragProps: { ...listeners, "data-event-block": "" },
   };
 }
 

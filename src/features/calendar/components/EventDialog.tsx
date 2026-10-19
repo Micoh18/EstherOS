@@ -26,6 +26,8 @@ import {
   DialogHeader,
   DialogTitle,
   Input,
+  onRadioGroupKeyDown,
+  radioTabIndex,
   Select,
   Switch,
   Textarea,
@@ -300,18 +302,28 @@ function EventForm({ eventId, draft, weekStartsOn, timeFormat, onClose }: EventF
       ) : null}
 
       <Field label={t("calendar.field.color")}>
-        <div role="radiogroup" aria-label={t("calendar.field.color")} className="flex gap-2">
-          {PALETTE_COLORS.map((color) => (
+        <div
+          role="radiogroup"
+          aria-label={t("calendar.field.color")}
+          onKeyDown={onRadioGroupKeyDown}
+          className="flex gap-2"
+        >
+          {PALETTE_COLORS.map((color, index) => (
             <button
               key={color}
               type="button"
               role="radio"
               aria-checked={form.color === color}
+              tabIndex={radioTabIndex(
+                form.color === color,
+                index,
+                PALETTE_COLORS.includes(form.color),
+              )}
               aria-label={t(`calendar.color.${color}`)}
               title={t(`calendar.color.${color}`)}
               onClick={() => update({ color })}
               className={cn(
-                "size-[28px] rounded-full border-2 border-surface outline-none",
+                "size-[32px] rounded-full border-2 border-surface outline-none",
                 "transition-[scale] duration-(--dur-fast) ease-(--ease-soft) hover:scale-110 motion-reduce:hover:scale-100",
                 "focus-visible:shadow-(--shadow-glow)",
                 SWATCH_CLASSES[color],

@@ -318,7 +318,7 @@ const DayColumn = memo(function DayColumn({
           type="button"
           data-event-block=""
           onClick={() => useCalendarStore.getState().showDay(day)}
-          className="absolute flex items-start justify-center rounded-sm border border-border bg-bg-elevated pt-1 text-xs font-semibold text-text-muted hover:text-text"
+          className="absolute flex items-start justify-center rounded-sm border border-border bg-bg-elevated pt-1 text-xs font-semibold text-text-muted outline-none hover:text-text focus-visible:shadow-[inset_0_0_0_2px_var(--accent)]"
           style={blockStyle(group, group.column, group.columns)}
         >
           {t("calendar.moreShort", { count: group.items.length })}
