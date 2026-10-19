@@ -76,18 +76,24 @@ export function TasksCard({ today, quickAddFocus, className }: TasksCardProps) {
           <h3 className="px-2 pt-1 text-xs font-semibold tracking-wide text-danger uppercase">
             {t("today.tasks.overdue")}
           </h3>
-          {overdue.map((task) => (
-            <TaskRow key={task.id} task={task} compact onOpen={open} />
-          ))}
+          <ul className="flex flex-col gap-0.5">
+            {overdue.map((task) => (
+              <li key={task.id}>
+                <TaskRow task={task} compact onOpen={open} />
+              </li>
+            ))}
+          </ul>
         </section>
       ) : null}
 
       {!loading && dueToday.length > 0 ? (
-        <div className="flex flex-col gap-0.5">
+        <ul className="flex flex-col gap-0.5">
           {dueToday.map((task) => (
-            <TaskRow key={task.id} task={task} compact onOpen={open} />
+            <li key={task.id}>
+              <TaskRow task={task} compact onOpen={open} />
+            </li>
           ))}
-        </div>
+        </ul>
       ) : null}
 
       {empty ? (

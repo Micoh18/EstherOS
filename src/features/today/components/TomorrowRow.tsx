@@ -48,7 +48,7 @@ export function TomorrowRow({ today, timeFormat }: TomorrowRowProps) {
                   aria-label={t("today.tomorrow.task", { title: task.title })}
                   onClick={() => navigate(todoTaskPath(task.id))}
                   className={cn(
-                    "flex h-[22px] max-w-full items-center gap-1 rounded-full border border-dashed border-accent px-2 text-xs font-semibold text-text",
+                    "flex h-[32px] max-w-full items-center gap-1 rounded-full border border-dashed border-accent px-2 text-xs font-semibold text-text",
                     "outline-none hover:bg-surface-hover focus-visible:shadow-(--shadow-glow)",
                   )}
                 >
