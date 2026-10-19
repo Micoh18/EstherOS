@@ -32,9 +32,9 @@
       "msi",
       "nsis"
     ],
-    "publisher": "Estheros",
-    "copyright": "© 2026 Estheros",
-    "license": "LicenseRef-Proprietary",
+    "publisher": "Micoh18",
+    "copyright": "© 2026 Micoh18",
+    "license": "MIT",
     "category": "Productivity",
     "shortDescription": "Calendario, diario y tareas con estética cozy",
     "longDescription": "Estheros es un espacio personal y tranquilo para organizar el día: calendario, diario y lista de tareas, con todos los datos guardados solo en tu equipo.",
