@@ -91,7 +91,12 @@ export function JournalSidebar({ searchRef }: JournalSidebarProps) {
               type="button"
               aria-label={t("journal.search.clear")}
               onClick={clearSearch}
-              className="absolute top-1/2 right-2 inline-flex size-[22px] -translate-y-1/2 items-center justify-center rounded-full text-text-muted outline-none hover:bg-surface-hover focus-visible:shadow-(--shadow-glow) [&_svg]:size-[14px]"
+              className={cn(
+                "absolute top-1/2 right-2 inline-flex size-[22px] -translate-y-1/2 items-center justify-center rounded-full",
+                "text-text-muted outline-none hover:bg-surface-hover focus-visible:shadow-(--shadow-glow) [&_svg]:size-[14px]",
+                // 32px invisible hit area; the visible circle stays small inside the field.
+                "before:absolute before:-inset-[5px] before:rounded-full before:content-['']",
+              )}
             >
               <X aria-hidden />
             </button>

@@ -7,7 +7,8 @@ import { Copy, Ellipsis } from "./icons";
 
 const itemClass = cn(
   "flex h-[34px] cursor-pointer items-center gap-2 rounded-sm px-3 text-sm text-text outline-none select-none",
-  "data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[highlighted]:bg-surface-hover [&_svg]:size-4",
+  "data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[highlighted]:bg-surface-hover",
+  "data-[highlighted]:shadow-[inset_0_0_0_2px_var(--accent)] [&_svg]:size-4",
 );
 
 interface EntryMenuProps {

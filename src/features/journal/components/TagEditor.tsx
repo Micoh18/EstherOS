@@ -58,7 +58,7 @@ export function TagEditor({ tags, suggestions, onAdd, onRemove }: TagEditorProps
         maxLength={50}
         placeholder={t("journal.tags.placeholder")}
         aria-label={t("journal.tags.label")}
-        className="h-[22px] w-[110px] rounded-full bg-transparent px-2 text-xs text-text outline-none placeholder:text-text-faint focus-visible:bg-surface-hover"
+        className="h-[32px] w-[110px] rounded-full bg-transparent px-2 text-xs text-text outline-none placeholder:text-text-faint focus-visible:bg-surface-hover focus-visible:shadow-(--shadow-glow)"
       />
       <datalist id={listId}>
         {suggestions

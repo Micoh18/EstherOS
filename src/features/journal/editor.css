@@ -101,7 +101,11 @@
 
 .journal-editor .journal-editor__content ul[data-type="taskList"] li > label {
   flex: none;
-  margin-top: 0.3em;
+  /* 8px of padding grows the clickable area to ~32px; the negative margins cancel it out so the
+     checkbox stays where it was. */
+  margin: calc(0.3em - 8px) -8px -8px;
+  padding: 8px;
+  cursor: pointer;
   user-select: none;
 }
 

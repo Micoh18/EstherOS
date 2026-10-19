@@ -10,10 +10,13 @@ interface MoodPickerProps {
   onChange: (mood: Mood | null) => void;
 }
 
-/** Five round faces, from "Radiante" to "Mal". */
+/**
+ * Five round faces, from "Radiante" to "Mal". Toggle buttons rather than radios: pressing the
+ * selected face again clears the mood, which a radio group cannot do.
+ */
 export function MoodPicker({ value, onChange }: MoodPickerProps) {
   return (
-    <div role="radiogroup" aria-label={t("journal.mood.label")} className="flex items-center gap-1">
+    <div role="group" aria-label={t("journal.mood.label")} className="flex items-center gap-1">
       {MOODS.map((mood, index) => {
         const Icon = MOOD_ICONS[mood];
         const selected = value === mood;
@@ -26,8 +29,7 @@ export function MoodPicker({ value, onChange }: MoodPickerProps) {
           >
             <button
               type="button"
-              role="radio"
-              aria-checked={selected}
+              aria-pressed={selected}
               aria-label={label}
               onClick={() => onChange(selected ? null : mood)}
               className={cn(

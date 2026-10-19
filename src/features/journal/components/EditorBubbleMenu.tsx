@@ -103,7 +103,7 @@ const BUTTONS: FormatButton[] = [
 
 const buttonClass = (active: boolean) =>
   cn(
-    "inline-flex size-[30px] items-center justify-center rounded-full outline-none [&_svg]:size-4",
+    "inline-flex size-[32px] items-center justify-center rounded-full outline-none [&_svg]:size-4",
     "transition-colors duration-(--dur-fast) ease-(--ease-soft) focus-visible:shadow-(--shadow-glow)",
     active ? "bg-accent-soft text-text" : "text-text-muted hover:bg-surface-hover hover:text-text",
   );
@@ -237,7 +237,7 @@ function LinkForm({
         onKeyDown={onKeyDown}
         placeholder={t("journal.link.placeholder")}
         aria-label={t("journal.link.placeholder")}
-        className="h-[30px] w-[220px] bg-transparent text-sm text-text outline-none placeholder:text-text-faint"
+        className="h-[32px] w-[220px] rounded-md bg-transparent px-1 text-sm text-text outline-none placeholder:text-text-faint focus-visible:shadow-(--shadow-glow)"
       />
       <button
         type="button"

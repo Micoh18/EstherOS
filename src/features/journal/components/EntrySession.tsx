@@ -277,7 +277,7 @@ export function EntrySession({ seq, date, initial, initialTags, onDeleted }: Ent
           onKeyDown={onTitleKeyDown}
           placeholder={t("journal.entry.titlePlaceholder")}
           aria-label={t("journal.entry.titleLabel")}
-          className="mb-4 w-full bg-transparent font-display text-2xl font-semibold text-text outline-none placeholder:text-text-faint"
+          className="mb-4 w-full rounded-md bg-transparent font-display text-2xl font-semibold text-text outline-none placeholder:text-text-faint focus-visible:shadow-(--shadow-glow)"
         />
         <JournalEditor
           initialContent={initial ? editorDocument(initial) : EMPTY_DOC_JSON}

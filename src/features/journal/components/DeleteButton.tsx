@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { t } from "@/shared/i18n";
 import { Button, IconButton, Tooltip } from "@/shared/ui";
 import { Trash } from "./icons";
@@ -8,6 +8,8 @@ export const DELETE_CONFIRM_MS = 4000;
 /** Inline confirmation: the button turns into "¿Eliminar? Sí / No" for 4 s. No modal. */
 export function DeleteButton({ onConfirm }: { onConfirm: () => void }) {
   const [confirming, setConfirming] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const wasConfirming = useRef(false);
 
   useEffect(() => {
     if (!confirming) return;
@@ -15,10 +17,25 @@ export function DeleteButton({ onConfirm }: { onConfirm: () => void }) {
     return () => clearTimeout(timer);
   }, [confirming]);
 
+  // "No" and the timeout remove the focused buttons: give focus back to the trash button
+  // unless it already moved somewhere else.
+  useEffect(() => {
+    const cancelled = wasConfirming.current && !confirming;
+    wasConfirming.current = confirming;
+    if (cancelled && (!document.activeElement || document.activeElement === document.body)) {
+      buttonRef.current?.focus();
+    }
+  }, [confirming]);
+
   if (!confirming) {
     return (
       <Tooltip content={t("journal.delete.label")}>
-        <IconButton label={t("journal.delete.label")} size="sm" onClick={() => setConfirming(true)}>
+        <IconButton
+          ref={buttonRef}
+          label={t("journal.delete.label")}
+          size="sm"
+          onClick={() => setConfirming(true)}
+        >
           <Trash aria-hidden />
         </IconButton>
       </Tooltip>
