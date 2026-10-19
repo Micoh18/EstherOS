@@ -11,7 +11,7 @@ import { bindSetting } from "../persistence";
 import { countTagUsage, getAllSettings, getSetting, setSetting, wipeAllData } from "../repository";
 import { SETTING_DEFAULTS } from "../model";
 import { resolveStartPath } from "../startScreen";
-import { useMemoryDb } from "./memoryDb";
+import { useMemoryDb } from "../../../../tests/unit/helpers/memoryDb";
 
 function bindKeybindings() {
   return bindSetting("keybindings", {
@@ -26,13 +26,13 @@ function bindKeybindings() {
   });
 }
 
-let db: ReturnType<typeof useMemoryDb>;
+let db: ReturnType<typeof useMemoryDb>["raw"];
 let unbind: (() => void) | undefined;
 
 beforeEach(() => {
   localStorage.clear();
   resetAll();
-  db = useMemoryDb();
+  db = useMemoryDb().raw;
 });
 
 afterEach(() => {

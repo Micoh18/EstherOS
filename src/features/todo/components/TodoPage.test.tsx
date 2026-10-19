@@ -4,7 +4,7 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { MemoryRouter } from "react-router";
 import { HotkeysProvider } from "@/shared/hotkeys";
 import { addDaysISO, todayISO } from "@/shared/lib/dates";
-import { useMemoryDb } from "../testing/memoryDb";
+import { useMemoryDb } from "../../../../tests/unit/helpers/memoryDb";
 import { INBOX_LIST_ID } from "../model";
 import {
   createList,

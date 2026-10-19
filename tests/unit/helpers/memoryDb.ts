@@ -1,11 +1,11 @@
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import Database from "better-sqlite3";
 import { setDbExecutor, type DbExecutor, type SqlValue } from "@/shared/db";
 
-const MIGRATION = fileURLToPath(
-  new URL("../../../src-tauri/migrations/0001_init.sql", import.meta.url),
-);
+// Resolved from the project root (vitest runs there): under jsdom `import.meta.url` is not a
+// file URL, so component tests could not use this helper.
+const MIGRATION = join(process.cwd(), "src-tauri", "migrations", "0001_init.sql");
 
 export interface MemoryDb {
   raw: Database.Database;

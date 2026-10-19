@@ -4,7 +4,7 @@ import { ThemeProvider } from "@/app/providers";
 import { getSetting, setSetting } from "@/features/settings";
 import { setDbExecutor } from "@/shared/db";
 import { OnboardingGate } from "../components/OnboardingGate";
-import { useMemoryDb } from "./memoryDb";
+import { useMemoryDb } from "../../../../tests/unit/helpers/memoryDb";
 
 function renderGate() {
   return render(
@@ -14,11 +14,11 @@ function renderGate() {
   );
 }
 
-let db: ReturnType<typeof useMemoryDb>;
+let db: ReturnType<typeof useMemoryDb>["raw"];
 
 beforeEach(() => {
   localStorage.clear();
-  db = useMemoryDb();
+  db = useMemoryDb().raw;
 });
 
 afterEach(() => {

@@ -1,42 +1,15 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import Database from "better-sqlite3";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createEntry } from "@/features/journal";
 import { createTask, toggleDone } from "@/features/todo";
-import { setDbExecutor, type SqlValue } from "@/shared/db";
 import { ToastProvider } from "@/shared/ui";
 import { CalendarPage } from "./components/CalendarPage";
 import { createEvent, listEventsInRange, listEventTags } from "./repository";
 import { useCalendarStore } from "./store";
+import { useMemoryDb } from "../../../tests/unit/helpers/memoryDb";
 
 const TODAY = new Date(2026, 9, 18, 10, 0); // Sunday 18 Oct 2026
-
-/**
- * In-memory SQLite with the real migration. Same idea as tests/unit/helpers/memoryDb, which
- * resolves the migration through import.meta.url and cannot run under jsdom.
- */
-function useMemoryDb() {
-  const raw = new Database(":memory:");
-  raw.pragma("foreign_keys = ON");
-  raw.exec(readFileSync(join(process.cwd(), "src-tauri/migrations/0001_init.sql"), "utf8"));
-  const run = (sql: string, params: SqlValue[]) => {
-    const statement = raw.prepare(sql);
-    if (statement.reader) return { rows: statement.all(...params), changes: 0 };
-    return { rows: [], changes: statement.run(...params).changes };
-  };
-  setDbExecutor({
-    select: async (sql, params) => run(sql, params).rows as Record<string, unknown>[],
-    execute: async (sql, params) => ({ rowsAffected: run(sql, params).changes }),
-    batch: async (statements) => {
-      raw.transaction(() => {
-        for (const { sql, params } of statements) run(sql, params);
-      })();
-    },
-  });
-}
 
 function LocationProbe() {
   const location = useLocation();

@@ -4,7 +4,7 @@ import { MemoryRouter } from "react-router";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { todayISO } from "@/shared/lib/dates";
 import { ToastProvider } from "@/shared/ui";
-import { useMemoryDb, type MemoryDb } from "./memoryDb";
+import { useMemoryDb, type MemoryDb } from "../../../../tests/unit/helpers/memoryDb";
 import { JournalPage } from "../components/JournalPage";
 import { createEntry, datesWithEntriesInMonth } from "../repository";
 

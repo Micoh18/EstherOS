@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ensureTag } from "@/shared/db";
-import { useMemoryDb, type MemoryDb } from "./memoryDb";
+import { useMemoryDb, type MemoryDb } from "../../../../tests/unit/helpers/memoryDb";
 import {
   createEntry,
   datesWithEntriesInMonth,
