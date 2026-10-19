@@ -17,3 +17,9 @@ export {
 } from "./backup";
 export { getStartPath, rememberRoute, resolveStartPath } from "./startScreen";
 export { AppearanceProvider } from "./components/AppearanceProvider";
+export {
+  SettingsPage,
+  type SettingsPageProps,
+  type SettingsSectionId,
+} from "./components/SettingsPage";
+export { ThemePicker, type ThemePickerProps } from "./components/ThemePicker";

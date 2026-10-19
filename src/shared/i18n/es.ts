@@ -492,11 +492,13 @@ export const es = {
   "settings.data.size": "Tamaño de la base de datos",
   "settings.data.unknown": "—",
   "settings.data.backups": "Copias de seguridad",
+  "settings.data.exportTitle": "Exportar",
   "settings.data.export": "Exportar copia de seguridad…",
   "settings.data.exportHint":
     "Un archivo .db con todo: tareas, eventos, diario, etiquetas, ajustes y atajos.",
   "settings.data.exported": "Copia guardada en {path}",
   "settings.data.exportError": "No pude guardar la copia de seguridad.",
+  "settings.data.importTitle": "Importar",
   "settings.data.import": "Importar copia…",
   "settings.data.importHint": "Reemplaza tus datos por los de una copia.",
   "settings.data.importWarning":
@@ -514,6 +516,7 @@ export const es = {
   "settings.data.importError.import_failed":
     "No pude terminar la importación y recuperé tus datos anteriores.",
   "settings.data.importError.unknown": "No pude importar la copia. Tus datos no se tocaron.",
+  "settings.data.wipeTitle": "Empezar de cero",
   "settings.data.wipe": "Borrar todos los datos…",
   "settings.data.wipeHint":
     "Elimina tareas, eventos, entradas, etiquetas y ajustes. No se puede deshacer.",
