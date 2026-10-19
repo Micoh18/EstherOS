@@ -5,6 +5,7 @@ import { JournalPage } from "@/features/journal";
 import { SettingsPage } from "@/features/settings";
 import { TodayPage } from "@/features/today";
 import { TodoPage } from "@/features/todo";
+import { RouteErrorScreen } from "./errors/ErrorBoundary";
 import { AppShell } from "./layout";
 import { HOME_PATH, NAV_ITEMS } from "./navigation";
 import { DevUiPage } from "./pages/DevUiPage";
@@ -26,6 +27,7 @@ export const routes: RouteObject[] = [
   {
     path: "/",
     element: <AppShell />,
+    errorElement: <RouteErrorScreen />,
     children: [
       { index: true, element: <StartRedirect /> },
       ...NAV_ITEMS.map((item) => ({

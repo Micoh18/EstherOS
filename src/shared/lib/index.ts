@@ -1,4 +1,4 @@
 export * from "./dates";
 export { newId } from "./ids";
-export { log } from "./log";
+export { captureUnhandledErrors, log, recentErrors, type LoggedError } from "./log";
 export { msUntilNextMidnight, useCurrentDay } from "./useCurrentDay";

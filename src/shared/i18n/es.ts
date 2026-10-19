@@ -14,6 +14,13 @@ export const es = {
   "shell.titleBar.chordPending": "{keys} …",
 
   // Shell: sidebar
+  "shell.error.title": "Algo salió mal ♡",
+  "shell.error.body":
+    "Tus datos están a salvo. Reinicia la app y, si vuelve a pasar, copia el detalle para revisarlo.",
+  "shell.error.restart": "Reiniciar",
+  "shell.error.copy": "Copiar detalle",
+  "shell.error.copied": "Detalle copiado.",
+  "shell.error.copyFailed": "No pude copiar el detalle.",
   "shell.sidebar.label": "Navegación principal",
   "shell.sidebar.collapse": "Contraer barra lateral",
   "shell.sidebar.expand": "Expandir barra lateral",
