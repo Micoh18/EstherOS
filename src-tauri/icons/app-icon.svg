@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Estheros app icon: a pink bow on a rounded cream tile (theme Pink colors). -->
+  <!-- Export: 1024 px PNG -> src-tauri/icons/app-icon.png -> `npm run tauri icon`. -->
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff9f2" />
+      <stop offset="1" stop-color="#fdece2" />
+    </linearGradient>
+    <linearGradient id="ribbon" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f290b0" />
+      <stop offset="1" stop-color="#e06d93" />
+    </linearGradient>
+    <linearGradient id="tail" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e8779a" />
+      <stop offset="1" stop-color="#d9628a" />
+    </linearGradient>
+  </defs>
+
+  <rect x="40" y="40" width="944" height="944" rx="220" fill="url(#tile)" />
+  <rect x="40" y="40" width="944" height="944" rx="220" fill="none" stroke="#f6d3dd" stroke-width="10" />
+
+  <g transform="translate(512 470)" stroke="#c4587e" stroke-width="16" stroke-linejoin="round">
+    <!-- tails -->
+    <path d="M-34 30 L-178 318 L-96 286 L-52 362 L36 52 Z" fill="url(#tail)" />
+    <path d="M34 30 L178 318 L96 286 L52 362 L-36 52 Z" fill="url(#tail)" />
+    <!-- loops -->
+    <path d="M0 0 C-88 -138 -282 -238 -360 -160 C-436 -84 -372 98 -256 130 C-160 156 -66 92 0 0 Z" fill="url(#ribbon)" />
+    <path d="M0 0 C88 -138 282 -238 360 -160 C436 -84 372 98 256 130 C160 156 66 92 0 0 Z" fill="url(#ribbon)" />
+  </g>
+
+  <g transform="translate(512 470)" fill="none" stroke="#c4587e" stroke-width="14" stroke-linecap="round" opacity="0.55">
+    <!-- inner folds of the loops -->
+    <path d="M-40 -8 C-110 -78 -210 -118 -262 -96" />
+    <path d="M40 -8 C110 -78 210 -118 262 -96" />
+  </g>
+
+  <g transform="translate(512 470)">
+    <!-- soft highlights -->
+    <path d="M-300 -150 C-262 -184 -206 -176 -150 -146" fill="none" stroke="#fbdce5" stroke-width="18" stroke-linecap="round" opacity="0.9" />
+    <path d="M300 -150 C262 -184 206 -176 150 -146" fill="none" stroke="#fbdce5" stroke-width="18" stroke-linecap="round" opacity="0.9" />
+    <!-- knot -->
+    <ellipse cx="0" cy="6" rx="66" ry="76" fill="#e8779a" stroke="#c4587e" stroke-width="16" />
+    <ellipse cx="-14" cy="-16" rx="20" ry="16" fill="#fbdce5" opacity="0.85" />
+  </g>
+</svg>
