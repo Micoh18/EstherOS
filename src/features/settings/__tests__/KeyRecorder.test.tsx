@@ -91,6 +91,26 @@ describe("KeyRecorder", () => {
     expect(getEffectiveBinding("todo.viewToday")).toBe("G H");
   });
 
+  it("waits for both keys of a chord before checking conflicts", () => {
+    const { capture } = renderRecorder("todo.viewToday");
+    press(capture, "g", "KeyG");
+
+    // `G` alone is the prefix of every `G x` chord: no conflict, no replace yet.
+    expect(screen.getByText("G luego…")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Reemplazar" })).not.toBeInTheDocument();
+    press(capture, "Enter", "Enter");
+    expect(getEffectiveBinding("todo.viewToday")).toBe("G T");
+
+    // The second key completes the chord, which then conflicts with "Vista Próximas".
+    press(capture, "u", "KeyU");
+    expect(screen.getByText(/Ya la usa/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Reemplazar" }));
+    expect(getEffectiveBinding("todo.viewToday")).toBe("G U");
+    expect(getEffectiveBinding("todo.viewUpcoming")).toBeNull();
+    expect(getEffectiveBinding("todo.viewOverdue")).toBe("G O");
+    expect(getEffectiveBinding("todo.viewAll")).toBe("G A");
+  });
+
   it("keeps app shortcuts from firing while recording", () => {
     const { capture } = renderRecorder("calendar.goToToday");
     const event = new KeyboardEvent("keydown", {

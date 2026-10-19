@@ -14,6 +14,8 @@ export interface KeyRecorderProps {
 
 type Evaluation =
   | { kind: "empty" }
+  /** First key of a chord action: nothing to check until the second one arrives. */
+  | { kind: "pending"; first: string }
   | { kind: "ok"; binding: string }
   | { kind: "reserved"; binding: string }
   | { kind: "conflict"; binding: string; conflicts: ActionId[] };
@@ -24,8 +26,11 @@ function allowedFor(id: ActionId, binding: string): boolean {
   return binding === action.defaultBinding || !isReserved(binding, action.scopes);
 }
 
-function evaluate(id: ActionId, binding: string | null): Evaluation {
-  if (!binding) return { kind: "empty" };
+function evaluate(id: ActionId, strokes: string[]): Evaluation {
+  if (strokes.length === 0) return { kind: "empty" };
+  // A lone `G` would "conflict" with every `G x` chord by prefix: wait for the second key.
+  if (getAction(id).chord && strokes.length === 1) return { kind: "pending", first: strokes[0] };
+  const binding = strokes.join(" ");
   if (!allowedFor(id, binding)) return { kind: "reserved", binding };
   const conflicts = findConflicts(id, binding);
   return conflicts.length > 0 ? { kind: "conflict", binding, conflicts } : { kind: "ok", binding };
@@ -61,7 +66,7 @@ export function KeyRecorder({ actionId, onDone, className }: KeyRecorderProps) {
   const [strokes, setStrokes] = useState<string[]>([]);
   const captureRef = useRef<HTMLDivElement>(null);
   const binding = strokes.length > 0 ? strokes.join(" ") : null;
-  const evaluation = evaluate(actionId, binding);
+  const evaluation = evaluate(actionId, strokes);
 
   useEffect(() => {
     captureRef.current?.focus();
@@ -111,7 +116,8 @@ export function KeyRecorder({ actionId, onDone, className }: KeyRecorderProps) {
     <div className={cn("flex flex-col gap-2", className)} onBlur={onBlur}>
       <div
         ref={captureRef}
-        role="button"
+        role="textbox"
+        aria-readonly="true"
         tabIndex={0}
         aria-label={t("settings.recorder.label", { name })}
         aria-describedby={`key-recorder-${actionId}-status`}
@@ -120,7 +126,7 @@ export function KeyRecorder({ actionId, onDone, className }: KeyRecorderProps) {
         className={cn(
           "inline-flex min-h-[32px] w-fit min-w-[180px] items-center gap-2 rounded-full border-2 border-accent bg-surface px-3 text-sm outline-none",
           "shadow-(--shadow-glow)",
-          evaluation.kind === "empty" && "animate-pulse",
+          evaluation.kind === "empty" && "animate-pulse motion-reduce:animate-none",
           evaluation.kind === "reserved" && "border-danger",
         )}
       >
@@ -176,8 +182,17 @@ export function KeyRecorder({ actionId, onDone, className }: KeyRecorderProps) {
               </Button>
             </div>
           </div>
+        ) : evaluation.kind === "pending" ? (
+          <p className="text-text-muted">
+            {t("settings.recorder.chordNext", { keys: formatBindingString(evaluation.first) })}
+          </p>
         ) : (
-          <p className="text-text-muted">{t("settings.recorder.hint")}</p>
+          <p className="text-text-muted">
+            {evaluation.kind === "ok" ? (
+              <span className="sr-only">{formatBindingString(evaluation.binding)}. </span>
+            ) : null}
+            {t("settings.recorder.hint")}
+          </p>
         )}
       </div>
     </div>
