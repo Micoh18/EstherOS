@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { emitDbChanged, execute, select } from "@/shared/db";
+import { emitDbChanged, execute, select, transaction } from "@/shared/db";
 import { log } from "@/shared/lib/log";
 import {
   SETTING_DEFAULTS,
@@ -81,4 +81,53 @@ export async function resetKeybinding(actionId: string): Promise<Keybindings> {
 
 export async function resetAllKeybindings(): Promise<void> {
   await setSetting("keybindings", {});
+}
+
+// Tags -----------------------------------------------------------------------------------------
+
+const TagUsageRowSchema = z.object({ id: z.string(), uses: z.number() });
+
+/** How many events, journal entries and tasks use each tag, keyed by tag id. */
+export async function countTagUsage(): Promise<Map<string, number>> {
+  const rows = await select(
+    `SELECT t.id,
+       (SELECT COUNT(*) FROM event_tag WHERE tag_id = t.id)
+       + (SELECT COUNT(*) FROM journal_tag WHERE tag_id = t.id)
+       + (SELECT COUNT(*) FROM task_tag WHERE tag_id = t.id) AS uses
+     FROM tag t`,
+    [],
+    TagUsageRowSchema,
+  );
+  return new Map(rows.map((row) => [row.id, row.uses]));
+}
+
+// Wipe -----------------------------------------------------------------------------------------
+
+/** Children first so foreign keys never block the delete. Fixed list: names go into SQL. */
+const WIPE_ORDER = [
+  "event_tag",
+  "journal_tag",
+  "task_tag",
+  "task",
+  "event",
+  "journal_entry",
+  "tag",
+  "todo_list",
+  "setting",
+] as const;
+
+/**
+ * Deletes every row and restores the first-run state (Inbox list, default settings), as on a
+ * clean install. Every subscriber gets a `*` change.
+ */
+export async function wipeAllData(): Promise<void> {
+  await transaction((tx) => {
+    for (const table of WIPE_ORDER) tx.execute(`DELETE FROM ${table}`);
+    tx.execute(
+      `INSERT INTO todo_list (id, name, color, icon, sort_order, is_archived, created_at, updated_at)
+       VALUES ('inbox', 'Inbox', NULL, 'inbox', 0, 0,
+               strftime('%Y-%m-%dT%H:%M:%SZ', 'now'), strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`,
+    );
+  });
+  emitDbChanged("*");
 }

@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { HotkeysProvider } from "@/shared/hotkeys";
+import { OnboardingGate } from "@/features/onboarding";
+import { AppearanceProvider, bindSetting, saveSetting, watchSetting } from "@/features/settings";
+import { HotkeysProvider, replaceOverrides, useKeybindingsStore } from "@/shared/hotkeys";
 import { ToastProvider } from "@/shared/ui";
 import {
   ThemeContext,
@@ -11,6 +13,7 @@ import {
   type ResolvedTheme,
   type Theme,
 } from "./theme";
+import { useSidebarStore } from "./layout/sidebarStore";
 import "./theme-transition.css";
 
 const FADE_CLASS = "theme-transition";
@@ -50,6 +53,16 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const prefersDark = usePrefersDark();
   const resolvedTheme = resolveTheme(theme, prefersDark);
 
+  // localStorage gave the first value; the settings table is the source of truth and wins.
+  useEffect(
+    () =>
+      watchSetting("theme", (stored) => {
+        storeTheme(stored);
+        setThemeState(stored);
+      }),
+    [],
+  );
+
   const isFirstApply = useRef(true);
   useEffect(() => {
     applyTheme(resolvedTheme, !isFirstApply.current);
@@ -59,6 +72,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const setTheme = useCallback((next: Theme) => {
     storeTheme(next);
     setThemeState(next);
+    void saveSetting("theme", next);
   }, []);
 
   const cycleTheme = useCallback(() => {
@@ -73,12 +87,50 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
+/**
+ * Sidebar and keybindings live in their stores (with a localStorage copy for the first render);
+ * these bindings load them from the settings table and save every change back.
+ */
+function useStoreSettings() {
+  useEffect(() => {
+    const offSidebar = bindSetting("sidebar_collapsed", {
+      read: () => useSidebarStore.getState().collapsed,
+      apply: (collapsed) => {
+        if (useSidebarStore.getState().collapsed !== collapsed) useSidebarStore.getState().toggle();
+      },
+      subscribe: (onChange) =>
+        useSidebarStore.subscribe((state, prev) => {
+          if (state.collapsed !== prev.collapsed) onChange(state.collapsed);
+        }),
+    });
+    const offKeybindings = bindSetting("keybindings", {
+      read: () => useKeybindingsStore.getState().overrides,
+      apply: replaceOverrides,
+      subscribe: (onChange) =>
+        useKeybindingsStore.subscribe((state, prev) => {
+          if (state.overrides !== prev.overrides)
+            onChange(state.overrides as Record<string, string | null>);
+        }),
+    });
+    return () => {
+      offSidebar();
+      offKeybindings();
+    };
+  }, []);
+}
+
 export function AppProviders({ children }: { children: ReactNode }) {
+  useStoreSettings();
   return (
     <ThemeProvider>
-      <HotkeysProvider>
-        <ToastProvider>{children}</ToastProvider>
-      </HotkeysProvider>
+      <AppearanceProvider>
+        <HotkeysProvider>
+          <ToastProvider>
+            {children}
+            <OnboardingGate />
+          </ToastProvider>
+        </HotkeysProvider>
+      </AppearanceProvider>
     </ThemeProvider>
   );
 }
