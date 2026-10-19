@@ -18,8 +18,11 @@ export function OnboardingGate() {
     const check = () => {
       getAllSettings().then(
         (settings) => {
-          if (active && !settings.onboarding_done)
-            setState({ open: true, name: settings.user_name });
+          if (!active) return;
+          // After an import the copy may already be past the onboarding: close it then.
+          setState(
+            settings.onboarding_done ? { open: false } : { open: true, name: settings.user_name },
+          );
         },
         (error: unknown) => log.warn("Could not read onboarding state", error),
       );

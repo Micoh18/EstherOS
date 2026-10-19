@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ThemeProvider } from "@/app/providers";
 import { getSetting, setSetting } from "@/features/settings";
-import { setDbExecutor } from "@/shared/db";
+import { emitDbChanged, setDbExecutor } from "@/shared/db";
 import { OnboardingGate } from "../components/OnboardingGate";
 import { useMemoryDb } from "../../../../tests/unit/helpers/memoryDb";
 
@@ -50,6 +50,15 @@ describe("OnboardingGate", () => {
     renderGate();
     await new Promise((resolve) => setTimeout(resolve, 50));
     expect(screen.queryByText("Te doy la bienvenida a Estheros ♡")).toBeNull();
+  });
+
+  it("closes when an imported copy already finished the onboarding", async () => {
+    renderGate();
+    expect(await screen.findByText("Te doy la bienvenida a Estheros ♡")).toBeInTheDocument();
+
+    await setSetting("onboarding_done", true);
+    emitDbChanged("*");
+    await waitFor(() => expect(screen.queryByText("Te doy la bienvenida a Estheros ♡")).toBeNull());
   });
 
   it("can be skipped", async () => {
