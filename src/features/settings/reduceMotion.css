@@ -1,16 +1,14 @@
 /*
- * "Reducir animaciones" (setting `reduce_motion`): the class goes on <html>. It mirrors
- * prefers-reduced-motion: no particles or displacements, fades stay.
+ * "Reducir animaciones" (setting `reduce_motion`): the class goes on <html>. It does exactly what
+ * prefers-reduced-motion does, no more: no particles or large displacements, fades stay.
  * - Framer Motion follows it through <MotionConfig reducedMotion="always"> and the shared
  *   `useReducedMotionPref()` hook.
  * - Overlays, sheets and toasts switch to fades in shared/ui/ui.css.
  * - Tailwind's `motion-reduce:` variant also matches it (globals.css).
- * - Anything else stops transitioning transforms: hover lifts and presses snap instead of moving.
+ * Small hover lifts and press scales keep animating in both cases: the motion is part of the
+ * app's look and too small to bother anyone.
  */
-html.reduce-motion *,
-html.reduce-motion *::before,
-html.reduce-motion *::after {
-  transition-property:
-    color, background-color, border-color, outline-color, opacity, box-shadow, fill, stroke !important;
+html.reduce-motion,
+html.reduce-motion * {
   scroll-behavior: auto !important;
 }
