@@ -1,4 +1,4 @@
-import { useRef, useState, type RefObject } from "react";
+import { useId, useRef, useState, type RefObject } from "react";
 import { Popover, PopoverAnchor, PopoverContent } from "@/shared/ui";
 import type { TimeFormat } from "../format";
 import type { EventOccurrence } from "../model";
@@ -16,10 +16,12 @@ import { EventDetails } from "./EventPopover";
 export function useEventPopover(occurrence: EventOccurrence, timeFormat: TimeFormat) {
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLElement | null>(null);
+  const contentId = useId();
 
   const triggerProps = {
     "aria-haspopup": "dialog" as const,
     "aria-expanded": open,
+    "aria-controls": open ? contentId : undefined,
     onClick: () => {
       // The click that ends a drag must not open the popover.
       if (wasJustDragged()) return;
@@ -31,6 +33,7 @@ export function useEventPopover(occurrence: EventOccurrence, timeFormat: TimeFor
     <Popover open onOpenChange={setOpen}>
       <PopoverAnchor virtualRef={anchorRef as RefObject<Measurable>} />
       <PopoverContent
+        id={contentId}
         className="w-[300px] p-4"
         side="right"
         align="start"

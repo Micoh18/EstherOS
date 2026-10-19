@@ -174,15 +174,19 @@ export interface DaySummary {
 export function useDaySummary(date: DateISO | null): QueryState<DaySummary> {
   const today = useCurrentDay();
   const day = date ?? today;
-  const tasks = useTasksForDate(day);
-  const journal = useJournalEntriesForDate(day);
+  const { data: dayTasks, loading: tasksLoading, error: tasksError } = useTasksForDate(day);
+  const {
+    data: entries,
+    loading: journalLoading,
+    error: journalError,
+  } = useJournalEntriesForDate(day);
   return useMemo(
     () => ({
-      data: { tasks: tasks.data, journal: journal.data },
-      loading: tasks.loading || journal.loading,
-      error: tasks.error ?? journal.error ?? null,
+      data: { tasks: dayTasks, journal: entries },
+      loading: tasksLoading || journalLoading,
+      error: tasksError ?? journalError ?? null,
     }),
-    [tasks, journal],
+    [dayTasks, entries, tasksLoading, journalLoading, tasksError, journalError],
   );
 }
 

@@ -170,6 +170,7 @@ describe("CalendarPage", () => {
     const popover = await screen.findByRole("dialog");
     expect(within(popover).getByRole("button", { name: "Editar" })).toBeInTheDocument();
     expect(chip).toHaveAttribute("aria-expanded", "true");
+    expect(chip).toHaveAttribute("aria-controls", popover.id);
 
     fireEvent.keyDown(popover, { key: "Escape" });
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
