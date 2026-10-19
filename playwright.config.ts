@@ -9,6 +9,9 @@ const BASE_URL = `http://localhost:${PORT}`;
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
+  // README screenshots only run on demand: SCREENSHOTS=1 npx playwright test
+  grep: process.env.SCREENSHOTS ? /@screenshots/ : undefined,
+  grepInvert: process.env.SCREENSHOTS ? undefined : /@screenshots/,
   reporter: "list",
   timeout: 60_000,
   expect: { timeout: 10_000 },
