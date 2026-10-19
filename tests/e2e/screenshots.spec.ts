@@ -11,8 +11,12 @@ const OUT = join(process.cwd(), "assets", "screenshots");
 const NOW = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
 const day = (offset: number) => format(addDays(new Date(), offset), "yyyy-MM-dd");
 
-function seed(backend: FakeBackend, theme: string) {
-  backend.setSettings({ onboarding_done: true, user_name: "Ana", theme });
+function seed(backend: FakeBackend, theme: string, onboardingDone = true) {
+  backend.setSettings({
+    onboarding_done: onboardingDone,
+    user_name: onboardingDone ? "Ana" : "",
+    theme,
+  });
   const db = backend.db;
   const list = db.prepare(
     `INSERT INTO todo_list (id, name, color, icon, sort_order, is_archived, created_at, updated_at)
@@ -141,43 +145,113 @@ async function capture(page: Page, name: string) {
   await page.screenshot({ path: join(OUT, `${name}.png`) });
 }
 
-const SHOTS: { name: string; theme: string; path: string; ready: (page: Page) => Promise<void> }[] =
-  [
-    {
-      name: "today-pink",
-      theme: "pink",
-      path: "/today",
-      ready: (page) => expect(page.getByText("Café con Sofi").first()).toBeVisible(),
+interface Shot {
+  name: string;
+  theme: string;
+  path: string;
+  onboardingDone?: boolean;
+  ready: (page: Page) => Promise<void>;
+}
+
+const SHOTS: Shot[] = [
+  {
+    name: "today-pink",
+    theme: "pink",
+    path: "/today",
+    ready: (page) => expect(page.getByText("Café con Sofi").first()).toBeVisible(),
+  },
+  {
+    name: "calendar-dark",
+    theme: "dark",
+    path: "/calendar",
+    ready: (page) => expect(page.getByText("Dentista").first()).toBeVisible(),
+  },
+  {
+    name: "journal-white",
+    theme: "white",
+    path: "/journal",
+    ready: (page) => expect(page.getByText("Una mañana suave").first()).toBeVisible(),
+  },
+  {
+    name: "todo-pink",
+    theme: "pink",
+    path: "/todo",
+    ready: (page) => expect(page.getByText("Llamar a mamá").first()).toBeVisible(),
+  },
+  {
+    name: "settings-white",
+    theme: "white",
+    path: "/settings",
+    ready: (page) => expect(page.getByRole("radiogroup", { name: "Tema" })).toBeVisible(),
+  },
+  // Feature close-ups for the README.
+  {
+    name: "today-white",
+    theme: "white",
+    path: "/today",
+    ready: (page) => expect(page.getByText("Café con Sofi").first()).toBeVisible(),
+  },
+  {
+    name: "today-dark",
+    theme: "dark",
+    path: "/today",
+    ready: (page) => expect(page.getByText("Café con Sofi").first()).toBeVisible(),
+  },
+  {
+    name: "calendar-week-pink",
+    theme: "pink",
+    path: "/calendar",
+    ready: async (page) => {
+      await page.getByRole("tab", { name: "Semana" }).click();
+      await expect(page.getByText("Café con Sofi").first()).toBeVisible();
     },
-    {
-      name: "calendar-dark",
-      theme: "dark",
-      path: "/calendar",
-      ready: (page) => expect(page.getByText("Dentista").first()).toBeVisible(),
+  },
+  {
+    name: "todo-quickadd-white",
+    theme: "white",
+    path: "/todo",
+    ready: async (page) => {
+      await expect(page.getByText("Llamar a mamá").first()).toBeVisible();
+      await page
+        .getByRole("textbox", { name: "Nueva tarea" })
+        .first()
+        .fill("Comprar velas !alta @mañana");
     },
-    {
-      name: "journal-white",
-      theme: "white",
-      path: "/journal",
-      ready: (page) => expect(page.getByText("Una mañana suave").first()).toBeVisible(),
+  },
+  {
+    name: "shortcuts-dark",
+    theme: "dark",
+    path: "/today",
+    ready: async (page) => {
+      await expect(page.getByText("Café con Sofi").first()).toBeVisible();
+      await page.keyboard.press("Control+/");
+      await expect(page.getByRole("heading", { name: "Atajos de teclado" })).toBeVisible();
     },
-    {
-      name: "todo-pink",
-      theme: "pink",
-      path: "/todo",
-      ready: (page) => expect(page.getByText("Llamar a mamá").first()).toBeVisible(),
+  },
+  {
+    name: "settings-shortcuts-pink",
+    theme: "pink",
+    path: "/settings",
+    ready: async (page) => {
+      await page.getByRole("button", { name: "Atajos" }).first().click();
+      await expect(page.getByRole("heading", { name: "Atajos", level: 2 })).toBeVisible();
     },
-    {
-      name: "settings-white",
-      theme: "white",
-      path: "/settings",
-      ready: (page) => expect(page.getByRole("radiogroup", { name: "Tema" })).toBeVisible(),
-    },
-  ];
+  },
+  {
+    name: "onboarding-pink",
+    theme: "pink",
+    path: "/today",
+    onboardingDone: false,
+    ready: (page) =>
+      expect(
+        page.getByRole("heading", { name: "Te doy la bienvenida a Estheros ♡" }),
+      ).toBeVisible(),
+  },
+];
 
 for (const shot of SHOTS) {
   test(`${shot.name} @screenshots`, async ({ page, backend }) => {
-    seed(backend, shot.theme);
+    seed(backend, shot.theme, shot.onboardingDone ?? true);
     await page.goto(shot.path);
     await shot.ready(page);
     await capture(page, shot.name);
