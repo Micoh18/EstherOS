@@ -6,7 +6,7 @@ export type Theme = ResolvedTheme | "system";
 
 export const DEFAULT_THEME: Theme = "pink";
 
-// TODO(A8): read and write `setting.theme`; localStorage stays as the pre-render cache.
+// Cache of `setting.theme` (synced in providers.tsx) so the first render needs no database.
 // The inline script in index.html reads the same key to set data-theme before the first paint.
 export const THEME_STORAGE_KEY = "estheros.theme";
 

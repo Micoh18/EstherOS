@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-// TODO(A8): persist in the settings table instead of localStorage.
+// Pre-render cache; providers.tsx syncs it with `setting.sidebar_collapsed`.
 const STORAGE_KEY = "estheros.sidebarCollapsed";
 
 function readCollapsed(): boolean {

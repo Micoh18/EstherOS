@@ -26,13 +26,11 @@ export const es = {
   "nav.settings": "Ajustes",
 
   // Placeholder pages
-  "shell.page.placeholder": "Esta pantalla está en construcción ♡",
   "shell.page.devUi": "Galería de componentes",
   "shell.page.devUiMissing": "La galería de componentes todavía no existe.",
 
   // Shortcuts sheet placeholder
   "shell.shortcuts.title": "Atajos de teclado",
-  "shell.shortcuts.placeholder": "La hoja de atajos llegará pronto. Pulsa Esc para cerrar.",
 
   // Themes
   "theme.pink": "Pink",

@@ -35,3 +35,5 @@ export { CHORD_TIMEOUT_MS, useHotkey, usePendingChord } from "./useHotkey";
 export type { HotkeyHandler, UseHotkeyOptions } from "./useHotkey";
 export { HotkeysProvider } from "./HotkeysProvider";
 export { ESCAPE_CLOSE_EVENT, closeTopmostEscapable, useEscapeClose } from "./escape";
+export { KeyRecorder, type KeyRecorderProps } from "./KeyRecorder";
+export { ShortcutsSheet, type ShortcutsSheetProps } from "./ShortcutsSheet";

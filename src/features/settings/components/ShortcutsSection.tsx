@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Keyboard, RotateCcw, Search } from "lucide-react";
 import {
+  KeyRecorder,
+  ShortcutsSheet,
   formatBindingString,
   getAction,
   getEffectiveBinding,
@@ -16,9 +18,6 @@ import {
   type KeybindingOverrides,
   type Scope,
 } from "@/shared/hotkeys";
-// TODO(A2): import from "@/shared/hotkeys" once its index exports them.
-import { KeyRecorder } from "@/shared/hotkeys/KeyRecorder";
-import { ShortcutsSheet } from "@/shared/hotkeys/ShortcutsSheet";
 import { t } from "@/shared/i18n";
 import { Button, IconButton, Input, Kbd, Tooltip, cn } from "@/shared/ui";
 

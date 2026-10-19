@@ -1,11 +1,17 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router";
-import { closeTopmostEscapable, useActiveScopes, useHotkey, type ActionId } from "@/shared/hotkeys";
+import { useLocation, useNavigate } from "react-router";
+import { rememberRoute } from "@/features/settings";
+import {
+  ShortcutsSheet,
+  closeTopmostEscapable,
+  useActiveScopes,
+  useHotkey,
+  type ActionId,
+} from "@/shared/hotkeys";
 import { useTheme } from "../theme";
 import { NAV_ITEMS, SETTINGS_PATH } from "../navigation";
 import { ContentArea } from "./ContentArea";
-import { ShortcutsPlaceholder } from "./ShortcutsPlaceholder";
 import { Sidebar } from "./Sidebar";
 import { TitleBar } from "./TitleBar";
 import { useSidebarStore } from "./sidebarStore";
@@ -19,11 +25,16 @@ function NavHotkey({ actionId, path }: { actionId: ActionId; path: string }) {
 /** Window frame: title bar, sidebar and routed content, plus the shell's global shortcuts. */
 export function AppShell() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { cycleTheme } = useTheme();
   const toggleSidebar = useSidebarStore((state) => state.toggle);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const dialogOpen = useActiveScopes().includes("dialog");
   const closeShortcuts = useCallback(() => setShortcutsOpen(false), []);
+
+  useEffect(() => {
+    void rememberRoute(pathname);
+  }, [pathname]);
 
   useHotkey("app.openSettings", () => navigate(SETTINGS_PATH));
   useHotkey("theme.cycle", cycleTheme);
@@ -42,7 +53,7 @@ export function AppShell() {
         <Sidebar />
         <ContentArea />
         <AnimatePresence>
-          {shortcutsOpen && <ShortcutsPlaceholder onClose={closeShortcuts} />}
+          {shortcutsOpen && <ShortcutsSheet onClose={closeShortcuts} />}
         </AnimatePresence>
       </div>
     </div>
