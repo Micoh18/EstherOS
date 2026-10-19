@@ -17,20 +17,30 @@ import { JournalSidebar } from "./JournalSidebar";
 export function JournalPage() {
   useScope("journal");
 
-  // Today's latest entry (or a blank draft), unless another screen asked for a specific day
-  // with `requestJournalDate()` or a `?date=YYYY-MM-DD` link.
-  const [initialDate] = useState(peekRequestedDate);
+  // A `?date=YYYY-MM-DD` link wins over a day requested with `requestJournalDate()`, which wins
+  // over today's latest entry (or a blank draft). Decided once, so only one day is opened.
+  const [params, setParams] = useSearchParams();
+  const [initialDate] = useState(() => {
+    const date = params.get("date");
+    return date !== null && isValidDateISO(date) ? date : peekRequestedDate();
+  });
   useEffect(() => {
     void openJournalDate(initialDate);
     clearRequestedDate();
     return clearActive;
   }, [initialDate]);
 
-  const [params, setParams] = useSearchParams();
+  // Links followed while the journal is already open. The link that mounted the page was
+  // handled above: only clear it from the address.
+  const mountedWithParam = useRef(params.has("date"));
   useEffect(() => {
     const date = params.get("date");
     if (date === null) return;
     setParams({}, { replace: true });
+    if (mountedWithParam.current) {
+      mountedWithParam.current = false;
+      return;
+    }
     if (isValidDateISO(date)) void openJournalDate(date);
   }, [params, setParams]);
 

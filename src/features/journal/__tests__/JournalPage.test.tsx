@@ -2,11 +2,13 @@ import { act, fireEvent, render, screen, waitFor, within } from "@testing-librar
 import type { Editor } from "@tiptap/react";
 import { MemoryRouter } from "react-router";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { setDbExecutor } from "@/shared/db";
 import { todayISO } from "@/shared/lib/dates";
 import { ToastProvider } from "@/shared/ui";
 import { useMemoryDb, type MemoryDb } from "../../../../tests/unit/helpers/memoryDb";
 import { JournalPage } from "../components/JournalPage";
 import { createEntry, datesWithEntriesInMonth } from "../repository";
+import { useJournalStore } from "../store";
 
 let db: MemoryDb;
 const rows = () =>
@@ -115,6 +117,28 @@ describe("JournalPage", () => {
     renderPage("/journal?date=2026-09-14");
     const editor = await editorElement();
     await waitFor(() => expect(within(editor).getByText("Paseo por el río")).toBeInTheDocument());
+  });
+
+  it("opens only the day of a ?date= link, even if today loads later", async () => {
+    await createEntry({ date: "2026-09-14", contentText: "Paseo por el río" });
+    const today = todayISO();
+    // Today's entries arrive late: if the page also opened today, it would win the race.
+    setDbExecutor({
+      ...db.executor,
+      async select(sql, params) {
+        if (sql.includes("FROM journal_entry") && params.includes(today)) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+        return db.executor.select(sql, params);
+      },
+    });
+
+    renderPage("/journal?date=2026-09-14");
+    const editor = await editorElement();
+    await waitFor(() => expect(within(editor).getByText("Paseo por el río")).toBeInTheDocument());
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    expect(useJournalStore.getState().active?.date).toBe("2026-09-14");
+    expect(within(editor).getByText("Paseo por el río")).toBeInTheDocument();
   });
 
   it("filters favorites and highlights search matches", async () => {
