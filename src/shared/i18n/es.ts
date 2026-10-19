@@ -473,6 +473,7 @@ export const es = {
   "today.journal.streakNone": "Empieza tu racha hoy",
   "today.tomorrow.title": "Mañana",
   "today.tomorrow.empty": "Mañana está libre por ahora.",
+  "today.tomorrow.error": "No pude cargar lo de mañana.",
   "today.tomorrow.task": "Tarea: {title}",
 
   // Settings

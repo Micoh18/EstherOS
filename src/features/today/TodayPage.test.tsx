@@ -141,6 +141,25 @@ describe("TodayPage", () => {
     ).toBeInTheDocument();
   });
 
+  it("moves today's open tasks to overdue together when the day changes", async () => {
+    mockNow(at(23, 59));
+    await createTask({ title: "Regar plantas", dueDate: "2026-10-18" });
+    renderToday();
+    const tasks = card("Pendientes de hoy");
+    expect(await within(tasks).findByText("Regar plantas")).toBeInTheDocument();
+    expect(within(tasks).queryByRole("region", { name: "Vencidas" })).not.toBeInTheDocument();
+
+    // Back from sleep after midnight: the focus event moves both lists to the new day at once.
+    vi.setSystemTime(new Date(2026, 9, 19, 8, 0));
+    act(() => {
+      window.dispatchEvent(new Event("focus"));
+    });
+
+    const overdue = await within(tasks).findByRole("region", { name: "Vencidas" });
+    expect(within(overdue).getByText("Regar plantas")).toBeInTheDocument();
+    expect(within(tasks).getAllByText("Regar plantas")).toHaveLength(1);
+  });
+
   it("shows the empty states of a blank day", async () => {
     mockNow(at(10));
     renderToday();
@@ -285,6 +304,9 @@ describe("TodayPage loading and errors", () => {
     expect(screen.queryByText("Nada pendiente para hoy. Respira hondo ♡")).not.toBeInTheDocument();
     expect(screen.queryByText("Día libre")).not.toBeInTheDocument();
     expect(screen.queryByText("¿Cómo va el día?")).not.toBeInTheDocument();
+    const tomorrow = screen.getByRole("region", { name: /Mañana/ });
+    expect(within(tomorrow).getByRole("status", { name: "Cargando…" })).toBeInTheDocument();
+    expect(screen.queryByText("Mañana está libre por ahora.")).not.toBeInTheDocument();
   });
 
   it("says it could not load instead of showing an empty day", async () => {
@@ -305,6 +327,8 @@ describe("TodayPage loading and errors", () => {
     expect(screen.queryByText("Nada pendiente para hoy. Respira hondo ♡")).not.toBeInTheDocument();
     expect(screen.queryByText("Día libre")).not.toBeInTheDocument();
     expect(screen.queryByText("¿Cómo va el día?")).not.toBeInTheDocument();
+    expect(await screen.findByText("No pude cargar lo de mañana.")).toBeInTheDocument();
+    expect(screen.queryByText("Mañana está libre por ahora.")).not.toBeInTheDocument();
   });
 });
 

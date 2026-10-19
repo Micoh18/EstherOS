@@ -6,6 +6,7 @@ import { cn } from "@/shared/ui";
 import { calendarPath, EventChip, useEventsForDate } from "@/features/calendar";
 import { todoTaskPath, useTasksForDate } from "@/features/todo";
 import { formatShortDate } from "../model";
+import { CardError, CardLoading } from "./TodayCard";
 
 interface TomorrowRowProps {
   today: DateISO;
@@ -16,8 +17,12 @@ interface TomorrowRowProps {
 export function TomorrowRow({ today, timeFormat }: TomorrowRowProps) {
   const navigate = useNavigate();
   const tomorrow = addDaysISO(today, 1);
-  const events = useEventsForDate(tomorrow).data ?? [];
-  const tasks = useTasksForDate(tomorrow).data.filter((task) => task.parentId === null);
+  const eventsQuery = useEventsForDate(tomorrow);
+  const tasksQuery = useTasksForDate(tomorrow);
+  const events = eventsQuery.data ?? [];
+  const tasks = tasksQuery.data.filter((task) => task.parentId === null);
+  const failed = Boolean(eventsQuery.error || tasksQuery.error);
+  const loading = eventsQuery.loading || tasksQuery.loading;
   const empty = events.length === 0 && tasks.length === 0;
 
   return (
@@ -26,7 +31,11 @@ export function TomorrowRow({ today, timeFormat }: TomorrowRowProps) {
         <span className="font-semibold">{t("today.tomorrow.title")}</span>
         <span className="text-sm text-text-muted">{formatShortDate(tomorrow)}</span>
       </h2>
-      {empty ? (
+      {failed ? (
+        <CardError message={t("today.tomorrow.error")} />
+      ) : loading && empty ? (
+        <CardLoading rows={1} />
+      ) : empty ? (
         <p className="text-sm text-text-muted">{t("today.tomorrow.empty")}</p>
       ) : (
         <ul className="flex flex-wrap gap-2">
