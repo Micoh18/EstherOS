@@ -9,6 +9,13 @@ const FEATURES = ["today", "calendar", "journal", "todo", "settings", "onboardin
 const featureBoundaryMessage =
   "Import other features only through their public API: '@/features/<name>' (index.ts).";
 
+// src/app composes features and shared; nothing below it may depend on it (tests excepted).
+const appLayerPattern = {
+  group: ["@/app", "@/app/**"],
+  message: "Features and shared code must not import from src/app (move the code to src/shared).",
+};
+const TEST_FILES = ["src/**/*.test.{ts,tsx}", "src/**/__tests__/**"];
+
 /** Deep imports of any feature, except the ones listed in `allowed`. */
 const deepFeatureImports = (allowed = []) => [
   "@/features/*/*",
@@ -81,6 +88,7 @@ export default tseslint.config(
               group: ["@/features", "@/features/**"],
               message: "src/shared must not import from src/features.",
             },
+            appLayerPattern,
           ],
         },
       ],
@@ -90,6 +98,21 @@ export default tseslint.config(
   // Inside a feature: its own internals are allowed, other features only through their index.
   ...FEATURES.map((name) => ({
     files: [`src/features/${name}/**/*.{ts,tsx}`],
+    ignores: TEST_FILES,
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            { group: deepFeatureImports([name]), message: featureBoundaryMessage },
+            appLayerPattern,
+          ],
+        },
+      ],
+    },
+  })),
+  ...FEATURES.map((name) => ({
+    files: TEST_FILES.map((glob) => glob.replace("src/", `src/features/${name}/`)),
     rules: {
       "no-restricted-imports": [
         "error",

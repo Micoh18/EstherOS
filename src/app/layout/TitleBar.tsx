@@ -4,7 +4,7 @@ import { formatBinding, useFormattedBinding, usePendingChord } from "@/shared/ho
 import { t } from "@/shared/i18n";
 import { Bow } from "@/shared/icons";
 import { IconButton, Tooltip } from "@/shared/ui";
-import { useTheme, type ResolvedTheme } from "../theme";
+import { useTheme, type ResolvedTheme } from "@/shared/theme";
 import { WindowControls } from "./WindowControls";
 
 const THEME_ICONS: Record<ResolvedTheme, typeof Heart> = { pink: Heart, white: Sun, dark: Moon };

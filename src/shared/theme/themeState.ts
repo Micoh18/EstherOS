@@ -1,12 +1,13 @@
 import { createContext, useContext } from "react";
 
-export const THEMES = ["pink", "white", "dark"] as const;
-export type ResolvedTheme = (typeof THEMES)[number];
+import { DEFAULT_THEME, THEMES, type ThemeName } from "./constants";
+
+/** A theme that can be painted (`data-theme`). */
+export type ResolvedTheme = ThemeName;
+/** What the user picks: a theme, or follow Windows. */
 export type Theme = ResolvedTheme | "system";
 
-export const DEFAULT_THEME: Theme = "pink";
-
-// Cache of `setting.theme` (synced in providers.tsx) so the first render needs no database.
+// Cache of `setting.theme` (synced in app/providers.tsx) so the first render needs no database.
 // The inline script in index.html reads the same key to set data-theme before the first paint.
 export const THEME_STORAGE_KEY = "estheros.theme";
 

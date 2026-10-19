@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { resetAll } from "@/shared/hotkeys";
 import { AppProviders } from "./providers";
 import { routes } from "./router";
-import { THEME_STORAGE_KEY } from "./theme";
+import { THEME_STORAGE_KEY } from "@/shared/theme";
 
 const windowMock = vi.hoisted(() => ({
   close: vi.fn(),

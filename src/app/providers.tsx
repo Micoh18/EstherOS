@@ -12,7 +12,7 @@ import {
   storeTheme,
   type ResolvedTheme,
   type Theme,
-} from "./theme";
+} from "@/shared/theme";
 import { useSidebarStore } from "./layout/sidebarStore";
 import "./theme-transition.css";
 

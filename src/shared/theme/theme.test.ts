@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isTheme, nextTheme, resolveTheme } from "./theme";
+import { isTheme, nextTheme, resolveTheme } from "./themeState";
 
 describe("theme helpers", () => {
   it("resolves system to dark or white, never pink", () => {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { BookHeart, CalendarDays, ListTodo, Settings, Sun, type LucideIcon } from "lucide-react";
-import { useTheme } from "@/app/theme";
+import { useTheme } from "@/shared/theme";
 import { ThemePicker } from "@/features/settings";
 import { formatBinding, useScope } from "@/shared/hotkeys";
 import { Bow } from "@/shared/icons";

@@ -9,7 +9,7 @@ import {
   useHotkey,
   type ActionId,
 } from "@/shared/hotkeys";
-import { useTheme } from "../theme";
+import { useTheme } from "@/shared/theme";
 import { NAV_ITEMS, SETTINGS_PATH } from "../navigation";
 import { ContentArea } from "./ContentArea";
 import { Sidebar } from "./Sidebar";

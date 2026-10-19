@@ -1,4 +1,4 @@
-import { useTheme } from "@/app/theme";
+import { useTheme } from "@/shared/theme";
 import { Switch, cn } from "@/shared/ui";
 import { t, type I18nKey } from "@/shared/i18n";
 import { setFontScale, setReduceMotion, useAppearanceStore } from "../appearance";
