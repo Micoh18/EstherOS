@@ -1,6 +1,7 @@
 /* Pink (default): powdered rose with cream. The signature theme. */
 :root,
-:root[data-theme="pink"] {
+:root[data-theme="pink"],
+[data-theme="pink"] {
   color-scheme: light;
 
   --bg: #fff5f7;

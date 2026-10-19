@@ -1,5 +1,6 @@
 /* Dark: deep plum, never pure black. Luminous pink-lavender accent. */
-:root[data-theme="dark"] {
+:root[data-theme="dark"],
+[data-theme="dark"] {
   color-scheme: dark;
 
   --bg: #1b1620;

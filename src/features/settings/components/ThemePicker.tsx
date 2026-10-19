@@ -3,14 +3,14 @@ import { cn, onRadioGroupKeyDown, radioTabIndex } from "@/shared/ui";
 import { t } from "@/shared/i18n";
 import type { ThemeName } from "@/shared/theme";
 import { THEMES, type ThemeSetting } from "../model";
-import { readThemeTokens } from "./themeTokens";
 
 /** Miniature of the app (title bar, sidebar, a card and the accent) drawn with the theme's tokens. */
 function MiniApp({ theme, className }: { theme: ThemeName; className?: string }) {
   return (
     <div
       aria-hidden
-      style={readThemeTokens(theme)}
+      // The theme selectors also match any element, so the miniature paints with its tokens.
+      data-theme={theme}
       className={cn("flex h-full flex-col overflow-hidden bg-bg", className)}
     >
       <div className="flex h-[10px] items-center gap-[3px] bg-bg-elevated px-[6px]">

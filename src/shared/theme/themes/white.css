@@ -1,5 +1,6 @@
 /* White (light): warm cream, almost paper. Soft mauve accent. */
-:root[data-theme="white"] {
+:root[data-theme="white"],
+[data-theme="white"] {
   color-scheme: light;
 
   --bg: #fbf8f4;
