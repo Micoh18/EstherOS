@@ -8,13 +8,15 @@ import type { Task } from "@/features/todo";
 import { capitalize, formatClock, type TimeFormat } from "../format";
 import { layoutColumns, MINUTES_PER_DAY, timedSegmentsFor, type DaySegment } from "../layout";
 import type { EventOccurrence } from "../model";
-import type { EventDraft } from "../store";
+import { useCalendarStore, type EventDraft } from "../store";
 import { DROP_DAY_ATTR } from "./dnd";
 import { isEmptyAreaEvent } from "./dom";
 import { CalendarEvent, EventBlock } from "./CalendarEvent";
 import { CalendarTask, TASK_BLOCK_MINUTES } from "./CalendarTask";
 
 export const HOUR_PX = 48;
+/** All-day items shown per day before collapsing the rest into "+N más". */
+const MAX_ALL_DAY = 3;
 const GRID_HEIGHT = 24 * HOUR_PX;
 const INITIAL_SCROLL_HOUR = 7;
 const SNAP_MINUTES = 15;
@@ -175,6 +177,13 @@ const AllDayCell = memo(function AllDayCell({
   onCreate: (draft: EventDraft) => void;
 }) {
   const allDay = events.filter((occurrence) => occurrence.allDay);
+  const dateOnlyTasks = tasks.filter((task) => !task.dueTime);
+  // Same cap as the month cells: past it, the last slot becomes "+N más" (the panel lists all).
+  const total = allDay.length + dateOnlyTasks.length;
+  const slots = total > MAX_ALL_DAY ? MAX_ALL_DAY - 1 : total;
+  const shownEvents = allDay.slice(0, slots);
+  const shownTasks = dateOnlyTasks.slice(0, slots - shownEvents.length);
+  const hidden = total - shownEvents.length - shownTasks.length;
   return (
     <div
       {...{ [DROP_DAY_ATTR]: day }}
@@ -187,7 +196,7 @@ const AllDayCell = memo(function AllDayCell({
         "data-[drop-over]:bg-accent-soft",
       )}
     >
-      {allDay.map((occurrence) => (
+      {shownEvents.map((occurrence) => (
         <CalendarEvent
           key={occurrence.key}
           occurrence={occurrence}
@@ -195,11 +204,18 @@ const AllDayCell = memo(function AllDayCell({
           timeFormat={timeFormat}
         />
       ))}
-      {tasks
-        .filter((task) => !task.dueTime)
-        .map((task) => (
-          <CalendarTask key={task.id} task={task} variant="pill" timeFormat={timeFormat} />
-        ))}
+      {shownTasks.map((task) => (
+        <CalendarTask key={task.id} task={task} variant="pill" timeFormat={timeFormat} />
+      ))}
+      {hidden > 0 ? (
+        <button
+          type="button"
+          onClick={() => useCalendarStore.getState().showDay(day)}
+          className="self-start rounded-full px-2 text-xs font-semibold text-text-muted outline-none hover:bg-bg-elevated hover:text-text focus-visible:shadow-(--shadow-glow)"
+        >
+          {t("calendar.more", { count: hidden })}
+        </button>
+      ) : null}
     </div>
   );
 });
@@ -301,7 +317,7 @@ const DayColumn = memo(function DayColumn({
           key={`overflow-${group.start}`}
           type="button"
           data-event-block=""
-          onClick={() => onSelect(day)}
+          onClick={() => useCalendarStore.getState().showDay(day)}
           className="absolute flex items-start justify-center rounded-sm border border-border bg-bg-elevated pt-1 text-xs font-semibold text-text-muted hover:text-text"
           style={blockStyle(group, group.column, group.columns)}
         >

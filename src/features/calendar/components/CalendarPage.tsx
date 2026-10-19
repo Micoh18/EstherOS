@@ -32,10 +32,13 @@ const createOn = (day: DateISO) =>
 const clearSelection = () => useCalendarStore.getState().selectDate(null);
 const ease = [0.33, 0.9, 0.35, 1] as const;
 
-/** Focuses and selects `day`; with `create`, also opens the new event dialog on it. */
+/**
+ * Focuses and selects `day` and opens the side panel; with `create`, also opens the new event
+ * dialog on it.
+ */
 function openDay(day: DateISO, create: boolean) {
   const store = useCalendarStore.getState();
-  useCalendarStore.setState({ focusedDate: day, selectedDate: day, direction: 0 });
+  useCalendarStore.setState({ focusedDate: day, selectedDate: day, direction: 0, panelOpen: true });
   if (create) store.openCreate({ date: day, allDay: true });
 }
 

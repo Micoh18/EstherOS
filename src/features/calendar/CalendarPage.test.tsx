@@ -231,4 +231,40 @@ describe("CalendarPage", () => {
     });
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Noviembre 2026");
   });
+
+  it("opens the side panel for a ?date= link when it was closed", async () => {
+    useCalendarStore.setState({ panelOpen: false });
+    renderCalendar("/calendar?date=2026-11-03");
+    expect(
+      await screen.findByRole("complementary", { name: "Detalle del día" }),
+    ).toBeInTheDocument();
+    expect(useCalendarStore.getState()).toMatchObject({
+      selectedDate: "2026-11-03",
+      panelOpen: true,
+    });
+  });
+
+  it("caps the all-day row of the week view with +N más", async () => {
+    useCalendarStore.setState({ panelOpen: false });
+    for (const title of ["Uno", "Dos", "Tres", "Cuatro"]) {
+      await createEvent({ title, allDay: true, date: "2026-10-18" });
+    }
+    await createTask({ title: "Regar plantas", dueDate: "2026-10-18" });
+    renderCalendar();
+    // Same-day all-day events come sorted by title: Cuatro, Dos, Tres, Uno.
+    await screen.findByText("Cuatro");
+    act(() => useCalendarStore.getState().setView("week"));
+
+    const more = await screen.findByRole("button", { name: "+3 más" });
+    expect(screen.getAllByRole("button", { name: /^Cuatro/ }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("button", { name: /^Dos/ }).length).toBeGreaterThan(0);
+    expect(screen.queryByRole("button", { name: /^Tres/ })).not.toBeInTheDocument();
+    expect(screen.queryByText("Regar plantas")).not.toBeInTheDocument();
+
+    fireEvent.click(more);
+    expect(useCalendarStore.getState()).toMatchObject({
+      selectedDate: "2026-10-18",
+      panelOpen: true,
+    });
+  });
 });

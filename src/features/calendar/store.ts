@@ -33,6 +33,8 @@ interface CalendarState {
   step: (direction: 1 | -1) => void;
   goToToday: () => void;
   selectDate: (date: DateISO | null) => void;
+  /** Selects `date` and makes sure the side panel is open (it lists everything of that day). */
+  showDay: (date: DateISO) => void;
   togglePanel: () => void;
   openCreate: (draft: EventDraft) => void;
   openEdit: (eventId: string) => void;
@@ -81,6 +83,10 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
     set(
       view === "day" && date ? { selectedDate: date, focusedDate: date } : { selectedDate: date },
     );
+  },
+  showDay: (date) => {
+    get().selectDate(date);
+    set({ panelOpen: true });
   },
   togglePanel: () => set((state) => ({ panelOpen: !state.panelOpen })),
   openCreate: (draft) => set({ dialog: { mode: "create", draft } }),

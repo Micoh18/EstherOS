@@ -10,6 +10,7 @@ import type { EventOccurrence } from "../model";
 import { DROP_DAY_ATTR } from "./dnd";
 import { isEmptyAreaEvent, isOwnDomEvent } from "./dom";
 import { CalendarEvent } from "./CalendarEvent";
+import { useCalendarStore } from "../store";
 
 /** Events listed per cell before collapsing into "+N más". */
 const MAX_VISIBLE = 3;
@@ -204,7 +205,7 @@ const MonthCell = memo(function MonthCell({
               type="button"
               onClick={(event) => {
                 event.stopPropagation();
-                onSelect(day);
+                useCalendarStore.getState().showDay(day);
               }}
               className="self-start rounded-full px-2 text-xs font-semibold text-text-muted hover:bg-bg-elevated hover:text-text"
             >
