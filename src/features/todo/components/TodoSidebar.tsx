@@ -148,7 +148,7 @@ export function TodoSidebar({ lists, today }: { lists: TodoList[]; today: DateIS
           <Button
             variant="ghost"
             size="sm"
-            className="h-[28px] px-2"
+            className="px-2"
             onClick={() => useTodoStore.getState().setNewListOpen(true)}
           >
             <Plus aria-hidden />
@@ -166,7 +166,7 @@ export function TodoSidebar({ lists, today }: { lists: TodoList[]; today: DateIS
             type="button"
             onClick={() => useTodoStore.getState().toggleArchivedOpen()}
             aria-expanded={archivedOpen}
-            className="flex w-full items-center gap-1 rounded-md px-3 py-1 text-sm text-text-faint outline-none hover:text-text-muted focus-visible:shadow-(--shadow-glow)"
+            className="flex min-h-[32px] w-full items-center gap-1 rounded-md px-3 py-1 text-sm text-text-faint outline-none hover:text-text-muted focus-visible:shadow-(--shadow-glow)"
           >
             {archivedOpen ? (
               <ChevronDown aria-hidden className="size-4" />

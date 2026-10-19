@@ -1,4 +1,4 @@
-import { useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { Archive, ArchiveRestore, Ellipsis, Pencil, Trash } from "lucide-react";
 import { useScope } from "@/shared/hotkeys";
 import { t, type I18nKey } from "@/shared/i18n";
@@ -63,6 +63,15 @@ export function TodoHeader({
 function ListHeader({ list }: { list: TodoList }) {
   const [editing, setEditing] = useState(false);
   const sortMode = useTodoStore((state) => sortModeOf(state, list.id));
+  const titleRef = useRef<HTMLButtonElement>(null);
+  // Set when the editor closes from the keyboard, so focus goes back to the title.
+  const refocusTitle = useRef(false);
+
+  useEffect(() => {
+    if (editing || !refocusTitle.current) return;
+    refocusTitle.current = false;
+    titleRef.current?.focus();
+  }, [editing]);
 
   return (
     <header className="flex items-center gap-3">
@@ -75,10 +84,17 @@ function ListHeader({ list }: { list: TodoList }) {
         )}
       />
       {editing ? (
-        <ListNameEditor list={list} onDone={() => setEditing(false)} />
+        <ListNameEditor
+          list={list}
+          onDone={(refocus) => {
+            refocusTitle.current = refocus;
+            setEditing(false);
+          }}
+        />
       ) : (
         <h1 className="min-w-0 truncate font-display text-3xl font-semibold text-text">
           <button
+            ref={titleRef}
             type="button"
             onClick={() => setEditing(true)}
             className="max-w-full truncate rounded-md text-left outline-none focus-visible:shadow-(--shadow-glow)"
@@ -109,16 +125,23 @@ function ListHeader({ list }: { list: TodoList }) {
   );
 }
 
-function ListNameEditor({ list, onDone }: { list: TodoList; onDone: () => void }) {
+function ListNameEditor({
+  list,
+  onDone,
+}: {
+  list: TodoList;
+  /** `refocus` is true when the edit ended from the keyboard (Enter/Escape), not by blur. */
+  onDone: (refocus: boolean) => void;
+}) {
   const [name, setName] = useState(list.name);
   const [error, setError] = useState(false);
 
-  const save = async () => {
+  const save = async (refocus: boolean) => {
     const next = name.trim();
-    if (!next || next === list.name) return onDone();
+    if (!next || next === list.name) return onDone(refocus);
     try {
       await updateList(list.id, { name: next });
-      onDone();
+      onDone(refocus);
     } catch (cause) {
       log.warn("todo: rename list failed", cause);
       setError(true);
@@ -128,10 +151,10 @@ function ListNameEditor({ list, onDone }: { list: TodoList; onDone: () => void }
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       event.preventDefault();
-      void save();
+      void save(true);
     } else if (event.key === "Escape") {
       event.preventDefault();
-      onDone();
+      onDone(true);
     }
   };
 
@@ -147,7 +170,7 @@ function ListNameEditor({ list, onDone }: { list: TodoList; onDone: () => void }
           setName(event.target.value);
           setError(false);
         }}
-        onBlur={() => void save()}
+        onBlur={() => void save(false)}
         onKeyDown={onKeyDown}
         className="h-[44px] font-display text-2xl font-semibold"
       />
@@ -158,7 +181,8 @@ function ListNameEditor({ list, onDone }: { list: TodoList; onDone: () => void }
 
 const menuItem = cn(
   "flex h-[34px] w-full items-center gap-2 rounded-sm px-3 text-left text-base outline-none",
-  "hover:bg-surface-hover focus-visible:bg-surface-hover [&_svg]:size-4 [&_svg]:shrink-0",
+  "hover:bg-surface-hover focus-visible:bg-surface-hover focus-visible:shadow-[inset_0_0_0_2px_var(--accent)]",
+  "[&_svg]:size-4 [&_svg]:shrink-0",
 );
 
 function ListMenu({ list, onRename }: { list: TodoList; onRename: () => void }) {

@@ -1,4 +1,11 @@
-import { useEffect, useRef, type FocusEvent, type HTMLAttributes, type MouseEvent } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  type FocusEvent,
+  type HTMLAttributes,
+  type MouseEvent,
+} from "react";
 import { ChevronDown, ChevronRight, GripVertical } from "lucide-react";
 import type { Tag } from "@/shared/db";
 import { useEscapeClose } from "@/shared/hotkeys";
@@ -44,6 +51,7 @@ export function TaskRow({
   const confirming = useTodoStore((state) => !compact && state.confirmDeleteId === task.id);
   const pendingFocus = useTodoStore((state) => !compact && state.pendingFocusId === task.id);
   const rowRef = useRef<HTMLDivElement>(null);
+  const subtasksId = useId();
   const done = task.status === "done" || completing;
 
   // Moving rows in the DOM drops focus: restore it once the reordered data arrives.
@@ -73,6 +81,8 @@ export function TaskRow({
         ref={rowRef}
         data-task-row={compact ? undefined : task.id}
         tabIndex={compact ? undefined : 0}
+        role={compact ? undefined : "group"}
+        aria-label={compact ? undefined : task.title}
         aria-current={selected || undefined}
         onFocus={handleFocus}
         onBlur={handleBlur}
@@ -90,7 +100,8 @@ export function TaskRow({
           <span
             {...dragHandleProps}
             tabIndex={-1}
-            aria-label={t("todo.row.drag")}
+            // Pointer only: the keyboard reorders with the row shortcuts.
+            aria-hidden
             className="-ml-2 flex cursor-grab touch-none items-center text-text-faint opacity-0 group-hover:opacity-100 active:cursor-grabbing"
           >
             <GripVertical aria-hidden className="size-4" />
@@ -102,14 +113,28 @@ export function TaskRow({
           aria-label={t(done ? "todo.row.reopen" : "todo.row.complete", { title: task.title })}
           onCheckedChange={() => void toggleTaskDone(task)}
         />
-        <span
-          className={cn(
-            "min-w-0 flex-1 truncate transition-colors duration-(--dur-base)",
-            done ? "text-text-faint line-through" : "text-text",
-          )}
-        >
-          {task.title}
-        </span>
+        {compact && onOpen ? (
+          <button
+            type="button"
+            onClick={() => onOpen(task)}
+            className={cn(
+              "min-w-0 flex-1 truncate rounded-sm text-left transition-colors duration-(--dur-base)",
+              done ? "text-text-faint line-through" : "text-text",
+              focusRing,
+            )}
+          >
+            {task.title}
+          </button>
+        ) : (
+          <span
+            className={cn(
+              "min-w-0 flex-1 truncate transition-colors duration-(--dur-base)",
+              done ? "text-text-faint line-through" : "text-text",
+            )}
+          >
+            {task.title}
+          </span>
+        )}
 
         {confirming ? (
           <DeleteConfirm task={task} />
@@ -120,9 +145,15 @@ export function TaskRow({
                 type="button"
                 onClick={() => store().toggleExpanded(task.id)}
                 aria-expanded={expanded}
-                aria-label={t(expanded ? "todo.row.collapse" : "todo.row.expand")}
+                aria-controls={expanded ? subtasksId : undefined}
+                aria-label={t(expanded ? "todo.row.collapseProgress" : "todo.row.expandProgress", {
+                  done: progress.done,
+                  total: progress.total,
+                })}
                 className={cn(
-                  "inline-flex h-[22px] items-center gap-0.5 rounded-full px-1.5 text-xs font-semibold text-text-muted hover:bg-bg-elevated",
+                  "relative inline-flex h-[22px] items-center gap-0.5 rounded-full px-1.5 text-xs font-semibold text-text-muted hover:bg-bg-elevated",
+                  // Invisible 32px tall hit area around the small pill.
+                  "before:absolute before:inset-x-0 before:-inset-y-[5px] before:content-['']",
                   focusRing,
                 )}
               >
@@ -148,7 +179,7 @@ export function TaskRow({
           </span>
         )}
       </div>
-      {expanded ? <InlineSubtasks parentId={task.id} /> : null}
+      {expanded ? <InlineSubtasks id={subtasksId} parentId={task.id} /> : null}
     </div>
   );
 }
@@ -180,10 +211,10 @@ function DeleteConfirm({ task }: { task: Task }) {
   );
 }
 
-function InlineSubtasks({ parentId }: { parentId: string }) {
+function InlineSubtasks({ id, parentId }: { id: string; parentId: string }) {
   const subtasks = useSubtasks(parentId);
   return (
-    <ul className="mb-1 ml-[46px] flex flex-col gap-0.5 border-l border-border pl-3">
+    <ul id={id} className="mb-1 ml-[46px] flex flex-col gap-0.5 border-l border-border pl-3">
       {subtasks.map((sub) => (
         <li key={sub.id} className="flex min-h-[32px] items-center gap-2">
           <Checkbox

@@ -428,7 +428,7 @@ function SubtaskItem({ subtask }: { subtask: Task }) {
       <input
         value={title}
         maxLength={500}
-        aria-label={t("todo.detail.title")}
+        aria-label={t("todo.detail.subtaskTitle", { title: subtask.title })}
         onChange={(event) => setTitle(event.target.value)}
         onBlur={() => (title.trim() ? commit() : setTitle(subtask.title))}
         onKeyDown={(event) => {

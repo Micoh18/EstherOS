@@ -170,7 +170,7 @@ export function CompletedSection({
         type="button"
         onClick={toggleCompletedOpen}
         aria-expanded={open}
-        className="flex items-center gap-1 rounded-full px-3 py-1 font-display text-sm font-semibold text-text-muted outline-none hover:bg-surface-hover focus-visible:shadow-(--shadow-glow)"
+        className="flex min-h-[32px] items-center gap-1 rounded-full px-3 py-1 font-display text-sm font-semibold text-text-muted outline-none hover:bg-surface-hover focus-visible:shadow-(--shadow-glow)"
       >
         {open ? (
           <ChevronDown aria-hidden className="size-4" />

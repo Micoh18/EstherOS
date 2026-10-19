@@ -1,7 +1,7 @@
 import { Ban } from "lucide-react";
 import { COLOR_KEYS, type ColorKey } from "@/shared/db";
 import { t } from "@/shared/i18n";
-import { cn } from "@/shared/ui";
+import { cn, onRadioGroupKeyDown, radioTabIndex } from "@/shared/ui";
 import { LIST_ICONS, LIST_ICON_KEYS, PALETTE_BG_CLASS, type ListIconKey } from "./listIcons";
 
 const option = cn(
@@ -19,11 +19,17 @@ export function ColorPicker({
   onChange: (color: ColorKey | null) => void;
 }) {
   return (
-    <div role="radiogroup" aria-label={t("todo.list.color")} className="flex flex-wrap gap-2">
+    <div
+      role="radiogroup"
+      aria-label={t("todo.list.color")}
+      onKeyDown={onRadioGroupKeyDown}
+      className="flex flex-wrap gap-2"
+    >
       <button
         type="button"
         role="radio"
         aria-checked={value === null}
+        tabIndex={radioTabIndex(value === null, 0, value === null || COLOR_KEYS.includes(value))}
         aria-label={t("todo.list.noColor")}
         title={t("todo.list.noColor")}
         onClick={() => onChange(null)}
@@ -37,6 +43,7 @@ export function ColorPicker({
           type="button"
           role="radio"
           aria-checked={value === color}
+          tabIndex={value === color ? 0 : -1}
           aria-label={t(`todo.color.${color}`)}
           title={t(`todo.color.${color}`)}
           onClick={() => onChange(color)}
@@ -55,8 +62,13 @@ export function IconPicker({
   onChange: (icon: ListIconKey) => void;
 }) {
   return (
-    <div role="radiogroup" aria-label={t("todo.list.icon")} className="flex flex-wrap gap-1">
-      {LIST_ICON_KEYS.map((key) => {
+    <div
+      role="radiogroup"
+      aria-label={t("todo.list.icon")}
+      onKeyDown={onRadioGroupKeyDown}
+      className="flex flex-wrap gap-1"
+    >
+      {LIST_ICON_KEYS.map((key, index) => {
         const { icon: Icon, label } = LIST_ICONS[key];
         return (
           <button
@@ -64,6 +76,11 @@ export function IconPicker({
             type="button"
             role="radio"
             aria-checked={value === key}
+            tabIndex={radioTabIndex(
+              value === key,
+              index,
+              LIST_ICON_KEYS.some((candidate) => candidate === value),
+            )}
             aria-label={t(label)}
             title={t(label)}
             onClick={() => onChange(key)}
