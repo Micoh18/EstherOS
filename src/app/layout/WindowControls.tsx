@@ -27,7 +27,7 @@ function useIsMaximized(): boolean {
 }
 
 const controlClass =
-  "inline-flex h-10 w-11 items-center justify-center text-text-muted transition-colors duration-(--dur-fast) focus-visible:outline-none focus-visible:bg-surface-hover";
+  "inline-flex h-10 w-11 items-center justify-center text-text-muted transition-colors duration-(--dur-fast) focus-visible:outline-none focus-visible:bg-surface-hover focus-visible:shadow-[inset_0_0_0_2px_var(--accent)]";
 
 /** Minimize, maximize/restore and close, drawn by the app because the window has no frame. */
 export function WindowControls() {
