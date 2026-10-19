@@ -1,0 +1,15 @@
+/*
+ * "Reducir animaciones" (setting `reduce_motion`): the class goes on <html>. Framer Motion follows
+ * it through <MotionConfig reducedMotion="always">; CSS animations and transitions end at once.
+ * Durations stay above zero so `animationend` / `transitionend` still fire (Radix waits for them).
+ */
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 1ms !important;
+  animation-delay: 0ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 1ms !important;
+  transition-delay: 0ms !important;
+  scroll-behavior: auto !important;
+}

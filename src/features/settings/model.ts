@@ -8,6 +8,13 @@ export type ThemeSetting = z.infer<typeof ThemeSettingSchema>;
 export const KeybindingsSchema = z.record(z.string(), z.string().min(1).nullable());
 export type Keybindings = z.infer<typeof KeybindingsSchema>;
 
+export const FONT_SCALES = [0.9, 1, 1.1] as const;
+export type FontScale = (typeof FONT_SCALES)[number];
+
+/** Screen opened at startup: always Today, or the last visited route. */
+export const START_SCREENS = ["today", "last"] as const;
+export type StartScreen = (typeof START_SCREENS)[number];
+
 /**
  * Every setting with its type and default. Keys are snake_case like the `setting` table rows.
  * Keep the defaults in sync with the seed of `0001_init.sql`.
@@ -23,6 +30,13 @@ export const SettingsSchema = z.object({
   keybindings: KeybindingsSchema.default({}),
   font_scale: z.union([z.literal(0.9), z.literal(1), z.literal(1.1)]).default(1),
   reduce_motion: z.boolean().default(false),
+  start_screen: z.enum(START_SCREENS).default("today"),
+  /** Last visited route, used when `start_screen` is `last`. */
+  last_route: z
+    .string()
+    .regex(/^\/[a-z/-]*$/)
+    .max(100)
+    .default("/today"),
 });
 export type Settings = z.infer<typeof SettingsSchema>;
 export type SettingKey = keyof Settings;

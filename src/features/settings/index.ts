@@ -1,5 +1,19 @@
-// Data layer (model + repository). UI exports are added by the feature owner.
 export * from "./model";
 export * from "./repository";
-// TODO(A8): remove together with the file.
-export { DevDataPanel } from "./_DevDataPanel";
+export { bindSetting, saveSetting, watchSetting, type SettingBinding } from "./persistence";
+export { useSettings, type SettingsState } from "./hooks";
+export {
+  REDUCE_MOTION_CLASS,
+  setFontScale,
+  setReduceMotion,
+  useAppearanceStore,
+} from "./appearance";
+export {
+  exportBackup,
+  importBackup,
+  importErrorMessage,
+  type ExportOutcome,
+  type ImportOutcome,
+} from "./backup";
+export { getStartPath, rememberRoute, resolveStartPath } from "./startScreen";
+export { AppearanceProvider } from "./components/AppearanceProvider";
