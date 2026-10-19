@@ -12,7 +12,8 @@ import { formatBindingString, isReserved, normalizeBinding } from "./binding";
 /** Only the actions the user changed: `{ actionId: binding | null }` (null = no shortcut). */
 export type KeybindingOverrides = Partial<Record<ActionId, string | null>>;
 
-// TODO(A8): persist through `setting.keybindings` instead of localStorage.
+// Cache for the first render. `setting.keybindings` is the source of truth: the app providers load
+// it with `replaceOverrides` and save every change of `useKeybindingsStore` back to it.
 export const KEYBINDINGS_STORAGE_KEY = "estheros.keybindings";
 
 export type SetBindingResult =
