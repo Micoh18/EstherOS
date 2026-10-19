@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open, save } from "@tauri-apps/plugin-dialog";
+import { t } from "@/shared/i18n";
 import { todayISO } from "@/shared/lib/dates";
 import { emitDbChanged } from "./events";
 
@@ -40,7 +41,7 @@ const IMPORT_CODES: ImportErrorCode[] = [
   "restore_failed",
 ];
 
-const DB_FILTERS = [{ name: "Estheros backup", extensions: ["db", "sqlite"] }];
+const dbFilters = () => [{ name: t("db.backupFileType"), extensions: ["db", "sqlite"] }];
 
 export function suggestedBackupName(date: Date = new Date()): string {
   return `estheros-backup-${todayISO(date)}.db`;
@@ -83,11 +84,11 @@ export function dbSizeBytes(): Promise<number> {
 
 /** Native "save as" dialog with the suggested name. Resolves `null` if cancelled. */
 export function pickExportPath(): Promise<string | null> {
-  return save({ defaultPath: suggestedBackupName(), filters: DB_FILTERS });
+  return save({ defaultPath: suggestedBackupName(), filters: dbFilters() });
 }
 
 /** Native "open" dialog for a backup file. Resolves `null` if cancelled. */
 export async function pickImportPath(): Promise<string | null> {
-  const selected = await open({ multiple: false, directory: false, filters: DB_FILTERS });
+  const selected = await open({ multiple: false, directory: false, filters: dbFilters() });
   return typeof selected === "string" ? selected : null;
 }

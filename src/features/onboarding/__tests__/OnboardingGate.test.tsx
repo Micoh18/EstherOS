@@ -29,13 +29,13 @@ afterEach(() => {
 describe("OnboardingGate", () => {
   it("shows the three steps on first run and marks onboarding_done", async () => {
     const view = renderGate();
-    expect(await screen.findByText("Te damos la bienvenida a Estheros ♡")).toBeInTheDocument();
+    expect(await screen.findByText("Te doy la bienvenida a Estheros ♡")).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("¿Cómo quieres que te llame?"), {
       target: { value: "Esther" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Siguiente" }));
-    expect(await screen.findByText("Elige tu theme")).toBeInTheDocument();
+    expect(await screen.findByText("Elige tu tema")).toBeInTheDocument();
     fireEvent.click(await screen.findByRole("radio", { name: /White/ }));
     fireEvent.click(screen.getByRole("button", { name: "Siguiente" }));
     expect(await screen.findByText("Listo, Esther ♡")).toBeInTheDocument();
@@ -49,7 +49,7 @@ describe("OnboardingGate", () => {
     // Next start: nothing shows.
     renderGate();
     await new Promise((resolve) => setTimeout(resolve, 50));
-    expect(screen.queryByText("Te damos la bienvenida a Estheros ♡")).toBeNull();
+    expect(screen.queryByText("Te doy la bienvenida a Estheros ♡")).toBeNull();
   });
 
   it("can be skipped", async () => {

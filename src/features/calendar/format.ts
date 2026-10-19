@@ -19,7 +19,7 @@ export function formatTime(localDateTime: string, timeFormat: TimeFormat): strin
   return formatClock(parseLocalDateTime(localDateTime), timeFormat);
 }
 
-/** "09:00 – 10:30" or "Todo el día". */
+/** "09:00 – 10:30" or "Día completo". */
 export function formatEventTime(occurrence: EventOccurrence, timeFormat: TimeFormat): string {
   if (occurrence.allDay || !occurrence.startAt || !occurrence.endAt) return t("calendar.allDay");
   return `${formatTime(occurrence.startAt, timeFormat)} – ${formatTime(occurrence.endAt, timeFormat)}`;

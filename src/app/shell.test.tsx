@@ -63,7 +63,7 @@ describe("shell", () => {
     press("T", "KeyT", { ctrlKey: true, shiftKey: true });
     expect(document.documentElement.dataset.theme).toBe("white");
     expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("white");
-    fireEvent.click(screen.getByRole("button", { name: /Cambiar theme/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Cambiar tema/ }));
     expect(document.documentElement.dataset.theme).toBe("dark");
   });
 

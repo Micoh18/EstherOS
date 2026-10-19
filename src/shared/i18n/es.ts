@@ -10,8 +10,8 @@ export const es = {
   "shell.titleBar.maximize": "Maximizar",
   "shell.titleBar.restore": "Restaurar",
   "shell.titleBar.close": "Cerrar",
-  "shell.titleBar.cycleTheme": "Cambiar theme (actual: {theme})",
-  "shell.titleBar.chordPending": "{keys} …",
+  "shell.titleBar.cycleTheme": "Cambiar tema (actual: {theme})",
+  "shell.titleBar.chordPending": "{keys} luego…",
 
   // Shell: sidebar
   "shell.error.title": "Algo salió mal ♡",
@@ -39,6 +39,9 @@ export const es = {
   // Shortcuts sheet placeholder
   "shell.shortcuts.title": "Atajos de teclado",
 
+  // Data
+  "db.backupFileType": "Copia de Estheros",
+
   // Themes
   "theme.pink": "Pink",
   "theme.white": "White",
@@ -64,7 +67,6 @@ export const es = {
   "hotkeys.key.chordSeparator": " luego ",
 
   // Calendar: header and views
-  "calendar.title": "Calendario",
   "calendar.prev": "Período anterior",
   "calendar.next": "Período siguiente",
   "calendar.today": "Hoy",
@@ -75,7 +77,7 @@ export const es = {
   "calendar.newEvent": "Evento",
   "calendar.newEventLabel": "Nuevo evento",
   "calendar.togglePanel": "Mostrar/ocultar panel del día",
-  "calendar.allDay": "Todo el día",
+  "calendar.allDay": "Día completo",
   "calendar.allDayRow": "Día completo",
   "calendar.more": "+{count} más",
   "calendar.moreShort": "+{count}",
@@ -84,7 +86,6 @@ export const es = {
   "calendar.hasJournal": "Tiene entrada de diario",
   "calendar.loading": "Cargando calendario…",
   "calendar.now": "Ahora",
-  "calendar.recurring": "Se repite",
   "calendar.pastLog": "Registro de algo que ya pasó",
 
   // Calendar: side panel
@@ -138,7 +139,7 @@ export const es = {
   "calendar.color.sage": "Salvia",
   "calendar.color.butter": "Mantequilla",
   "calendar.color.sky": "Cielo",
-  "calendar.color.peach": "Melocotón",
+  "calendar.color.peach": "Durazno",
   "calendar.repeat.none": "No se repite",
   "calendar.repeat.daily": "Cada día",
   "calendar.repeat.weekly": "Cada semana",
@@ -177,10 +178,10 @@ export const es = {
   "hotkeys.action.nav.settings": "Ir a Ajustes",
   "hotkeys.action.app.openSettings": "Abrir Ajustes",
   "hotkeys.action.app.newItem": "Nuevo según contexto",
-  "hotkeys.action.theme.cycle": "Rotar theme",
+  "hotkeys.action.theme.cycle": "Cambiar de tema",
   "hotkeys.action.app.toggleSidebar": "Mostrar/ocultar barra lateral",
   "hotkeys.action.app.showShortcuts": "Mostrar hoja de atajos",
-  "hotkeys.action.app.escape": "Cerrar diálogo / cancelar",
+  "hotkeys.action.app.escape": "Cerrar diálogo/cancelar",
 
   // Hotkeys: calendar
   "hotkeys.action.calendar.goToToday": "Ir a hoy",
@@ -195,7 +196,7 @@ export const es = {
 
   // Hotkeys: journal
   "hotkeys.action.journal.newEntry": "Nueva entrada en el día seleccionado",
-  "hotkeys.action.journal.search": "Foco en buscador",
+  "hotkeys.action.journal.search": "Ir al buscador",
   "hotkeys.action.journal.toggleFavorite": "Marcar/desmarcar favorita",
   "hotkeys.action.journal.prevEntry": "Entrada anterior",
   "hotkeys.action.journal.nextEntry": "Entrada siguiente",
@@ -223,7 +224,7 @@ export const es = {
   "hotkeys.action.editor.exitToTitle": "Salir del editor al título",
 
   // Hotkeys: todo
-  "hotkeys.action.todo.quickAdd": "Foco en captura rápida",
+  "hotkeys.action.todo.quickAdd": "Ir a la captura rápida",
   "hotkeys.action.todo.newTask": "Nueva tarea",
   "hotkeys.action.todo.newList": "Nueva lista",
   "hotkeys.action.todo.viewToday": "Vista Hoy",
@@ -232,17 +233,17 @@ export const es = {
   "hotkeys.action.todo.viewAll": "Vista Todas",
   "hotkeys.action.todo.focusPrev": "Mover foco arriba",
   "hotkeys.action.todo.focusNext": "Mover foco abajo",
-  "hotkeys.action.todo.toggleDone": "Completar / reabrir",
+  "hotkeys.action.todo.toggleDone": "Completar/reabrir",
   "hotkeys.action.todo.openDetail": "Abrir detalle",
   "hotkeys.action.todo.delete": "Eliminar",
-  "hotkeys.action.todo.moveUp": "Reordenar arriba",
-  "hotkeys.action.todo.moveDown": "Reordenar abajo",
+  "hotkeys.action.todo.moveUp": "Mover hacia arriba",
+  "hotkeys.action.todo.moveDown": "Mover hacia abajo",
   "hotkeys.action.todo.priorityHigh": "Prioridad alta",
   "hotkeys.action.todo.priorityMedium": "Prioridad media",
   "hotkeys.action.todo.priorityLow": "Prioridad baja",
   "hotkeys.action.todo.priorityNone": "Sin prioridad",
-  "hotkeys.action.todo.dueToday": "Fecha hoy",
-  "hotkeys.action.todo.dueTomorrow": "Fecha mañana",
+  "hotkeys.action.todo.dueToday": "Vence hoy",
+  "hotkeys.action.todo.dueTomorrow": "Vence mañana",
   "hotkeys.action.todo.dueClear": "Quitar fecha",
   "hotkeys.action.todo.closeDetail": "Cerrar detalle",
 
@@ -260,7 +261,6 @@ export const es = {
   "todo.lists.label": "Listas",
   "todo.lists.new": "Lista",
   "todo.lists.archived": "Archivadas ({count})",
-  "todo.lists.openCount": "{count} abiertas",
 
   // To-do: quick capture
   "todo.quickAdd.label": "Nueva tarea",
@@ -308,7 +308,6 @@ export const es = {
   "todo.row.confirmDelete": "¿Eliminar «{title}»?",
   "todo.action.delete": "Eliminar",
   "todo.action.cancel": "Cancelar",
-  "todo.action.save": "Guardar",
 
   // To-do: lists
   "todo.list.menu": "Opciones de la lista",
@@ -387,8 +386,6 @@ export const es = {
   "journal.list.noFilterResults": "Ninguna entrada coincide con estos filtros",
   "journal.list.untitled": "Entrada sin texto",
   "journal.list.favorite": "Favorita",
-  "journal.newEntry": "Nueva entrada",
-  "journal.goToToday": "Hoy",
   "journal.entry.loading": "Abriendo tu entrada…",
   "journal.entry.titleLabel": "Título de la entrada",
   "journal.entry.titlePlaceholder": "Título (opcional)",
@@ -474,10 +471,9 @@ export const es = {
   "settings.common.cancel": "Cancelar",
 
   // Settings: appearance
-  "settings.appearance.theme": "Theme",
+  "settings.appearance.theme": "Tema",
   "settings.appearance.themeHint": "Se aplica al instante en toda la app.",
-  "settings.appearance.systemHint": "Sigue el modo claro u oscuro de Windows",
-  "settings.appearance.active": "Activo",
+  "settings.appearance.systemHint": "Sigue el modo claro u oscuro de Windows.",
   "settings.appearance.fontSize": "Tamaño del texto",
   "settings.appearance.fontSize.small": "Pequeño",
   "settings.appearance.fontSize.medium": "Mediano",
@@ -572,7 +568,7 @@ export const es = {
   "settings.data.wipeError": "No pude borrar los datos.",
 
   // Settings: shortcuts
-  "settings.shortcuts.search": "Buscar por acción o combinación (p. ej. ctrl+n)",
+  "settings.shortcuts.search": "Buscar por acción o combinación (p. ej. Ctrl+N)",
   "settings.shortcuts.col.action": "Acción",
   "settings.shortcuts.col.binding": "Combinación",
   "settings.shortcuts.col.status": "Estado",
@@ -621,11 +617,11 @@ export const es = {
   // Onboarding
   "onboarding.label": "Bienvenida a Estheros",
   "onboarding.step": "Paso {current} de {total}",
-  "onboarding.name.title": "Te damos la bienvenida a Estheros ♡",
+  "onboarding.name.title": "Te doy la bienvenida a Estheros ♡",
   "onboarding.name.label": "¿Cómo quieres que te llame?",
   "onboarding.name.placeholder": "Tu nombre",
   "onboarding.name.hint": "Lo uso para saludarte. Puedes cambiarlo en Ajustes.",
-  "onboarding.theme.title": "Elige tu theme",
+  "onboarding.theme.title": "Elige tu tema",
   "onboarding.theme.hint": "Puedes cambiarlo cuando quieras en Ajustes o con {shortcut}.",
   "onboarding.done.title": "Listo ♡",
   "onboarding.done.titleNamed": "Listo, {name} ♡",
@@ -634,7 +630,7 @@ export const es = {
   "onboarding.tour.calendar": "Lo que viene y lo que ya pasó",
   "onboarding.tour.journal": "Escribe cómo te fue",
   "onboarding.tour.todo": "Tus pendientes, con listas y prioridades",
-  "onboarding.tour.settings": "Themes, atajos y copias de seguridad",
+  "onboarding.tour.settings": "Temas, atajos y copias de seguridad",
   "onboarding.next": "Siguiente",
   "onboarding.back": "Atrás",
   "onboarding.skip": "Saltar",
