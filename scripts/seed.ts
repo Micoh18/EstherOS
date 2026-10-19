@@ -9,7 +9,7 @@
  *   node scripts/seed.ts --db <path/to/estheros.db> --clean
  *
  * Run it with the app closed, on a database the app already created (migrations applied).
- * It refuses the real data folder (`com.estheros.desktop`) unless `--allow-real-db` is given.
+ * It always refuses the real data folders (`com.estheros.desktop`, and the older `com.estheros.app`).
  */
 import { existsSync } from "node:fs";
 import { parseArgs } from "node:util";
@@ -24,7 +24,6 @@ const { values } = parseArgs({
     events: { type: "string", default: "240" },
     entries: { type: "string", default: "150" },
     clean: { type: "boolean", default: false },
-    "allow-real-db": { type: "boolean", default: false },
   },
 });
 
@@ -33,9 +32,9 @@ if (!dbPath || !existsSync(dbPath)) {
   console.error("Usage: node scripts/seed.ts --db <existing estheros.db> [--clean]");
   process.exit(1);
 }
-if (/com\.estheros\.desktop/i.test(dbPath) && !values["allow-real-db"]) {
+if (/com\.estheros\.(desktop|app)[\\/]/i.test(dbPath)) {
   console.error(
-    "Refusing to seed the real database (com.estheros.desktop). Use a test identifier.",
+    "Refusing to seed the real database. Use a test identifier (com.estheros.<x>test).",
   );
   process.exit(1);
 }
