@@ -3,8 +3,8 @@ import { motion } from "framer-motion";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useFormattedBinding } from "@/shared/hotkeys";
 import { t } from "@/shared/i18n";
+import { IconButton, Tooltip } from "@/shared/ui";
 import { NAV_ITEMS, type NavItem } from "../navigation";
-import { IconButton } from "./_tmp/IconButton";
 import { useSidebarStore } from "./sidebarStore";
 
 const indicatorTransition = { type: "spring", stiffness: 420, damping: 36 } as const;
@@ -58,19 +58,17 @@ export function Sidebar() {
         <SidebarLink key={item.path} item={item} collapsed={collapsed} />
       ))}
       <div className="flex-1" />
-      <IconButton
-        aria-label={toggleLabel}
-        aria-expanded={!collapsed}
-        title={toggleBinding ? `${toggleLabel} · ${toggleBinding}` : toggleLabel}
-        onClick={toggle}
-        className="ml-1"
-      >
-        {collapsed ? (
-          <PanelLeftOpen size={16} strokeWidth={1.75} />
-        ) : (
-          <PanelLeftClose size={16} strokeWidth={1.75} />
-        )}
-      </IconButton>
+      <Tooltip content={toggleLabel} shortcut={toggleBinding || undefined} side="right">
+        <IconButton
+          label={toggleLabel}
+          size="sm"
+          aria-expanded={!collapsed}
+          onClick={toggle}
+          className="ml-1"
+        >
+          {collapsed ? <PanelLeftOpen strokeWidth={1.75} /> : <PanelLeftClose strokeWidth={1.75} />}
+        </IconButton>
+      </Tooltip>
     </nav>
   );
 }

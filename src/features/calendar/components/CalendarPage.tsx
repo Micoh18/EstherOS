@@ -1,14 +1,20 @@
 import { useEffect, useRef } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { useEscapeClose, useHotkey, useScope } from "@/shared/hotkeys";
 import { t } from "@/shared/i18n";
-import { parseDateISO, todayISO, type DateISO } from "@/shared/lib/dates";
-import { cn, ToastProvider } from "@/shared/ui";
+import { isValidDateISO, parseDateISO, todayISO, type DateISO } from "@/shared/lib/dates";
+import { cn } from "@/shared/ui";
 import { formatPeriodTitle } from "../format";
 import { buildMonthGrid, loadRange, periodKey, visibleRange, weekDays } from "../grid";
-import { useCalendarSettings, useDayIndicators, useEventsByDay, useNow } from "../hooks";
-import { journalPath } from "../routes";
+import {
+  useCalendarSettings,
+  useDayIndicators,
+  useEventsByDay,
+  useNow,
+  useTasksByDay,
+} from "../hooks";
+import { CALENDAR_NEW_PARAM, journalPath } from "../routes";
 import { useCalendarStore } from "../store";
 import { CalendarDnd } from "./CalendarDnd";
 import { CalendarHeader } from "./CalendarHeader";
@@ -26,19 +32,28 @@ const createOn = (day: DateISO) =>
 const clearSelection = () => useCalendarStore.getState().selectDate(null);
 const ease = [0.33, 0.9, 0.35, 1] as const;
 
-/** Calendar screen (route `/calendar`). */
-export function CalendarPage() {
-  // TODO(A2): drop this provider once <ToastProvider> is mounted in src/app/providers.tsx.
-  return (
-    <ToastProvider>
-      <CalendarScreen />
-    </ToastProvider>
-  );
+/** Focuses and selects `day`; with `create`, also opens the new event dialog on it. */
+function openDay(day: DateISO, create: boolean) {
+  const store = useCalendarStore.getState();
+  useCalendarStore.setState({ focusedDate: day, selectedDate: day, direction: 0 });
+  if (create) store.openCreate({ date: day, allDay: true });
 }
 
-function CalendarScreen() {
+/**
+ * Calendar screen (route `/calendar`). Other screens link to a day with `?date=YYYY-MM-DD`
+ * (plus `&new=1` to start a new event there).
+ */
+export function CalendarPage() {
   useScope("calendar");
   const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
+  useEffect(() => {
+    const day = params.get("date");
+    if (day === null) return;
+    setParams({}, { replace: true });
+    if (isValidDateISO(day)) openDay(day, params.has(CALENDAR_NEW_PARAM));
+  }, [params, setParams]);
+
   const settings = useCalendarSettings();
   const store = useCalendarStore();
   const { view, focusedDate, selectedDate, panelOpen, direction } = store;
@@ -58,6 +73,7 @@ function CalendarScreen() {
   const { from: loadFrom, to: loadTo } = loadRange(view, focused, weekStartsOn);
   const { byDay: eventsByDay, ...events } = useEventsByDay(loadFrom, loadTo);
   const indicators = useDayIndicators(visible.from, visible.to);
+  const tasksByDay = useTasksByDay(visible.from, visible.to);
 
   const newEventInSelection = () => createOn(selectedDate ?? today);
 
@@ -133,6 +149,7 @@ function CalendarScreen() {
                   <TimeGrid
                     days={isDay ? [focused] : weekDays(focused, weekStartsOn)}
                     eventsByDay={eventsByDay}
+                    tasksByDay={tasksByDay}
                     selectedDate={selectedDate}
                     today={today}
                     now={now}

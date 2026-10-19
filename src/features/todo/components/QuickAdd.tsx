@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { Plus } from "lucide-react";
-import { useFormattedBinding } from "@/shared/hotkeys";
+import { useFormattedBinding, type ActionId } from "@/shared/hotkeys";
 import { t } from "@/shared/i18n";
 import { log } from "@/shared/lib/log";
 import type { DateISO } from "@/shared/lib/dates";
@@ -18,6 +18,8 @@ export interface QuickAddProps {
   /** Each change of this number focuses the input (used by the `/` and Ctrl+N shortcuts). */
   focusSignal?: number;
   placeholder?: string;
+  /** Shortcut shown as a hint inside the input (the one that focuses it on that screen). */
+  shortcutAction?: ActionId;
   className?: string;
   onCreated?: (task: Task) => void;
 }
@@ -28,6 +30,7 @@ export function QuickAdd({
   defaultDue = null,
   focusSignal,
   placeholder = t("todo.quickAdd.placeholder"),
+  shortcutAction = "todo.quickAdd",
   className,
   onCreated,
 }: QuickAddProps) {
@@ -35,7 +38,7 @@ export function QuickAdd({
   const [value, setValue] = useState("");
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const shortcut = useFormattedBinding("todo.quickAdd");
+  const shortcut = useFormattedBinding(shortcutAction);
 
   const firstSignal = useRef(focusSignal);
   useEffect(() => {

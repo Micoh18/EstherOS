@@ -2,8 +2,9 @@ import { Heart, Moon, Sun } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { formatBinding, useFormattedBinding, usePendingChord } from "@/shared/hotkeys";
 import { t } from "@/shared/i18n";
+import { Bow } from "@/shared/icons";
+import { IconButton, Tooltip } from "@/shared/ui";
 import { useTheme, type ResolvedTheme } from "../theme";
-import { IconButton } from "./_tmp/IconButton";
 import { WindowControls } from "./WindowControls";
 
 const THEME_ICONS: Record<ResolvedTheme, typeof Heart> = { pink: Heart, white: Sun, dark: Moon };
@@ -47,19 +48,15 @@ export function TitleBar() {
         <span data-tauri-drag-region className="font-display text-base font-semibold text-text">
           {t("app.name")}
         </span>
-        {/* TODO(A1): render the decorative Bow from @/shared/icons here. */}
-        <span data-tauri-drag-region data-slot="bow" className="inline-block size-4 text-accent" />
+        <Bow data-tauri-drag-region size={16} className="text-accent" />
       </div>
       <div data-tauri-drag-region className="h-full flex-1" />
       <ChordIndicator />
-      <IconButton
-        aria-label={themeLabel}
-        title={cycleBinding ? `${themeLabel} · ${cycleBinding}` : themeLabel}
-        onClick={cycleTheme}
-        className="mr-2"
-      >
-        <ThemeIcon size={16} strokeWidth={1.75} />
-      </IconButton>
+      <Tooltip content={themeLabel} shortcut={cycleBinding || undefined}>
+        <IconButton label={themeLabel} size="sm" onClick={cycleTheme} className="mr-2">
+          <ThemeIcon strokeWidth={1.75} />
+        </IconButton>
+      </Tooltip>
       <WindowControls />
     </header>
   );

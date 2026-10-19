@@ -1,7 +1,9 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import type { Editor } from "@tiptap/react";
+import { MemoryRouter } from "react-router";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { todayISO } from "@/shared/lib/dates";
+import { ToastProvider } from "@/shared/ui";
 import { useMemoryDb, type MemoryDb } from "./memoryDb";
 import { JournalPage } from "../components/JournalPage";
 import { createEntry, datesWithEntriesInMonth } from "../repository";
@@ -13,6 +15,16 @@ const rows = () =>
     title: string | null;
     content_json: string;
   }[];
+
+function renderPage(path = "/journal") {
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <ToastProvider>
+        <JournalPage />
+      </ToastProvider>
+    </MemoryRouter>,
+  );
+}
 
 const editorElement = () =>
   screen.findByRole("textbox", { name: "Texto de la entrada" }, { timeout: 5000 });
@@ -55,7 +67,7 @@ beforeEach(() => {
 
 describe("JournalPage", () => {
   it("opens today's blank entry ready to write without creating rows", async () => {
-    render(<JournalPage />);
+    renderPage();
     const editor = await editorElement();
     expect(editor).toBeInTheDocument();
     expect(screen.getByText("Este mes aún está en blanco ✨")).toBeInTheDocument();
@@ -64,7 +76,7 @@ describe("JournalPage", () => {
   });
 
   it("saves once the user writes and keeps the formatting when reopened", async () => {
-    const view = render(<JournalPage />);
+    const view = renderPage();
     const element = await editorElement();
     act(() => {
       editorOf(element).commands.setContent(FORMATTED, { emitUpdate: true });
@@ -75,7 +87,7 @@ describe("JournalPage", () => {
     });
     view.unmount();
 
-    render(<JournalPage />);
+    renderPage();
     const reopened = await editorElement();
     await waitFor(() => expect(within(reopened).getByText("bonito").tagName).toBe("STRONG"));
     expect(within(reopened).getByText("Título").tagName).toBe("H2");
@@ -85,7 +97,7 @@ describe("JournalPage", () => {
 
   it("deletes an entry after the inline confirmation and updates list and calendar dots", async () => {
     await createEntry({ date: todayISO(), contentText: "Un día tranquilo", mood: "good" });
-    render(<JournalPage />);
+    renderPage();
     await screen.findByDisplayValue("", { exact: true }, { timeout: 5000 });
     await screen.findByRole("button", { name: /Un día tranquilo/ });
 
@@ -98,6 +110,13 @@ describe("JournalPage", () => {
     expect(await datesWithEntriesInMonth(todayISO().slice(0, 7))).toEqual([]);
   });
 
+  it("opens the day of a ?date= link", async () => {
+    await createEntry({ date: "2026-09-14", contentText: "Paseo por el río" });
+    renderPage("/journal?date=2026-09-14");
+    const editor = await editorElement();
+    await waitFor(() => expect(within(editor).getByText("Paseo por el río")).toBeInTheDocument());
+  });
+
   it("filters favorites and highlights search matches", async () => {
     await createEntry({
       date: "2026-08-03",
@@ -106,7 +125,7 @@ describe("JournalPage", () => {
     });
     await createEntry({ date: "2026-09-14", contentText: "Otro atardecer en la playa" });
     await createEntry({ date: "2026-10-01", contentText: "Nada que ver" });
-    render(<JournalPage />);
+    renderPage();
     await editorElement();
 
     fireEvent.change(screen.getByRole("searchbox"), { target: { value: "atardecer" } });

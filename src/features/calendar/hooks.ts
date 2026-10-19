@@ -12,9 +12,13 @@ import {
 import { log } from "@/shared/lib/log";
 import { t } from "@/shared/i18n";
 import { useToast } from "@/shared/ui";
-import { datesWithEntriesInMonth, listEntriesForDate, type JournalEntry } from "@/features/journal";
+import {
+  datesWithEntriesInMonth,
+  useJournalEntriesForDate,
+  type JournalEntry,
+} from "@/features/journal";
 import { getAllSettings, SETTING_DEFAULTS } from "@/features/settings";
-import { listTasks, listTasksForDate, type Task } from "@/features/todo";
+import { listTasks, useTasksForDate, useTasksInRange, type Task } from "@/features/todo";
 import { toWeekStartsOn, type CalendarView } from "./grid";
 import { groupByDay } from "./layout";
 import type { EventOccurrence } from "./model";
@@ -171,17 +175,29 @@ export interface DaySummary {
 }
 
 /** Tasks due and journal entries of one day, for the side panel. */
-export function useDaySummary(date: DateISO | null) {
+export function useDaySummary(date: DateISO | null): QueryState<DaySummary> {
   const day = date ?? todayISO();
-  // TODO(A7): use useTasksForDate / useJournalEntriesForDate from the feature indexes.
-  return useDbQuery<DaySummary>(
-    ["task", "todo_list", "journal_entry"],
-    `summary:${day}`,
-    async () => {
-      const [tasks, journal] = await Promise.all([listTasksForDate(day), listEntriesForDate(day)]);
-      return { tasks, journal };
-    },
+  const tasks = useTasksForDate(day);
+  const journal = useJournalEntriesForDate(day);
+  return useMemo(
+    () => ({ data: { tasks, journal: journal.data }, loading: journal.loading, error: null }),
+    [tasks, journal.data, journal.loading],
   );
+}
+
+/** Tasks due per day of `[from, to]` for the week and day grids (timed and date-only). */
+export function useTasksByDay(from: DateISO, to: DateISO): Map<DateISO, Task[]> {
+  const tasks = useTasksInRange(from, to);
+  return useMemo(() => {
+    const byDay = new Map<DateISO, Task[]>();
+    for (const task of tasks) {
+      if (!task.dueDate) continue;
+      const list = byDay.get(task.dueDate);
+      if (list) list.push(task);
+      else byDay.set(task.dueDate, [task]);
+    }
+    return byDay;
+  }, [tasks]);
 }
 
 // Actions -------------------------------------------------------------------------------------

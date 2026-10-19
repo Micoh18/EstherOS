@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { HotkeysProvider } from "@/shared/hotkeys";
+import { ToastProvider } from "@/shared/ui";
 import {
   ThemeContext,
   getDarkQuery,
@@ -10,7 +11,6 @@ import {
   type ResolvedTheme,
   type Theme,
 } from "./theme";
-import "./layout/_tmp/tmp-tokens.css";
 import "./theme-transition.css";
 
 const FADE_CLASS = "theme-transition";
@@ -76,7 +76,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider>
-      <HotkeysProvider>{children}</HotkeysProvider>
+      <HotkeysProvider>
+        <ToastProvider>{children}</ToastProvider>
+      </HotkeysProvider>
     </ThemeProvider>
   );
 }

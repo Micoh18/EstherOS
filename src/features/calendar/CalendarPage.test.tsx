@@ -2,11 +2,12 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import Database from "better-sqlite3";
-import { MemoryRouter } from "react-router";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createEntry } from "@/features/journal";
-import { createTask } from "@/features/todo";
+import { createTask, toggleDone } from "@/features/todo";
 import { setDbExecutor, type SqlValue } from "@/shared/db";
+import { ToastProvider } from "@/shared/ui";
 import { CalendarPage } from "./components/CalendarPage";
 import { createEvent, listEventsInRange, listEventTags } from "./repository";
 import { useCalendarStore } from "./store";
@@ -37,10 +38,20 @@ function useMemoryDb() {
   });
 }
 
-function renderCalendar() {
+function LocationProbe() {
+  const location = useLocation();
+  return <p data-testid="location">{location.pathname + location.search}</p>;
+}
+
+function renderCalendar(path = "/calendar") {
   return render(
-    <MemoryRouter>
-      <CalendarPage />
+    <MemoryRouter initialEntries={[path]}>
+      <ToastProvider>
+        <Routes>
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="*" element={<LocationProbe />} />
+        </Routes>
+      </ToastProvider>
     </MemoryRouter>,
   );
 }
@@ -196,5 +207,55 @@ describe("CalendarPage", () => {
     await waitFor(async () =>
       expect(await listEventsInRange("2026-10-01", "2026-12-31")).toHaveLength(0),
     );
+  });
+
+  it("updates the month cell counter when a task is completed elsewhere", async () => {
+    const task = await createTask({ title: "A", dueDate: "2026-10-22" });
+    await createTask({ title: "B", dueDate: "2026-10-22" });
+    renderCalendar();
+
+    const grid = await screen.findByRole("grid");
+    const cell = within(grid).getByRole("gridcell", { name: /jueves 22 de octubre/i });
+    await within(cell).findByTitle("2 tareas vencen");
+    await act(async () => {
+      await toggleDone(task.id);
+    });
+    expect(await within(cell).findByTitle("1 tarea vence")).toHaveTextContent("1");
+  });
+
+  it("draws tasks in the week view and opens them in the to-do screen", async () => {
+    const timed = await createTask({
+      title: "Llamar a mamá",
+      dueDate: "2026-10-16",
+      dueTime: "18:00",
+    });
+    await createTask({ title: "Regar", dueDate: "2026-10-17" });
+    renderCalendar();
+    act(() => useCalendarStore.getState().setView("week"));
+
+    const block = await screen.findByRole("button", { name: "Tarea: Llamar a mamá · 18:00" });
+    expect(block).toHaveAttribute("data-task-block", timed.id);
+    expect(screen.getByRole("button", { name: "Tarea: Regar" })).toBeInTheDocument();
+
+    fireEvent.click(block);
+    expect(await screen.findByTestId("location")).toHaveTextContent(`/todo?task=${timed.id}`);
+  });
+
+  it("links from the day panel to the journal and the tasks of that day", async () => {
+    renderCalendar();
+    const panel = await screen.findByRole("complementary", { name: /detalle del día/i });
+    fireEvent.click(within(panel).getByRole("button", { name: "Abrir diario" }));
+    expect(await screen.findByTestId("location")).toHaveTextContent("/journal?date=2026-10-18");
+  });
+
+  it("opens the day of a ?date= link and starts a new event with &new=1", async () => {
+    renderCalendar("/calendar?date=2026-11-03&new=1");
+    const dialog = await screen.findByRole("dialog");
+    expect(dialog).toBeInTheDocument();
+    expect(useCalendarStore.getState()).toMatchObject({
+      focusedDate: "2026-11-03",
+      selectedDate: "2026-11-03",
+    });
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Noviembre 2026");
   });
 });

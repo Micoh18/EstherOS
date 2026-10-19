@@ -1,12 +1,14 @@
 import { useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
+import { useSearchParams } from "react-router";
 import { useHotkey, useScope, type ActionId } from "@/shared/hotkeys";
 import { log } from "@/shared/lib/log";
 import { useLists, useToday } from "../hooks";
 import { INBOX_LIST_ID, type TaskPriority } from "../model";
-import { setDue, setPriority, updateTask } from "../repository";
+import { getTask, setDue, setPriority, updateTask } from "../repository";
+import { readTodoLink, viewForDate, type TodoLink } from "../routes";
 import { useTodoStore } from "../store";
-import { addDaysISO } from "@/shared/lib/dates";
+import { addDaysISO, type DateISO } from "@/shared/lib/dates";
 import { defaultDueFor, type SmartView } from "../views";
 import { NewListDialog } from "./NewListDialog";
 import { QuickAdd } from "./QuickAdd";
@@ -53,6 +55,19 @@ function PriorityHotkey({
   return null;
 }
 
+/** Applies a link from another screen: open a task, a smart view or the view of a day. */
+async function openTodoLink(link: TodoLink, today: DateISO): Promise<void> {
+  const store = useTodoStore.getState();
+  if (link.kind === "view") return store.selectView(link.view);
+  if (link.kind === "date") return store.selectView(viewForDate(link.date, today));
+  const task = await getTask(link.taskId);
+  if (!task) return;
+  // A list shows every top-level task, whatever its date; subtasks open inside their parent.
+  const parent = task.parentId ? await getTask(task.parentId) : null;
+  store.selectList((parent ?? task).listId);
+  store.openDetail(task.id);
+}
+
 /** Screen "Tareas": inner sidebar, the active list or view, and the detail panel. */
 export function TodoPage() {
   useScope("todo");
@@ -60,6 +75,14 @@ export function TodoPage() {
   useScope("todo.row", focusedTaskId !== null);
 
   const today = useToday();
+  const [params, setParams] = useSearchParams();
+  useEffect(() => {
+    const link = readTodoLink(params);
+    if (!link) return;
+    setParams({}, { replace: true });
+    openTodoLink(link, today).catch((error: unknown) => log.error("todo: open link", error));
+  }, [params, setParams, today]);
+
   const { data: lists, loading: listsLoading } = useLists(true);
   const selection = useTodoStore((state) => state.selection);
   const selectedTaskId = useTodoStore((state) => state.selectedTaskId);
