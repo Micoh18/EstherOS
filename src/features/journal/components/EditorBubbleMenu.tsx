@@ -3,10 +3,10 @@ import { useEditorState, type Editor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
 import { formatBinding, type ActionId } from "@/shared/hotkeys";
 import { t, type I18nKey } from "@/shared/i18n";
-import { Check } from "@/shared/icons";
 import { Tooltip, cn } from "@/shared/ui";
 import {
   Bold,
+  Check,
   Heading2,
   Heading3,
   Italic,
@@ -18,7 +18,7 @@ import {
   Strikethrough,
   Underline,
   Unlink,
-} from "./icons";
+} from "@/shared/icons";
 
 interface FormatButton {
   id: string;

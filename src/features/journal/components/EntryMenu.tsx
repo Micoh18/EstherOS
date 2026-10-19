@@ -1,9 +1,8 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { formatBinding } from "@/shared/hotkeys";
 import { t } from "@/shared/i18n";
-import { Plus } from "@/shared/icons";
 import { IconButton, Kbd, cn } from "@/shared/ui";
-import { Copy, Ellipsis } from "./icons";
+import { Copy, Ellipsis, Plus } from "@/shared/icons";
 
 const itemClass = cn(
   "flex h-[34px] cursor-pointer items-center gap-2 rounded-sm px-3 text-sm text-text outline-none select-none",

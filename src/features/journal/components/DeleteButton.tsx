@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { t } from "@/shared/i18n";
 import { Button, IconButton, Tooltip } from "@/shared/ui";
-import { Trash } from "./icons";
+import { Trash } from "@/shared/icons";
 
 export const DELETE_CONFIRM_MS = 4000;
 

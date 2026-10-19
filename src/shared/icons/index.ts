@@ -26,4 +26,28 @@ export {
   Sun,
   X,
 } from "lucide-react";
+
+// Journal editor toolbar, entry menu and mood faces.
+export {
+  Bold,
+  Copy,
+  Ellipsis,
+  FaceExpressionless,
+  FaceGrinning,
+  FaceNeutral,
+  FaceSlightlyFrowning,
+  FaceSlightlySmiling,
+  Heading2,
+  Heading3,
+  Italic,
+  Link,
+  List,
+  ListOrdered,
+  ListTodo,
+  Quote,
+  Strikethrough,
+  Trash,
+  Underline,
+  Unlink,
+} from "lucide-react";
 export type { LucideIcon, LucideProps } from "lucide-react";

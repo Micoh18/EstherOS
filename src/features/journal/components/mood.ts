@@ -6,7 +6,7 @@ import {
   FaceNeutral,
   FaceSlightlyFrowning,
   FaceSlightlySmiling,
-} from "./icons";
+} from "@/shared/icons";
 
 export const MOOD_ICONS = {
   great: FaceGrinning,
