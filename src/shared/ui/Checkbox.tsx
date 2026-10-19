@@ -68,7 +68,8 @@ export function Checkbox({
         "group relative inline-flex shrink-0 items-center justify-center rounded-full border-2",
         "transition-[background-color,border-color,box-shadow] duration-(--dur-fast) ease-(--ease-soft)",
         // Larger invisible hit area (32px minimum target).
-        "before:absolute before:-inset-1.5 before:rounded-full before:content-['']",
+        "before:absolute before:rounded-full before:content-['']",
+        size === "md" ? "before:-inset-1.5" : "before:-inset-[7px]",
         "disabled:cursor-not-allowed disabled:opacity-50",
         isChecked
           ? "border-accent bg-accent text-on-accent"

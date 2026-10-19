@@ -24,7 +24,7 @@
   --shadow-sm: 0 1px 2px var(--shadow-color-weak);
   --shadow-md: 0 6px 20px -6px var(--shadow-color);
   --shadow-lg: 0 18px 40px -12px var(--shadow-color);
-  --shadow-glow: 0 0 0 4px var(--accent-soft);
+  --shadow-glow: 0 0 0 2px var(--accent), 0 0 0 5px var(--accent-soft);
 
   /* Motion */
   --dur-fast: 140ms;

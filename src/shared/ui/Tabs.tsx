@@ -83,7 +83,10 @@ export function TabsTrigger({
         "relative isolate inline-flex items-center justify-center gap-1.5 rounded-full font-semibold whitespace-nowrap",
         "text-text-muted transition-colors duration-(--dur-fast) hover:text-text data-[state=active]:text-text",
         "disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4",
-        size === "md" ? "h-[32px] px-4 text-sm" : "h-[26px] px-3 text-xs",
+        size === "md"
+          ? "h-[32px] px-4 text-sm"
+          : // Small tabs keep their look but get a 32px tall invisible hit area.
+            "h-[26px] px-3 text-xs before:absolute before:inset-x-0 before:-inset-y-[3px] before:content-['']",
         focusRing,
         className,
       )}

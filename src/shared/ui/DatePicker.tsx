@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { format, startOfDay } from "date-fns";
 import { es } from "date-fns/locale";
 import { CalendarDays } from "lucide-react";
@@ -45,6 +45,7 @@ export function DatePicker({
   ...props
 }: DatePickerProps) {
   const [open, setOpen] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const pick = (date: Date | null) => {
     onChange(date ? startOfDay(date) : null);
@@ -69,7 +70,18 @@ export function DatePicker({
           {value ? format(value, displayFormat, { locale: es }) : placeholder}
         </span>
       </PopoverPrimitive.Trigger>
-      <PopoverContent className="p-3">
+      <PopoverContent
+        ref={contentRef}
+        aria-label={uiStrings.pickDate}
+        // Start on the selected day (or today), not on the "previous month" button.
+        onOpenAutoFocus={(event) => {
+          const day = contentRef.current?.querySelector<HTMLElement>('[data-focus-target="true"]');
+          if (!day) return;
+          event.preventDefault();
+          day.focus();
+        }}
+        className="p-3"
+      >
         <MonthGrid
           selected={value}
           onSelect={pick}

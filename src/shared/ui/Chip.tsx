@@ -43,7 +43,14 @@ export function Chip({
         type="button"
         onClick={onClick}
         aria-pressed={selected ?? false}
-        className={cn(classes, "cursor-pointer hover:brightness-[0.97]", focusRing)}
+        className={cn(
+          classes,
+          "relative cursor-pointer hover:brightness-[0.97]",
+          // Invisible hit area so the clickable chip reaches 32px in height.
+          "before:absolute before:inset-x-0 before:content-['']",
+          size === "sm" ? "before:-inset-y-[5px]" : "before:-inset-y-[2px]",
+          focusRing,
+        )}
       >
         {content}
       </button>
@@ -59,7 +66,9 @@ export function Chip({
           aria-label={removeLabel}
           onClick={onRemove}
           className={cn(
-            "-mr-1 inline-flex size-4 items-center justify-center rounded-full text-text-muted hover:bg-surface hover:text-text",
+            "relative -mr-1 inline-flex size-4 items-center justify-center rounded-full text-text-muted hover:bg-surface hover:text-text",
+            // 32px invisible hit area around the 16px glyph.
+            "before:absolute before:-inset-[8px] before:content-['']",
             focusRing,
           )}
         >

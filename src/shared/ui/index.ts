@@ -50,3 +50,4 @@ export { MonthGrid, type MonthGridProps } from "./MonthGrid";
 export { DatePicker, type DatePickerProps } from "./DatePicker";
 export { TimePicker, type TimePickerProps } from "./TimePicker";
 export { useReducedMotionPref, useSystemReducedMotion } from "./motion";
+export { onRadioGroupKeyDown, radioTabIndex } from "./radioGroup";

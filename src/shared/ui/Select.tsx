@@ -87,7 +87,8 @@ export function Select({
                 disabled={option.disabled}
                 className={cn(
                   "relative flex h-[34px] cursor-pointer items-center gap-2 rounded-sm pr-8 pl-3 text-base outline-none select-none",
-                  "data-[highlighted]:bg-surface-hover data-[state=checked]:font-semibold",
+                  "data-[highlighted]:bg-surface-hover data-[highlighted]:shadow-[inset_0_0_0_2px_var(--accent)]",
+                  "data-[state=checked]:font-semibold",
                   "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
                   "[&_svg]:size-4 [&_svg]:shrink-0",
                 )}

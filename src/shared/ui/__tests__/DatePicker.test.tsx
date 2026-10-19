@@ -27,6 +27,13 @@ describe("DatePicker", () => {
     expect(screen.queryByText("Noviembre 2026")).not.toBeInTheDocument();
   });
 
+  it("opens as a named dialog with the selected day focused", () => {
+    render(<DatePicker value={new Date(2026, 9, 18)} onChange={vi.fn()} aria-label="Fecha" />);
+    fireEvent.click(screen.getByRole("button", { name: "Fecha" }));
+    expect(screen.getByRole("dialog", { name: "Elegir fecha" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /18 de octubre de 2026/ })).toHaveFocus();
+  });
+
   it("clears the value", () => {
     const onChange = vi.fn();
     render(<DatePicker value={new Date(2026, 9, 18)} onChange={onChange} aria-label="Fecha" />);
@@ -41,10 +48,8 @@ describe("MonthGrid", () => {
     render(<MonthGrid selected={new Date(2026, 9, 18)} today={new Date(2026, 9, 18)} />);
     const headers = screen.getAllByRole("columnheader");
     expect(headers[0]).toHaveTextContent("Lu");
-    expect(screen.getByRole("button", { name: /18 de octubre de 2026/ })).toHaveAttribute(
-      "aria-selected",
-      "true",
-    );
+    const day = screen.getByRole("button", { name: /18 de octubre de 2026/ });
+    expect(day.closest('[role="gridcell"]')).toHaveAttribute("aria-selected", "true");
   });
 
   it("moves focus with the arrow keys across months", () => {

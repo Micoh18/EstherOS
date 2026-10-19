@@ -83,7 +83,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <ToastPrimitive.Close
               aria-label={uiStrings.dismiss}
               className={cn(
-                "absolute top-3 right-3 inline-flex size-[28px] items-center justify-center rounded-full",
+                "absolute top-3 right-3 inline-flex size-[32px] items-center justify-center rounded-full",
                 "text-text-muted hover:bg-surface-hover hover:text-text [&_svg]:size-4",
                 focusRing,
               )}

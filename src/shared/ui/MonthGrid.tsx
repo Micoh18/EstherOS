@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import {
   addDays,
   addMonths,
@@ -67,6 +67,7 @@ export function MonthGrid({
   // Set by keyboard navigation; the effect below moves DOM focus after the re-render.
   const pendingFocus = useRef(false);
   const gridRef = useRef<HTMLDivElement>(null);
+  const captionId = useId();
 
   const days = buildDays(visibleMonth, weekStartsOn);
   const weekdays = days.slice(0, 7);
@@ -119,7 +120,7 @@ export function MonthGrid({
   return (
     <div className={cn("flex w-[280px] flex-col gap-2", className)}>
       <div className="flex items-center justify-between pl-2">
-        <p className="font-display text-md font-semibold" aria-live="polite">
+        <p id={captionId} className="font-display text-md font-semibold" aria-live="polite">
           {capitalize(format(visibleMonth, "LLLL yyyy", { locale: es }))}
         </p>
         <div className="flex items-center">
@@ -140,7 +141,13 @@ export function MonthGrid({
         </div>
       </div>
 
-      <div ref={gridRef} role="grid" onKeyDown={handleKeyDown} className="flex flex-col gap-0.5">
+      <div
+        ref={gridRef}
+        role="grid"
+        aria-labelledby={captionId}
+        onKeyDown={handleKeyDown}
+        className="flex flex-col gap-0.5"
+      >
         <div role="row" className="grid grid-cols-7">
           {weekdays.map((day) => (
             <span
@@ -162,13 +169,18 @@ export function MonthGrid({
               const isTarget = isSameDay(day, focusTarget);
               const disabled = isDisabled(day);
               return (
-                <div key={day.toISOString()} role="gridcell" className="flex justify-center">
+                <div
+                  key={day.toISOString()}
+                  role="gridcell"
+                  aria-selected={isSelected}
+                  aria-disabled={disabled || undefined}
+                  className="flex justify-center"
+                >
                   <button
                     type="button"
                     tabIndex={isTarget ? 0 : -1}
                     data-focus-target={isTarget}
                     disabled={disabled}
-                    aria-selected={isSelected}
                     aria-current={isToday ? "date" : undefined}
                     aria-label={format(day, "EEEE d 'de' MMMM 'de' yyyy", { locale: es })}
                     onClick={() => {
