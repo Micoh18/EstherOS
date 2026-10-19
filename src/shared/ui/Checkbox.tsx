@@ -1,8 +1,9 @@
 import { useState, type ComponentProps } from "react";
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Heart, Sparkle } from "@/shared/icons";
 import { cn, focusRing } from "./cn";
+import { useReducedMotionPref } from "./motion";
 
 type ParticleShape = "heart" | "sparkle";
 
@@ -45,7 +46,7 @@ export function Checkbox({
 }: CheckboxProps) {
   const [uncontrolled, setUncontrolled] = useState(defaultChecked);
   const [burst, setBurst] = useState<{ id: number; shape: ParticleShape } | null>(null);
-  const reduceMotion = useReducedMotion() ?? false;
+  const reduceMotion = useReducedMotionPref();
   const isChecked = checked ?? uncontrolled;
   const box = size === "md" ? 24 : 18;
 

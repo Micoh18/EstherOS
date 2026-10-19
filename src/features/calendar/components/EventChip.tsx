@@ -42,7 +42,7 @@ export function EventChip({
         data-past-log={occurrence.isPastLog || undefined}
         className={cn(
           "flex w-full items-start gap-3 rounded-md border px-3 py-2 text-left text-sm text-text",
-          "transition-[box-shadow,transform] duration-(--dur-fast) ease-(--ease-soft)",
+          "transition-[box-shadow] duration-(--dur-fast) ease-(--ease-soft)",
           "outline-none hover:shadow-(--shadow-sm) focus-visible:shadow-(--shadow-glow)",
           colors.fill,
           occurrence.isPastLog ? cn("border-dashed", colors.edge) : "border-transparent",

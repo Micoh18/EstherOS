@@ -14,6 +14,7 @@ import {
   DialogFooter,
   DialogTitle,
   Input,
+  useReducedMotionPref,
 } from "@/shared/ui";
 
 const TOUR: readonly { icon: LucideIcon; label: I18nKey; text: I18nKey }[] = [
@@ -25,6 +26,7 @@ const TOUR: readonly { icon: LucideIcon; label: I18nKey; text: I18nKey }[] = [
 ];
 
 const STEPS = 3;
+const EASE_SOFT = [0.33, 0.9, 0.35, 1] as const;
 
 export interface OnboardingDialogProps {
   initialName?: string;
@@ -36,6 +38,7 @@ export interface OnboardingDialogProps {
 export function OnboardingDialog({ initialName = "", onFinish }: OnboardingDialogProps) {
   const [step, setStep] = useState(0);
   const [name, setName] = useState(initialName);
+  const shift = useReducedMotionPref() ? 0 : 12;
   const { theme, setTheme } = useTheme();
   useScope("dialog");
 
@@ -88,10 +91,10 @@ export function OnboardingDialog({ initialName = "", onFinish }: OnboardingDialo
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={step}
-            initial={{ opacity: 0, x: 12 }}
+            initial={{ opacity: 0, x: shift }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -12 }}
-            transition={{ duration: 0.18 }}
+            exit={{ opacity: 0, x: -shift }}
+            transition={{ duration: 0.18, ease: EASE_SOFT }}
             className="mt-4"
           >
             {step === 0 ? (

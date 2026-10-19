@@ -6,7 +6,7 @@ import { focusRing } from "./cn";
 export const buttonVariants = cva(
   [
     "inline-flex shrink-0 items-center justify-center gap-2 rounded-full font-semibold whitespace-nowrap select-none",
-    "transition-[background-color,color,box-shadow,transform] duration-(--dur-fast) ease-(--ease-soft)",
+    "transition-[background-color,color,box-shadow,scale] duration-(--dur-fast) ease-(--ease-soft)",
     "active:scale-[0.97] motion-reduce:active:scale-100",
     "disabled:pointer-events-none disabled:opacity-50",
     "[&_svg]:size-4 [&_svg]:shrink-0",
@@ -33,7 +33,7 @@ export const buttonVariants = cva(
 export const iconButtonVariants = cva(
   [
     "inline-flex shrink-0 items-center justify-center rounded-full",
-    "transition-[background-color,color,box-shadow,transform] duration-(--dur-fast) ease-(--ease-soft)",
+    "transition-[background-color,color,box-shadow,scale] duration-(--dur-fast) ease-(--ease-soft)",
     "active:scale-[0.94] motion-reduce:active:scale-100",
     "disabled:pointer-events-none disabled:opacity-50",
     focusRing,
@@ -62,7 +62,7 @@ export const cardVariants = cva("rounded-lg border border-border text-text shado
     variant: {
       default: "",
       interactive: [
-        "cursor-pointer transition-[box-shadow,transform,background-color] duration-(--dur-fast) ease-(--ease-soft)",
+        "cursor-pointer transition-[box-shadow,translate,background-color] duration-(--dur-fast) ease-(--ease-soft)",
         "hover:-translate-y-px hover:shadow-(--shadow-md) motion-reduce:hover:translate-y-0",
         "outline-none focus-visible:shadow-(--shadow-glow)",
       ],

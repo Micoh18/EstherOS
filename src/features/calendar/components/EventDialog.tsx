@@ -312,7 +312,7 @@ function EventForm({ eventId, draft, weekStartsOn, timeFormat, onClose }: EventF
               onClick={() => update({ color })}
               className={cn(
                 "size-[28px] rounded-full border-2 border-surface outline-none",
-                "transition-transform duration-(--dur-fast) ease-(--ease-spring) hover:scale-110",
+                "transition-[scale] duration-(--dur-fast) ease-(--ease-soft) hover:scale-110 motion-reduce:hover:scale-100",
                 "focus-visible:shadow-(--shadow-glow)",
                 SWATCH_CLASSES[color],
                 form.color === color && "shadow-[0_0_0_2px_var(--text)]",

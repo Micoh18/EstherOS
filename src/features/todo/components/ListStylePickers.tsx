@@ -6,7 +6,7 @@ import { LIST_ICONS, LIST_ICON_KEYS, PALETTE_BG_CLASS, type ListIconKey } from "
 
 const option = cn(
   "inline-flex size-[32px] items-center justify-center rounded-full outline-none",
-  "transition-[box-shadow,transform] duration-(--dur-fast) ease-(--ease-soft)",
+  "transition-[box-shadow,scale] duration-(--dur-fast) ease-(--ease-soft)",
   "hover:scale-105 focus-visible:shadow-(--shadow-glow) motion-reduce:hover:scale-100",
 );
 const selectedRing = "shadow-[0_0_0_2px_var(--bg),0_0_0_4px_var(--accent)]";

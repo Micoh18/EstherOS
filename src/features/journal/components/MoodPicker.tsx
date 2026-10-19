@@ -32,7 +32,7 @@ export function MoodPicker({ value, onChange }: MoodPickerProps) {
               onClick={() => onChange(selected ? null : mood)}
               className={cn(
                 "inline-flex size-[32px] items-center justify-center rounded-full outline-none",
-                "transition-[background-color,color,transform] duration-(--dur-fast) ease-(--ease-soft)",
+                "transition-[background-color,color,scale] duration-(--dur-fast) ease-(--ease-soft)",
                 "focus-visible:shadow-(--shadow-glow) active:scale-[0.94] motion-reduce:active:scale-100",
                 "[&_svg]:size-[20px]",
                 selected

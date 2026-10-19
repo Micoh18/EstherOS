@@ -1,7 +1,8 @@
 /*
  * Enter/exit animations for the design system components. Radix sets data-state on the
  * animated parts and waits for animationend before unmounting, so CSS keyframes are enough.
- * With prefers-reduced-motion only the fades remain.
+ * With prefers-reduced-motion, or the app's "Reducir animaciones" (`html.reduce-motion`), only
+ * the fades remain.
  */
 @keyframes ui-fade-in {
   from {
@@ -67,7 +68,7 @@
 }
 
 .ui-overlay[data-state="open"] {
-  animation: ui-fade-in var(--dur-base) var(--ease-soft);
+  animation: ui-fade-in 200ms var(--ease-soft);
 }
 .ui-overlay[data-state="closed"] {
   animation: ui-fade-out var(--dur-fast) var(--ease-soft) forwards;
@@ -116,6 +117,7 @@
   animation: ui-shimmer 1.6s ease-in-out infinite;
 }
 
+/* Reduced motion: same rules for the system setting and the app toggle. */
 @media (prefers-reduced-motion: reduce) {
   .ui-pop[data-state="open"],
   .ui-pop[data-state="delayed-open"],
@@ -123,7 +125,7 @@
   .ui-sheet-right[data-state="open"],
   .ui-sheet-left[data-state="open"],
   .ui-toast[data-state="open"] {
-    animation: ui-fade-in var(--dur-base) linear;
+    animation: ui-fade-in 200ms linear;
   }
   .ui-pop[data-state="closed"],
   .ui-sheet-right[data-state="closed"],
@@ -132,7 +134,32 @@
   .ui-toast[data-swipe="end"] {
     animation: ui-fade-out var(--dur-fast) linear forwards;
   }
+  .ui-toast[data-swipe="cancel"] {
+    transition: none;
+  }
   .ui-skeleton {
     animation: none;
   }
+}
+
+html.reduce-motion .ui-pop[data-state="open"],
+html.reduce-motion .ui-pop[data-state="delayed-open"],
+html.reduce-motion .ui-pop[data-state="instant-open"],
+html.reduce-motion .ui-sheet-right[data-state="open"],
+html.reduce-motion .ui-sheet-left[data-state="open"],
+html.reduce-motion .ui-toast[data-state="open"] {
+  animation: ui-fade-in 200ms linear;
+}
+html.reduce-motion .ui-pop[data-state="closed"],
+html.reduce-motion .ui-sheet-right[data-state="closed"],
+html.reduce-motion .ui-sheet-left[data-state="closed"],
+html.reduce-motion .ui-toast[data-state="closed"],
+html.reduce-motion .ui-toast[data-swipe="end"] {
+  animation: ui-fade-out var(--dur-fast) linear forwards;
+}
+html.reduce-motion .ui-toast[data-swipe="cancel"] {
+  transition: none;
+}
+html.reduce-motion .ui-skeleton {
+  animation: none;
 }

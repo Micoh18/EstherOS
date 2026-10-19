@@ -7,6 +7,19 @@
 @import "../shared/ui/ui.css";
 
 /*
+ * `motion-reduce:` follows the system setting and also the app's "Reducir animaciones"
+ * (class `reduce-motion` on <html>).
+ */
+@custom-variant motion-reduce {
+  @media (prefers-reduced-motion: reduce) {
+    @slot;
+  }
+  &:where(.reduce-motion, .reduce-motion *) {
+    @slot;
+  }
+}
+
+/*
  * Tailwind theme mapping to the Estheros design tokens (design system spec).
  * Only the mapping lives here. Token values are defined in src/shared/theme/tokens.css
  * and src/shared/theme/themes/<name>.css.

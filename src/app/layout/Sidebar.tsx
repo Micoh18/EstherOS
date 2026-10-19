@@ -50,7 +50,7 @@ export function Sidebar() {
   return (
     <nav
       aria-label={t("shell.sidebar.label")}
-      className={`flex shrink-0 flex-col gap-1 border-r border-border bg-bg-elevated p-3 transition-[width] duration-(--dur-base) ease-(--ease-soft) ${
+      className={`flex shrink-0 flex-col gap-1 border-r border-border bg-bg-elevated p-3 transition-[width] duration-(--dur-base) ease-(--ease-soft) motion-reduce:transition-none ${
         collapsed ? "w-16" : "w-56"
       }`}
     >

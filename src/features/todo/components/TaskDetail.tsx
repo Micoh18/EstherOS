@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Trash, X } from "lucide-react";
 import { ensureTag } from "@/shared/db";
 import { useFormattedBinding, useHotkey, useScope } from "@/shared/hotkeys";
@@ -18,6 +18,7 @@ import {
   TimePicker,
   Tooltip,
   cn,
+  useReducedMotionPref,
 } from "@/shared/ui";
 import {
   toggleTaskDone,
@@ -79,7 +80,7 @@ function report(action: string) {
 export function TaskDetail({ taskId, lists }: { taskId: string; lists: TodoList[] }) {
   useScope("todo.detail");
   const { data: task, loading } = useTask(taskId);
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReducedMotionPref();
 
   const close = () => {
     const state = useTodoStore.getState();

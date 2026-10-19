@@ -1,7 +1,8 @@
 import { createContext, useContext, useId, useState, type ComponentProps } from "react";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { cn, focusRing } from "./cn";
+import { useReducedMotionPref } from "./motion";
 
 type TabsSize = "sm" | "md";
 
@@ -72,7 +73,7 @@ export function TabsTrigger({
   ...props
 }: ComponentProps<typeof TabsPrimitive.Trigger>) {
   const { value: active, indicatorId, size } = useTabsContext();
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReducedMotionPref();
   const isActive = active === value;
 
   return (

@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router";
 import { useEscapeClose, useHotkey, useScope } from "@/shared/hotkeys";
 import { t } from "@/shared/i18n";
 import { isValidDateISO, parseDateISO, todayISO, type DateISO } from "@/shared/lib/dates";
-import { cn } from "@/shared/ui";
+import { cn, useReducedMotionPref } from "@/shared/ui";
 import { formatPeriodTitle } from "../format";
 import { buildMonthGrid, loadRange, periodKey, visibleRange, weekDays } from "../grid";
 import {
@@ -60,7 +60,7 @@ export function CalendarPage() {
   const settings = useCalendarSettings();
   const store = useCalendarStore();
   const { view, focusedDate, selectedDate, panelOpen, direction } = store;
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReducedMotionPref();
   const now = useNow();
   const today = todayISO(now);
   const rootRef = useRef<HTMLDivElement>(null);

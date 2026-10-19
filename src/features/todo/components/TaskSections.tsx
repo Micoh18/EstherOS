@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import {
   DndContext,
@@ -16,7 +16,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { t } from "@/shared/i18n";
-import { Button, cn } from "@/shared/ui";
+import { Button, cn, useReducedMotionPref } from "@/shared/ui";
 import type { Task, TodoList } from "../model";
 import type { TaskMeta } from "../hooks";
 import { useTodoStore } from "../store";
@@ -31,7 +31,7 @@ export interface RowContext {
 }
 
 function AnimatedRow({ children }: { children: ReactNode }) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReducedMotionPref();
   return (
     <motion.li
       // Clip only while the height animates, so dragged rows are never cut.

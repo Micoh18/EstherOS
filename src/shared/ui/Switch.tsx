@@ -25,7 +25,7 @@ const trackVariants = cva(
 const thumbVariants = cva(
   [
     "block rounded-full bg-surface shadow-(--shadow-md)",
-    "transition-transform duration-(--dur-base) ease-(--ease-spring) motion-reduce:transition-none",
+    "transition-[translate] duration-(--dur-base) ease-(--ease-soft) motion-reduce:transition-none",
   ],
   {
     variants: {
