@@ -4,7 +4,7 @@ import { Check, ChevronDown } from "lucide-react";
 import { cn } from "./cn";
 import { fieldVariants } from "./variants";
 import { floatingSurfaceClass } from "./Popover";
-import { uiStrings } from "./strings";
+import { t } from "@/shared/i18n";
 
 export interface SelectOption {
   /** Non-empty string (Radix reserves "" for clearing). */
@@ -35,7 +35,7 @@ export function Select({
   value,
   defaultValue,
   onValueChange,
-  placeholder = uiStrings.selectPlaceholder,
+  placeholder = t("ui.selectPlaceholder"),
   size = "md",
   disabled,
   name,

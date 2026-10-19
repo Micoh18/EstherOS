@@ -3,7 +3,7 @@ import type { VariantProps } from "class-variance-authority";
 import { X } from "lucide-react";
 import { chipVariants } from "./variants";
 import { cn, focusRing } from "./cn";
-import { uiStrings } from "./strings";
+import { t } from "@/shared/i18n";
 
 export type ChipColor = NonNullable<VariantProps<typeof chipVariants>["color"]>;
 
@@ -24,7 +24,7 @@ export function Chip({
   icon,
   onClick,
   onRemove,
-  removeLabel = uiStrings.remove,
+  removeLabel = t("ui.remove"),
   className,
   children,
   ...props

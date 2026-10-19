@@ -8,7 +8,7 @@ import { cn } from "./cn";
 import { fieldVariants } from "./variants";
 import { MonthGrid } from "./MonthGrid";
 import { PopoverContent } from "./Popover";
-import { uiStrings } from "./strings";
+import { t } from "@/shared/i18n";
 
 export interface DatePickerProps {
   value: Date | null;
@@ -32,7 +32,7 @@ export interface DatePickerProps {
 export function DatePicker({
   value,
   onChange,
-  placeholder = uiStrings.pickDate,
+  placeholder = t("ui.pickDate"),
   displayFormat = "d MMM yyyy",
   weekStartsOn = 1,
   minDate,
@@ -72,7 +72,7 @@ export function DatePicker({
       </PopoverPrimitive.Trigger>
       <PopoverContent
         ref={contentRef}
-        aria-label={uiStrings.pickDate}
+        aria-label={t("ui.pickDate")}
         // Start on the selected day (or today), not on the "previous month" button.
         onOpenAutoFocus={(event) => {
           const day = contentRef.current?.querySelector<HTMLElement>('[data-focus-target="true"]');
@@ -91,11 +91,11 @@ export function DatePicker({
         />
         <div className="mt-2 flex justify-between border-t border-border pt-2">
           <Button variant="ghost" size="sm" onClick={() => pick(new Date())}>
-            {uiStrings.today}
+            {t("ui.today")}
           </Button>
           {clearable && value ? (
             <Button variant="ghost" size="sm" onClick={() => pick(null)}>
-              {uiStrings.clear}
+              {t("ui.clear")}
             </Button>
           ) : null}
         </div>

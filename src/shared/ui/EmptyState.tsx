@@ -1,7 +1,7 @@
 import type { ComponentProps, ReactNode } from "react";
 import { Sparkle } from "@/shared/icons";
 import { cn } from "./cn";
-import { uiStrings } from "./strings";
+import { t } from "@/shared/i18n";
 
 export interface EmptyStateProps extends Omit<ComponentProps<"div">, "title"> {
   /** Decorative illustration; defaults to a sparkle. */
@@ -15,7 +15,7 @@ export interface EmptyStateProps extends Omit<ComponentProps<"div">, "title"> {
 
 export function EmptyState({
   icon,
-  title = uiStrings.emptyTitle,
+  title = t("ui.emptyTitle"),
   description,
   action,
   size = "md",

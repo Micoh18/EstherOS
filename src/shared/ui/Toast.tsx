@@ -4,7 +4,7 @@ import { CircleAlert, CircleCheck, X } from "lucide-react";
 import { Sparkle } from "@/shared/icons";
 import { Button } from "./Button";
 import { cn, focusRing } from "./cn";
-import { uiStrings } from "./strings";
+import { t } from "@/shared/i18n";
 import { ToastContext, type ToastApi, type ToastOptions } from "./toastContext";
 
 interface ToastItem extends ToastOptions {
@@ -44,7 +44,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   return (
     <ToastContext.Provider value={api}>
-      <ToastPrimitive.Provider swipeDirection="right" label={uiStrings.notifications}>
+      <ToastPrimitive.Provider swipeDirection="right" label={t("ui.notifications")}>
         {children}
         {toasts.map((item) => (
           <ToastPrimitive.Root
@@ -81,7 +81,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               ) : null}
             </div>
             <ToastPrimitive.Close
-              aria-label={uiStrings.dismiss}
+              aria-label={t("ui.dismiss")}
               className={cn(
                 "absolute top-3 right-3 inline-flex size-[32px] items-center justify-center rounded-full",
                 "text-text-muted hover:bg-surface-hover hover:text-text [&_svg]:size-4",

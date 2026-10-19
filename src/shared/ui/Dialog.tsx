@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { X } from "lucide-react";
 import { cn } from "./cn";
 import { IconButton } from "./IconButton";
-import { uiStrings } from "./strings";
+import { t } from "@/shared/i18n";
 
 export const Dialog = DialogPrimitive.Root;
 export const DialogTrigger = DialogPrimitive.Trigger;
@@ -56,7 +56,7 @@ export function DialogContent({
         {children}
         {showClose ? (
           <DialogPrimitive.Close asChild>
-            <IconButton label={uiStrings.close} size="sm" className="absolute top-4 right-4">
+            <IconButton label={t("ui.close")} size="sm" className="absolute top-4 right-4">
               <X aria-hidden />
             </IconButton>
           </DialogPrimitive.Close>

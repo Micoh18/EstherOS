@@ -6,7 +6,7 @@ import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { cn, focusRing } from "./cn";
 import { fieldVariants } from "./variants";
 import { PopoverContent } from "./Popover";
-import { uiStrings } from "./strings";
+import { t } from "@/shared/i18n";
 
 export interface TimePickerProps {
   /** "HH:mm" (24 h) or null. */
@@ -37,7 +37,7 @@ export function TimePicker({
   onChange,
   step = 15,
   hourCycle = 24,
-  placeholder = uiStrings.pickTime,
+  placeholder = t("ui.pickTime"),
   size = "md",
   disabled,
   id,

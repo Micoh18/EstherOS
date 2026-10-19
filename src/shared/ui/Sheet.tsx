@@ -5,7 +5,7 @@ import { X } from "lucide-react";
 import { cn } from "./cn";
 import { overlayClass } from "./Dialog";
 import { IconButton } from "./IconButton";
-import { uiStrings } from "./strings";
+import { t } from "@/shared/i18n";
 
 /** Side panel built on the Dialog primitive. */
 export const Sheet = DialogPrimitive.Root;
@@ -49,7 +49,7 @@ export function SheetContent({
         {children}
         {showClose ? (
           <DialogPrimitive.Close asChild>
-            <IconButton label={uiStrings.close} size="sm" className="absolute top-4 right-4">
+            <IconButton label={t("ui.close")} size="sm" className="absolute top-4 right-4">
               <X aria-hidden />
             </IconButton>
           </DialogPrimitive.Close>

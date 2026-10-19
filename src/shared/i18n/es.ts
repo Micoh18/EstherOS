@@ -39,6 +39,20 @@ export const es = {
   // Shortcuts sheet placeholder
   "shell.shortcuts.title": "Atajos de teclado",
 
+  // Design system (shared/ui)
+  "ui.close": "Cerrar",
+  "ui.remove": "Quitar",
+  "ui.previousMonth": "Mes anterior",
+  "ui.nextMonth": "Mes siguiente",
+  "ui.today": "Hoy",
+  "ui.clear": "Quitar",
+  "ui.pickDate": "Elegir fecha",
+  "ui.pickTime": "Elegir hora",
+  "ui.selectPlaceholder": "Elegir…",
+  "ui.emptyTitle": "Nada por aquí todavía ♡",
+  "ui.notifications": "Notificaciones",
+  "ui.dismiss": "Descartar",
+
   // Data
   "db.backupFileType": "Copia de Estheros",
 

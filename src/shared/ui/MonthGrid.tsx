@@ -16,7 +16,7 @@ import { es } from "date-fns/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn, focusRing } from "./cn";
 import { IconButton } from "./IconButton";
-import { uiStrings } from "./strings";
+import { t } from "@/shared/i18n";
 
 export interface MonthGridProps {
   /** Visible month (controlled). Any date inside the month works. */
@@ -125,14 +125,14 @@ export function MonthGrid({
         </p>
         <div className="flex items-center">
           <IconButton
-            label={uiStrings.previousMonth}
+            label={t("ui.previousMonth")}
             size="sm"
             onClick={() => changeMonth(addMonths(visibleMonth, -1))}
           >
             <ChevronLeft aria-hidden />
           </IconButton>
           <IconButton
-            label={uiStrings.nextMonth}
+            label={t("ui.nextMonth")}
             size="sm"
             onClick={() => changeMonth(addMonths(visibleMonth, 1))}
           >
