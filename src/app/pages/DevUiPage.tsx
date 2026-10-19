@@ -1,7 +1,11 @@
 import { lazy, Suspense, type ComponentType } from "react";
 import { t } from "@/shared/i18n";
 
-type GalleryModule = { default?: ComponentType; UiGallery?: ComponentType };
+type GalleryModule = {
+  default?: ComponentType;
+  UiGallery?: ComponentType;
+  PerfBench?: ComponentType;
+};
 
 // Globs resolve to nothing when the files do not exist yet, so this builds before A1 lands.
 const galleryModules = import.meta.glob<GalleryModule>([
@@ -32,6 +36,23 @@ export function DevUiPage() {
   return (
     <Suspense fallback={null}>
       <Gallery />
+    </Suspense>
+  );
+}
+
+const Bench = lazy(async () => {
+  for (const load of Object.values(galleryModules)) {
+    const module = await load();
+    if ("PerfBench" in module && module.PerfBench) return { default: module.PerfBench };
+  }
+  return { default: Missing };
+});
+
+/** `/dev/perf`: performance bench of the polish pass (see src/dev/PerfBench.tsx). */
+export function DevPerfPage() {
+  return (
+    <Suspense fallback={null}>
+      <Bench />
     </Suspense>
   );
 }

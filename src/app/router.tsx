@@ -8,7 +8,7 @@ import { TodoPage } from "@/features/todo";
 import { RouteErrorScreen } from "./errors/ErrorBoundary";
 import { AppShell } from "./layout";
 import { HOME_PATH, NAV_ITEMS } from "./navigation";
-import { DevUiPage } from "./pages/DevUiPage";
+import { DevPerfPage, DevUiPage } from "./pages/DevUiPage";
 import { StartRedirect } from "./pages/StartRedirect";
 
 const PAGES: Record<string, ReactNode> = {
@@ -19,9 +19,16 @@ const PAGES: Record<string, ReactNode> = {
   "/settings": <SettingsPage />,
 };
 
-const devRoutes: RouteObject[] = import.meta.env.DEV
-  ? [{ path: "dev/ui", element: <DevUiPage /> }]
-  : [];
+/** `VITE_PERF=1` builds include the dev pages and open the performance bench at start. */
+const PERF_BUILD = import.meta.env.VITE_PERF === "1";
+
+const devRoutes: RouteObject[] =
+  import.meta.env.DEV || PERF_BUILD
+    ? [
+        { path: "dev/ui", element: <DevUiPage /> },
+        { path: "dev/perf", element: <DevPerfPage /> },
+      ]
+    : [];
 
 export const routes: RouteObject[] = [
   {
@@ -29,7 +36,10 @@ export const routes: RouteObject[] = [
     element: <AppShell />,
     errorElement: <RouteErrorScreen />,
     children: [
-      { index: true, element: <StartRedirect /> },
+      {
+        index: true,
+        element: PERF_BUILD ? <Navigate to="/dev/perf" replace /> : <StartRedirect />,
+      },
       ...NAV_ITEMS.map((item) => ({
         path: item.path.slice(1),
         element: PAGES[item.path],
