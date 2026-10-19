@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Pencil, Trash2 } from "lucide-react";
 import {
   COLOR_KEYS,
@@ -75,11 +75,16 @@ function ColorPicker({ tag }: { tag: Tag }) {
         <button
           type="button"
           aria-label={t("settings.tags.color", { name: tag.name })}
-          className={cn(
-            "size-[20px] shrink-0 rounded-full border border-border outline-none focus-visible:shadow-(--shadow-glow)",
-            tag.color ? SWATCH[tag.color] : "bg-bg-elevated",
-          )}
-        />
+          className="flex size-[32px] shrink-0 items-center justify-center rounded-full outline-none focus-visible:shadow-(--shadow-glow)"
+        >
+          <span
+            aria-hidden
+            className={cn(
+              "size-[20px] rounded-full border border-border",
+              tag.color ? SWATCH[tag.color] : "bg-bg-elevated",
+            )}
+          />
+        </button>
       </PopoverTrigger>
       <PopoverContent className="flex w-auto gap-2 p-2">
         {COLOR_KEYS.map((color) => (
@@ -90,7 +95,7 @@ function ColorPicker({ tag }: { tag: Tag }) {
             aria-pressed={tag.color === color}
             onClick={() => choose(color)}
             className={cn(
-              "flex size-[24px] items-center justify-center rounded-full text-text outline-none focus-visible:shadow-(--shadow-glow)",
+              "flex size-[32px] items-center justify-center rounded-full text-text outline-none focus-visible:shadow-(--shadow-glow)",
               SWATCH[color],
             )}
           >
@@ -102,7 +107,7 @@ function ColorPicker({ tag }: { tag: Tag }) {
           aria-label={t("settings.tags.noColor")}
           aria-pressed={tag.color === null}
           onClick={() => choose(null)}
-          className="flex size-[24px] items-center justify-center rounded-full border border-border bg-bg-elevated text-text-muted outline-none focus-visible:shadow-(--shadow-glow)"
+          className="flex size-[32px] items-center justify-center rounded-full border border-border bg-bg-elevated text-text-muted outline-none focus-visible:shadow-(--shadow-glow)"
         >
           {tag.color === null ? <Check size={14} strokeWidth={3} aria-hidden /> : null}
         </button>
@@ -114,18 +119,24 @@ function ColorPicker({ tag }: { tag: Tag }) {
 function NameEditor({ tag, onClose }: { tag: Tag; onClose: () => void }) {
   const [draft, setDraft] = useState(tag.name);
   const [error, setError] = useState<string | null>(null);
+  // Enter saves and the blur that follows would save again: one save at a time.
+  const saving = useRef(false);
 
   const save = async () => {
+    if (saving.current) return;
     const name = draft.trim();
     if (name === "" || name === tag.name) return onClose();
-    const existing = await findTagByName(name);
-    if (existing && existing.id !== tag.id) return setError(t("settings.tags.duplicate"));
+    saving.current = true;
     try {
+      const existing = await findTagByName(name);
+      if (existing && existing.id !== tag.id) return setError(t("settings.tags.duplicate"));
       await updateTag(tag.id, { name });
       onClose();
     } catch (cause) {
       log.warn("tag rename", cause);
       setError(t("settings.tags.saveError"));
+    } finally {
+      saving.current = false;
     }
   };
 
@@ -158,6 +169,12 @@ function NameEditor({ tag, onClose }: { tag: Tag; onClose: () => void }) {
 
 function TagItem({ tag }: { tag: TagRow }) {
   const [editing, setEditing] = useState(false);
+  const renameRef = useRef<HTMLButtonElement>(null);
+  const stopEditing = () => {
+    setEditing(false);
+    // The input goes away with the focus: give it back to the rename button.
+    requestAnimationFrame(() => renameRef.current?.focus());
+  };
   const [confirming, setConfirming] = useState(false);
 
   const confirmText =
@@ -172,7 +189,7 @@ function TagItem({ tag }: { tag: TagRow }) {
       <div className="flex items-center gap-3">
         <ColorPicker tag={tag} />
         {editing ? (
-          <NameEditor tag={tag} onClose={() => setEditing(false)} />
+          <NameEditor tag={tag} onClose={stopEditing} />
         ) : (
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <Chip color={tag.color ?? "neutral"} size="sm">
@@ -182,6 +199,7 @@ function TagItem({ tag }: { tag: TagRow }) {
           </div>
         )}
         <IconButton
+          ref={renameRef}
           size="sm"
           label={t("settings.tags.rename", { name: tag.name })}
           onClick={() => setEditing(true)}
