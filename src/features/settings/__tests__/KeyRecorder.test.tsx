@@ -111,6 +111,14 @@ describe("KeyRecorder", () => {
     expect(getEffectiveBinding("todo.viewAll")).toBe("G A");
   });
 
+  it("accepts a single Ctrl combination for a chord action", () => {
+    const { capture } = renderRecorder("todo.viewToday");
+    press(capture, "9", "Digit9", { ctrlKey: true });
+    expect(screen.queryByText(/luego…/)).not.toBeInTheDocument();
+    press(capture, "Enter", "Enter");
+    expect(getEffectiveBinding("todo.viewToday")).toBe("Ctrl+9");
+  });
+
   it("keeps app shortcuts from firing while recording", () => {
     const { capture } = renderRecorder("calendar.goToToday");
     const event = new KeyboardEvent("keydown", {

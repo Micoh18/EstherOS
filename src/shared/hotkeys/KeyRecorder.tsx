@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type FocusEvent, type KeyboardEvent } from
 import { Button, Kbd, cn } from "@/shared/ui";
 import { t } from "@/shared/i18n";
 import { getAction, type ActionId } from "./actions";
-import { eventToBinding, formatBindingString, isReserved } from "./binding";
+import { eventToBinding, formatBindingString, isReserved, parseBinding } from "./binding";
 import { findConflicts, getEffectiveBinding, setBinding } from "./registry";
 
 export interface KeyRecorderProps {
@@ -26,10 +26,20 @@ function allowedFor(id: ActionId, binding: string): boolean {
   return binding === action.defaultBinding || !isReserved(binding, action.scopes);
 }
 
+/**
+ * In a chord action, a key without Ctrl/Alt (`G`) opens a chord and waits for the second key;
+ * a combination like `Ctrl+1` is a complete shortcut on its own.
+ */
+function opensChord(id: ActionId, strokes: string[]): boolean {
+  if (!getAction(id).chord || strokes.length !== 1) return false;
+  const first = parseBinding(strokes[0])?.[0];
+  return first !== undefined && !first.ctrl && !first.alt;
+}
+
 function evaluate(id: ActionId, strokes: string[]): Evaluation {
   if (strokes.length === 0) return { kind: "empty" };
   // A lone `G` would "conflict" with every `G x` chord by prefix: wait for the second key.
-  if (getAction(id).chord && strokes.length === 1) return { kind: "pending", first: strokes[0] };
+  if (opensChord(id, strokes)) return { kind: "pending", first: strokes[0] };
   const binding = strokes.join(" ");
   if (!allowedFor(id, binding)) return { kind: "reserved", binding };
   const conflicts = findConflicts(id, binding);
@@ -90,9 +100,7 @@ export function KeyRecorder({ actionId, onDone, className }: KeyRecorderProps) {
     const stroke = eventToBinding(event.nativeEvent);
     if (!stroke) return;
     // Chord actions take a second key (`G` then `T`); a third press starts over.
-    setStrokes((current) =>
-      action.chord && current.length === 1 ? [...current, stroke] : [stroke],
-    );
+    setStrokes((current) => (opensChord(actionId, current) ? [...current, stroke] : [stroke]));
   };
 
   const onBlur = (event: FocusEvent<HTMLDivElement>) => {
