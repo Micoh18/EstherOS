@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import { createMemoryRouter, RouterProvider } from "react-router";
+import { createMemoryRouter, Outlet, RouterProvider } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { captureUnhandledErrors, recentErrors } from "@/shared/lib/log";
 import { ErrorBoundary, RouteErrorScreen } from "./ErrorBoundary";
@@ -61,6 +61,44 @@ describe("ErrorBoundary", () => {
     ]);
     render(<RouterProvider router={router} />);
     expect(screen.getByRole("heading", { name: "Algo salió mal ♡" })).toBeInTheDocument();
+  });
+});
+
+describe("error screen and the frameless window", () => {
+  it("the full-window screen brings its own window controls", () => {
+    render(
+      <ErrorBoundary>
+        <Broken />
+      </ErrorBoundary>,
+    );
+    expect(screen.getByRole("button", { name: "Cerrar" })).toBeInTheDocument();
+    expect(document.querySelector("[data-tauri-drag-region]")).not.toBeNull();
+  });
+
+  it("a crashed page keeps the shell around it", () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const router = createMemoryRouter([
+      {
+        path: "/",
+        element: (
+          <div>
+            <header>shell title bar</header>
+            <Outlet />
+          </div>
+        ),
+        errorElement: <RouteErrorScreen />,
+        children: [
+          {
+            errorElement: <RouteErrorScreen variant="page" />,
+            children: [{ index: true, element: <Broken /> }],
+          },
+        ],
+      },
+    ]);
+    render(<RouterProvider router={router} />);
+    expect(screen.getByRole("heading", { name: "Algo salió mal ♡" })).toBeInTheDocument();
+    expect(screen.getByText("shell title bar")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Cerrar" })).toBeNull();
   });
 });
 

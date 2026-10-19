@@ -37,15 +37,21 @@ export const routes: RouteObject[] = [
     errorElement: <RouteErrorScreen />,
     children: [
       {
-        index: true,
-        element: PERF_BUILD ? <Navigate to="/dev/perf" replace /> : <StartRedirect />,
+        // A page that crashes shows the error inside the shell, so the window stays usable.
+        errorElement: <RouteErrorScreen variant="page" />,
+        children: [
+          {
+            index: true,
+            element: PERF_BUILD ? <Navigate to="/dev/perf" replace /> : <StartRedirect />,
+          },
+          ...NAV_ITEMS.map((item) => ({
+            path: item.path.slice(1),
+            element: PAGES[item.path],
+          })),
+          ...devRoutes,
+          { path: "*", element: <Navigate to={HOME_PATH} replace /> },
+        ],
       },
-      ...NAV_ITEMS.map((item) => ({
-        path: item.path.slice(1),
-        element: PAGES[item.path],
-      })),
-      ...devRoutes,
-      { path: "*", element: <Navigate to={HOME_PATH} replace /> },
     ],
   },
 ];

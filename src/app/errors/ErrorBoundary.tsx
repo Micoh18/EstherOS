@@ -39,12 +39,22 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 }
 
+/** Errors already logged, so StrictMode's double effects do not log them twice. */
+const loggedRouteErrors = new WeakSet<object>();
+
 /**
- * `errorElement` of the root route: the data router catches errors thrown while rendering a
- * page before they reach `ErrorBoundary`, so it shows the same screen.
+ * `errorElement` of the routes: the data router catches errors thrown while rendering a page
+ * before they reach `ErrorBoundary`, so it shows the same screen. Pages use `variant="page"` so
+ * the title bar and sidebar stay; the root keeps the full-window screen for a broken shell.
  */
-export function RouteErrorScreen() {
+export function RouteErrorScreen({ variant }: { variant?: "window" | "page" }) {
   const error = useRouteError();
-  useEffect(() => log.error("route crashed", error), [error]);
-  return <ErrorScreen error={error} />;
+  useEffect(() => {
+    if (typeof error === "object" && error !== null) {
+      if (loggedRouteErrors.has(error)) return;
+      loggedRouteErrors.add(error);
+    }
+    log.error("route crashed", error);
+  }, [error]);
+  return <ErrorScreen error={error} variant={variant} />;
 }

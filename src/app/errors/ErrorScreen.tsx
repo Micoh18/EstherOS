@@ -3,6 +3,7 @@ import { Bow } from "@/shared/icons";
 import { t } from "@/shared/i18n";
 import { log } from "@/shared/lib/log";
 import { Button } from "@/shared/ui";
+import { WindowControls } from "../layout/WindowControls";
 import { errorDetail } from "./errorDetail";
 
 export interface ErrorScreenProps {
@@ -11,10 +12,20 @@ export interface ErrorScreenProps {
   componentStack?: string | null;
   /** Defaults to reloading the window, which restarts the frontend with a clean state. */
   onRestart?: () => void;
+  /**
+   * `window` (default) replaces the whole frameless window, so it brings its own drag strip and
+   * window controls. `page` fills the content area of a shell that is still alive.
+   */
+  variant?: "window" | "page";
 }
 
-/** Cozy full-window screen shown when the interface crashed. */
-export function ErrorScreen({ error, componentStack, onRestart }: ErrorScreenProps) {
+/** Cozy screen shown when the interface crashed. */
+export function ErrorScreen({
+  error,
+  componentStack,
+  onRestart,
+  variant = "window",
+}: ErrorScreenProps) {
   const [copyStatus, setCopyStatus] = useState<"copied" | "failed" | null>(null);
 
   const copy = async () => {
@@ -27,10 +38,10 @@ export function ErrorScreen({ error, componentStack, onRestart }: ErrorScreenPro
     }
   };
 
-  return (
+  const content = (
     <div
       role="alert"
-      className="flex h-full min-h-screen flex-col items-center justify-center gap-4 bg-bg px-6 text-center text-text"
+      className="flex h-full min-h-0 flex-1 flex-col items-center justify-center gap-4 bg-bg px-6 text-center text-text"
     >
       <span className="flex size-[64px] items-center justify-center rounded-full bg-accent-soft text-accent">
         <Bow size={34} />
@@ -52,6 +63,16 @@ export function ErrorScreen({ error, componentStack, onRestart }: ErrorScreenPro
             ? t("shell.error.copyFailed")
             : null}
       </p>
+    </div>
+  );
+
+  if (variant === "page") return content;
+  return (
+    <div className="flex h-screen flex-col overflow-hidden bg-bg">
+      <div data-tauri-drag-region className="flex h-10 shrink-0 justify-end">
+        <WindowControls />
+      </div>
+      {content}
     </div>
   );
 }
